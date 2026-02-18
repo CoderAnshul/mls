@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+/* Narin Font Family */
+@font-face {
+  font-family: 'Narin';
+  src: url('/fonts/subset-Narin-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  color: #252423;
+}
+
+@font-face {
+  font-family: 'Narin';
+  src: url('/fonts/subset-Narin-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  color: #252423;
+}
+
+@font-face {
+  font-family: 'Narin';
+  src: url('/fonts/subset-Narin-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  color: #252423;
+}
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+  
+  body {
+    @apply font-sans text-neutral-900 antialiased;
+    background-color: #F4F2EA;
+  }
+
+  html {
+    @apply scroll-smooth;
+    background-color: #F4F2EA;
+    overflow-x: hidden;
+  }
+}
+
+button{
+  cursor: pointer;
+}
+
+@layer components {
+  .w-full mx-auto px-2 sm:px-4 lg:px-8 {
+    @apply w-full mx-auto px-2 sm:px-4 lg:px-8;
+    /* @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; */
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-neutral-900 text-white font-medium uppercase tracking-wider text-sm hover:bg-neutral-800 transition-colors duration-300;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 border-2 border-neutral-900 text-neutral-900 font-medium uppercase tracking-wider text-sm hover:bg-neutral-900 hover:text-white transition-all duration-300;
+  }
+
+  .link-underline {
+    @apply relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-current after:transition-all after:duration-300 hover:after:w-full;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+
+
+@layer base {
+  h1, h2, h3, h4, h5, h6, p, a, button, input, textarea, select {
+    font-family: 'Narin', sans-serif;
+    font-weight: 500!important;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Narin', sans-serif;
+    font-weight: 500!important;
+    color:#252423!important;
+    letter-spacing: 0.04em!important;
+    
+  }
+  
+  h2 {
+    @apply !text-[18px] sm:!text-[21px] xl:!text-[25px] !font-[500];
+  }
+  h3 {
+    @apply !text-[18px] md:!text-[21px] !font-[500];
+  }
+  h4 {
+    @apply !text-[14px] md:!text-[18px] !font-[500];
+  }
+}
+
+
+@layer utilities {
+  .margin {
+    @apply my-16 mx-0;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Animation Utilities */
+  .animate-in {
+    animation-duration: 400ms;
+    animation-fill-mode: both;
+  }
+
+  .fade-in {
+    animation-name: fadeIn;
+  }
+
+  .slide-in-from-top {
+    animation-name: slideInFromTop;
+  }
+
+  .slide-in-from-right {
+    animation-name: slideInFromRight;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideInFromTop {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes slideInFromRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+}
+
