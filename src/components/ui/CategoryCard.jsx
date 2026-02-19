@@ -1,14 +1,15 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const CategoryCard = ({ title, image, href, className = '' }) => {
   return (
-    <a 
-      href={href} 
+    <Link
+      to={href}
       className={`group relative overflow-hidden block ${className}`}
     >
       <div className="aspect-[3/4] overflow-hidden bg-neutral-100">
-        <img 
-          src={image} 
+        <img
+          src={image}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -18,7 +19,7 @@ const CategoryCard = ({ title, image, href, className = '' }) => {
           {title}
         </h4>
       </div>
-    </a>
+    </Link>
   );
 };
 

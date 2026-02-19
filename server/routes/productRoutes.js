@@ -4,24 +4,27 @@ const Product = require('../models/Product');
 
 // Get all products (with optional filtering)
 router.get('/', async (req, res) => {
-  try {
-    const { category, isNew, limit } = req.query;
-    let query = {};
+    try {
+        const { category, isNew, limit } = req.query;
+        let query = {};
 
-    if (category && category !== 'ALL') {
-        query.category = { $regex: new RegExp(category, 'i') };
+        if (category && category.toUpperCase() !== 'ALL') {
+            // Normalize separators: treat hyphens, underscores, and spaces as interchangeable
+            // This ensures 'maxi-dresses' from URL matches 'MAXI DRESSES' in DB
+            const searchPattern = category.trim().replace(/[_\s-]/g, '[\\s_-]+');
+            query.category = { $regex: new RegExp(`^${searchPattern}$`, 'i') };
+        }
+        if (isNew) query.isNew = true;
+
+        let products = Product.find(query);
+
+        if (limit) products = products.limit(Number(limit));
+
+        const result = await products.sort({ createdAt: -1 }).exec();
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
-    if (isNew) query.isNew = true;
-
-    let products = Product.find(query);
-    
-    if (limit) products = products.limit(Number(limit));
-
-    const result = await products.sort({ createdAt: -1 }).exec();
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
 });
 
 // Get single product by ID or Slug
@@ -29,7 +32,7 @@ router.get('/:idOrSlug', async (req, res) => {
     try {
         const { idOrSlug } = req.params;
         let product;
-        
+
         // Try finding by ID first, then by slug
         if (idOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
             product = await Product.findById(idOrSlug).populate('wearWith');
@@ -46,18 +49,18 @@ router.get('/:idOrSlug', async (req, res) => {
 
 // Create product
 router.post('/', async (req, res) => {
-  const productData = { ...req.body };
-  if (!productData.slug && productData.title) {
-      productData.slug = productData.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-  }
-  
-  const product = new Product(productData);
-  try {
-    const newProduct = await product.save();
-    res.status(201).json(newProduct);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+    const productData = { ...req.body };
+    if (!productData.slug && productData.title) {
+        productData.slug = productData.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    }
+
+    const product = new Product(productData);
+    try {
+        const newProduct = await product.save();
+        res.status(201).json(newProduct);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
 });
 
 // Update a product
