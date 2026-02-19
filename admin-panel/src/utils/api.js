@@ -233,5 +233,34 @@ export const api = {
             });
             return res.json();
         }
+    },
+    // Lookbooks
+    lookbooks: {
+        getAll: async () => {
+            const res = await fetch(`${API_BASE_URL}/lookbooks`);
+            return res.json();
+        },
+        create: async (data) => {
+            const res = await fetch(`${API_BASE_URL}/lookbooks`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return res.json();
+        },
+        update: async (id, data) => {
+            const res = await fetch(`${API_BASE_URL}/lookbooks/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return res.json();
+        },
+        delete: async (id) => {
+            const res = await fetch(`${API_BASE_URL}/lookbooks/${id}`, {
+                method: 'DELETE'
+            });
+            return res.json();
+        }
     }
 };

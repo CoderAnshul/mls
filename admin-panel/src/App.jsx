@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  Package, 
-  ShoppingCart, 
-  Users, 
-  Settings, 
-  Plus, 
-  Search, 
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Users,
+  Settings,
+  Plus,
+  Search,
   Bell,
   BarChart3,
   Layers,
@@ -22,7 +22,8 @@ import {
   Palette,
   Sparkles,
   Layout,
-  ShoppingBag
+  ShoppingBag,
+  Camera
 } from 'lucide-react';
 import { ToastProvider } from './components/common/Toast';
 
@@ -36,6 +37,7 @@ const ShopHijabView = React.lazy(() => import('./components/views/ShopHijabView'
 const NotificationsView = React.lazy(() => import('./components/views/NotificationsView'));
 
 const RecommendationsView = React.lazy(() => import('./components/views/RecommendationsView'));
+const LookbookView = React.lazy(() => import('./components/views/LookbookView'));
 
 // Views
 import DashboardView from './components/views/DashboardView';
@@ -52,15 +54,15 @@ import AttributesView from './components/views/AttributesView';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [activeSubTab, setActiveSubTab] = useState('all'); 
+  const [activeSubTab, setActiveSubTab] = useState('all');
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [expandedTabs, setExpandedTabs] = useState(['catalog']);
 
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { 
-      id: 'catalog', 
-      icon: Package, 
+    {
+      id: 'catalog',
+      icon: Package,
       label: 'Products',
       subTabs: [
         { id: 'all', label: 'All Products' },
@@ -83,9 +85,9 @@ const App = () => {
     { id: 'banners', icon: Layout, label: 'Banners' },
     { id: 'categories', icon: Layers, label: 'Categories' },
     { id: 'shop-hijab', icon: ShoppingBag, label: 'Shop Hijab' },
-    { 
-      id: 'recommendations', 
-      icon: Sparkles, 
+    {
+      id: 'recommendations',
+      icon: Sparkles,
       label: 'Recommends',
       subTabs: [
         { id: 'cart', label: 'Cart Recommendation' },
@@ -93,6 +95,7 @@ const App = () => {
       ]
     },
     { id: 'notifications', icon: Bell, label: 'Notifications' },
+    { id: 'lookbook', icon: Camera, label: 'Lookbook' },
     { id: 'admins', icon: ShieldCheck, label: 'Admins' },
   ];
 
@@ -103,9 +106,9 @@ const App = () => {
         <aside className="w-56 border-r border-admin-border flex flex-col bg-[#0C0C0E] sticky top-0 h-screen overflow-y-auto scrollbar-hide">
           <div className="p-6">
             <div className="flex items-center gap-2">
-              <img 
-                src="/brand_logo.png" 
-                alt="MLS Logo" 
+              <img
+                src="/brand_logo.png"
+                alt="MLS Logo"
                 className="h-10 w-auto object-contain"
               />
             </div>
@@ -114,10 +117,10 @@ const App = () => {
           <nav className="flex-1 px-3 space-y-1">
             {navItems.map((item) => (
               <div key={item.id}>
-                 <button
+                <button
                   onClick={() => {
                     if (activeTab === item.id && item.subTabs) {
-                      setExpandedTabs(prev => 
+                      setExpandedTabs(prev =>
                         prev.includes(item.id) ? prev.filter(i => i !== item.id) : [...prev, item.id]
                       );
                     } else {
@@ -132,11 +135,10 @@ const App = () => {
                       }
                     }
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-300 group ${
-                    activeTab === item.id 
-                      ? 'bg-admin-accent/10 text-admin-accent' 
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-300 group ${activeTab === item.id
+                      ? 'bg-admin-accent/10 text-admin-accent'
                       : 'text-admin-muted hover:bg-admin-card hover:text-white'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <item.icon size={18} className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-110'}`} />
@@ -157,11 +159,10 @@ const App = () => {
                           if (sub.id === 'add') setIsAddingProduct(true);
                           else setIsAddingProduct(false);
                         }}
-                        className={`w-full text-left px-3 py-1.5 rounded-lg text-[13px] font-bold transition-all ${
-                          activeSubTab === sub.id && !isAddingProduct
-                            ? 'text-white' 
+                        className={`w-full text-left px-3 py-1.5 rounded-lg text-[13px] font-bold transition-all ${activeSubTab === sub.id && !isAddingProduct
+                            ? 'text-white'
                             : isAddingProduct && sub.id === 'add' ? 'text-white' : 'text-admin-muted hover:text-white'
-                        }`}
+                          }`}
                       >
                         {sub.label}
                       </button>
@@ -189,13 +190,13 @@ const App = () => {
           <header className="h-16 border-b border-admin-border flex items-center justify-between px-8 bg-admin-bg/40 backdrop-blur-xl sticky top-0 z-50">
             <div className="flex items-center gap-3 bg-admin-card/50 px-4 py-2 rounded-xl border border-admin-border w-96 shadow-inner">
               <Search size={14} className="text-admin-muted" />
-              <input 
-                type="text" 
-                placeholder="Search catalog, orders, users..." 
+              <input
+                type="text"
+                placeholder="Search catalog, orders, users..."
                 className="bg-transparent border-none outline-none text-[14px] w-full placeholder:text-admin-muted font-medium"
               />
             </div>
-            
+
             <div className="flex items-center gap-4">
               <button className="w-9 h-9 rounded-xl border border-admin-border flex items-center justify-center hover:bg-admin-card transition-all relative group">
                 <Bell size={15} className="text-admin-muted group-hover:text-white" />
@@ -212,37 +213,38 @@ const App = () => {
             <div key={activeTab} className="animate-in fade-in slide-in-from-bottom-2 duration-700">
               <React.Suspense fallback={<div className="p-10 text-center text-admin-muted font-black uppercase overflow-hidden">Initializing Matrix...</div>}>
                 {activeTab === 'dashboard' && <DashboardView />}
-                
-                {activeTab === 'catalog' && (
-                <>
-                  {isAddingProduct ? (
-                     <ProductForm onCancel={() => { setIsAddingProduct(false); setActiveSubTab('all'); }} />
-                  ) : (
-                    <>
-                      {(activeSubTab === 'all' || activeSubTab === 'inventory') && <InventoryView onEdit={() => { setActiveSubTab('add'); setIsAddingProduct(true); }} />}
-                      {activeSubTab === 'categories' && <CategoriesView />}
-                      {activeSubTab === 'attributes' && <AttributesView />}
-                    </>
-                  )}
-                </>
-              )}
 
-              {activeTab === 'orders' && <OrdersView />}
-              {activeTab === 'customers' && <CustomersView />}
-              {activeTab === 'payments' && <PaymentsView />}
-              {activeTab === 'shipping' && <ShippingView />}
-              {activeTab === 'discounts' && <DiscountsView />}
-              {activeTab === 'analytics' && <AnalyticsView />}
-              {activeTab === 'reviews' && <ReviewsView />}
-              {activeTab === 'journal' && <JournalView />}
-              {activeTab === 'faq' && <FAQView />}
-              {activeTab === 'navigation' && <NavigationView />}
-              {activeTab === 'banners' && <BannersView />}
-              {activeTab === 'categories' && <CategoriesView />}
-              {activeTab === 'shop-hijab' && <ShopHijabView />}
-              {activeTab === 'notifications' && <NotificationsView />}
-              {activeTab === 'recommendations' && <RecommendationsView type={activeSubTab} />}
-              {activeTab === 'admins' && <AdminsView />}
+                {activeTab === 'catalog' && (
+                  <>
+                    {isAddingProduct ? (
+                      <ProductForm onCancel={() => { setIsAddingProduct(false); setActiveSubTab('all'); }} />
+                    ) : (
+                      <>
+                        {(activeSubTab === 'all' || activeSubTab === 'inventory') && <InventoryView onEdit={() => { setActiveSubTab('add'); setIsAddingProduct(true); }} />}
+                        {activeSubTab === 'categories' && <CategoriesView />}
+                        {activeSubTab === 'attributes' && <AttributesView />}
+                      </>
+                    )}
+                  </>
+                )}
+
+                {activeTab === 'orders' && <OrdersView />}
+                {activeTab === 'customers' && <CustomersView />}
+                {activeTab === 'payments' && <PaymentsView />}
+                {activeTab === 'shipping' && <ShippingView />}
+                {activeTab === 'discounts' && <DiscountsView />}
+                {activeTab === 'analytics' && <AnalyticsView />}
+                {activeTab === 'reviews' && <ReviewsView />}
+                {activeTab === 'journal' && <JournalView />}
+                {activeTab === 'faq' && <FAQView />}
+                {activeTab === 'navigation' && <NavigationView />}
+                {activeTab === 'banners' && <BannersView />}
+                {activeTab === 'categories' && <CategoriesView />}
+                {activeTab === 'shop-hijab' && <ShopHijabView />}
+                {activeTab === 'notifications' && <NotificationsView />}
+                {activeTab === 'lookbook' && <LookbookView />}
+                {activeTab === 'recommendations' && <RecommendationsView type={activeSubTab} />}
+                {activeTab === 'admins' && <AdminsView />}
               </React.Suspense>
             </div>
           </div>

@@ -42,7 +42,7 @@ export const api = {
         toggleWishlist: async (productId) => {
             const res = await fetch(`${API_BASE_URL}/user/wishlist/toggle`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     ...getAuthHeader()
                 },
@@ -59,7 +59,7 @@ export const api = {
         syncCart: async (cart) => {
             const res = await fetch(`${API_BASE_URL}/user/cart`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     ...getAuthHeader()
                 },
@@ -70,8 +70,8 @@ export const api = {
     },
     navigation: {
         getAll: async () => {
-             const res = await fetch(`${API_BASE_URL}/navigation`);
-             return res.json();
+            const res = await fetch(`${API_BASE_URL}/navigation`);
+            return res.json();
         }
     },
     products: {
@@ -123,6 +123,12 @@ export const api = {
         getAll: async (type) => {
             const query = type ? `?type=${type}` : '';
             const res = await fetch(`${API_BASE_URL}/recommendations${query}`);
+            return res.json();
+        }
+    },
+    lookbooks: {
+        getAll: async () => {
+            const res = await fetch(`${API_BASE_URL}/lookbooks`);
             return res.json();
         }
     }
