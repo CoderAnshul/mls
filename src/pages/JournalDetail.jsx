@@ -118,9 +118,31 @@ const JournalDetail = () => {
       <JournalFooterImage />
 
       <div className="w-full max-w-[1200px] mx-auto px-4 py-16 flex justify-between items-center text-[10px] uppercase tracking-[0.2em] text-neutral-400 border-t border-neutral-200/50 mt-12 font-light">
-        <Link to="/journal" className="hover:text-black transition-colors">← Previous Post</Link>
-        <Link to="/journal" className="hover:text-black transition-colors">Back to Journal</Link>
-        <Link to="/journal" className="hover:text-black transition-colors">Next Post →</Link>
+        <div className="flex-1 text-left">
+          {journal.prev ? (
+            <Link to={`/journal/${journal.prev.slug}`} className="hover:text-black transition-colors group">
+              <span className="block text-neutral-300 mb-1">← Previous</span>
+              <span className="hidden md:inline-block group-hover:text-black line-clamp-1 max-w-[200px]">{journal.prev.title}</span>
+            </Link>
+          ) : (
+            <span className="opacity-0">No Prev</span>
+          )}
+        </div>
+
+        <div className="flex-none px-4">
+          <Link to="/journal" className="hover:text-black transition-colors">Back to Journal</Link>
+        </div>
+
+        <div className="flex-1 text-right">
+          {journal.next ? (
+            <Link to={`/journal/${journal.next.slug}`} className="hover:text-black transition-colors group">
+              <span className="block text-neutral-300 mb-1">Next →</span>
+              <span className="hidden md:inline-block group-hover:text-black line-clamp-1 max-w-[200px]">{journal.next.title}</span>
+            </Link>
+          ) : (
+            <span className="opacity-0">No Next</span>
+          )}
+        </div>
       </div>
     </div>
   );

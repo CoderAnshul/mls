@@ -17,7 +17,21 @@ router.get('/:slug', async (req, res) => {
   try {
     const journal = await Journal.findOne({ slug: req.params.slug });
     if (!journal) return res.status(404).json({ message: 'Journal not found' });
-    res.json(journal);
+
+    // Find adjacent posts for navigation
+    const prev = await Journal.findOne({ date: { $lt: journal.date } })
+      .sort({ date: -1 })
+      .select('slug title');
+
+    const next = await Journal.findOne({ date: { $gt: journal.date } })
+      .sort({ date: 1 })
+      .select('slug title');
+
+    res.json({
+      ...journal.toObject(),
+      prev,
+      next
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
