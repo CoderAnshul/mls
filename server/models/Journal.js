@@ -1,5 +1,19 @@
 const mongoose = require('mongoose');
 
+const editorContentSchema = new mongoose.Schema(
+  {
+    time: { type: Number },
+    blocks: [
+      {
+        type: { type: String, required: true },
+        data: { type: mongoose.Schema.Types.Mixed, required: true },
+      },
+    ],
+    version: { type: String },
+  },
+  { _id: false }
+);
+
 const journalSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -21,7 +35,7 @@ const journalSchema = new mongoose.Schema({
       type: String,
   },
   content: {
-    type: mongoose.Schema.Types.Mixed, // Storing blocks or HTML structure
+    type: editorContentSchema,
   },
   ctaText: String,
   ctaLink: String,

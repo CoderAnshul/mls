@@ -47,6 +47,29 @@ export const api = {
                 body: JSON.stringify(data)
             });
             return res.json();
+        },
+        update: async (slug, data) => {
+            const res = await fetch(`${API_BASE_URL}/journals/${slug}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return res.json();
+        },
+        delete: async (slug) => {
+            const res = await fetch(`${API_BASE_URL}/journals/${slug}`, {
+                method: 'DELETE'
+            });
+            return res.json();
+        },
+        uploadImage: async (file) => {
+            const formData = new FormData();
+            formData.append('image', file);
+            const res = await fetch(`${API_BASE_URL}/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            return res.json();
         }
     },
     // FAQs

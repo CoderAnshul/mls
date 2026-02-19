@@ -25,13 +25,56 @@ router.get('/:slug', async (req, res) => {
 
 // Create journal
 router.post('/', async (req, res) => {
-    const journal = new Journal(req.body);
-    try {
-      const newJournal = await journal.save();
-      res.status(201).json(newJournal);
-    } catch (err) {
-      res.status(400).json({ message: err.message });
+  try {
+    const journalData = req.body;
+    // Ensure content is structured as editorContentSchema
+    if (journalData.content && typeof journalData.content === 'object') {
+      journalData.content = {
+        time: journalData.content.time,
+        blocks: journalData.content.blocks,
+        version: journalData.content.version,
+      };
     }
-  });
+    const journal = new Journal(journalData);
+    const newJournal = await journal.save();
+    res.status(201).json(newJournal);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Update journal by slug
+router.put('/:slug', async (req, res) => {
+  try {
+    const journalData = req.body;
+    if (journalData.content && typeof journalData.content === 'object') {
+      journalData.content = {
+        time: journalData.content.time,
+        blocks: journalData.content.blocks,
+        version: journalData.content.version,
+      };
+    }
+    const updatedJournal = await Journal.findOneAndUpdate(
+      { slug: req.params.slug },
+      journalData,
+      { new: true }
+    );
+    if (!updatedJournal) return res.status(404).json({ message: 'Journal not found' });
+    res.json(updatedJournal);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Delete journal by slug
+router.delete('/:slug', async (req, res) => {
+  try {
+    const deletedJournal = await Journal.findOneAndDelete({ slug: req.params.slug });
+    if (!deletedJournal) return res.status(404).json({ message: 'Journal not found' });
+    res.json({ message: 'Journal deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = router;
