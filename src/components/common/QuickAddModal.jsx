@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { IoCloseOutline } from 'react-icons/io5';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from './Toast';
 
 const QuickAddModal = ({ product, isOpen, onClose, onAdd }) => {
+  const toast = useToast();
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || null);
   const [selectedLength, setSelectedLength] = useState(null);
   const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || null);
@@ -38,6 +40,7 @@ const QuickAddModal = ({ product, isOpen, onClose, onAdd }) => {
   const handleAdd = () => {
     if (selectedSize && (selectedLength || !lengths.length)) {
       onAdd(product, selectedSize, selectedLength, selectedColor);
+      toast.success(`${product.title} added to bag`);
       onClose();
     }
   };
@@ -79,7 +82,7 @@ const QuickAddModal = ({ product, isOpen, onClose, onAdd }) => {
 
             {/* Colors */}
             {colors.length > 0 && (
-              <div className="w-full mb-10">
+              <div className="w-full mb-3">
                 <span className="block text-[10px] font-bold uppercase tracking-widest text-[#252423] mb-4">Select Colour</span>
                 <div className="flex flex-wrap gap-3">
                   {colors.map((color) => (
@@ -98,8 +101,8 @@ const QuickAddModal = ({ product, isOpen, onClose, onAdd }) => {
             )}
 
             {/* Sizes */}
-            <div className="w-full mb-10">
-              <div className="flex justify-between items-baseline mb-4">
+            <div className="w-full mb-3">
+              <div className="flex justify-between items-baseline mb-2">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#252423]">Select Size</span>
                 <button className="text-[9px] font-bold uppercase tracking-widest text-[#252423] border-b border-black/20 pb-0.5 hover:border-black transition-all">
                   Size Guide
@@ -133,7 +136,7 @@ const QuickAddModal = ({ product, isOpen, onClose, onAdd }) => {
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full mb-10"
+                className="w-full mb-3"
               >
                 <div className="flex justify-between items-baseline mb-4">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#252423]">Select Length (Inches)</span>

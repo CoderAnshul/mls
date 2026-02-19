@@ -1,10 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { useAuth } from './AuthContext';
+import { api } from '../utils/api';
 
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
+  const { user } = useAuth();
   const [cart, setCart] = useState(() => {
     try {
       const savedCart = localStorage.getItem('cart');
@@ -14,15 +17,62 @@ export const CartProvider = ({ children }) => {
       return [];
     }
   });
-
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const skipSync = useRef(false);
 
-  // Cart is now initialized from localStorage in useState
-
-  // Save cart to localStorage whenever it changes
+  // Mark as initialized from localStorage on mount
   useEffect(() => {
+    setIsInitialized(true);
+  }, []);
+
+  // Fetch cart from backend when user logs in
+  useEffect(() => {
+    const fetchDBCart = async () => {
+      if (user) {
+        try {
+          const dbCart = await api.user.getCart();
+          // Transform DB cart format (product populated) to frontend format
+          const formattedCart = dbCart.map(item => ({
+            ...item.product,
+            selectedSize: item.selectedSize,
+            selectedLength: item.selectedLength,
+            selectedColor: item.selectedColor,
+            quantity: item.quantity,
+            _id: item.product._id,
+            id: item.product._id
+          }));
+          
+          skipSync.current = true;
+          setCart(formattedCart);
+        } catch (error) {
+          console.error('Failed to fetch cart from DB:', error);
+        }
+      }
+    };
+
+    fetchDBCart();
+  }, [user]);
+
+  // Sync cart to localStorage and backend whenever it changes
+  useEffect(() => {
+    if (!isInitialized) return;
+
     localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
+
+    const syncWithBackend = async () => {
+      if (user && !skipSync.current) {
+        try {
+          await api.user.syncCart(cart);
+        } catch (error) {
+          console.error('Failed to sync cart with backend:', error);
+        }
+      }
+      skipSync.current = false;
+    };
+
+    syncWithBackend();
+  }, [cart, user, isInitialized]);
 
   const addToCart = (product, size, length, color) => {
     setCart((prev) => {
@@ -51,7 +101,6 @@ export const CartProvider = ({ children }) => {
         }];
       }
     });
-    // Automatically open cart when item is added
     setIsCartOpen(true);
   };
 
@@ -66,6 +115,20 @@ export const CartProvider = ({ children }) => {
     ));
   };
 
+  const updateQuantity = (productId, size, length, color, newQuantity) => {
+    setCart((prev) => prev.map((item) => {
+      const isMatch = (item._id === productId || item.id === productId) && 
+                      item.selectedSize === size && 
+                      item.selectedLength === length &&
+                      item.selectedColor === color;
+      
+      if (isMatch) {
+        return { ...item, quantity: Math.max(1, newQuantity) };
+      }
+      return item;
+    }));
+  };
+
   const clearCart = () => setCart([]);
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
@@ -76,6 +139,7 @@ export const CartProvider = ({ children }) => {
       cart, 
       addToCart, 
       removeFromCart, 
+      updateQuantity,
       clearCart, 
       cartCount, 
       cartTotal,

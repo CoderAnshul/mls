@@ -49,6 +49,23 @@ export const api = {
                 body: JSON.stringify({ productId })
             });
             return handleResponse(res);
+        },
+        getCart: async () => {
+            const res = await fetch(`${API_BASE_URL}/user/cart`, {
+                headers: { ...getAuthHeader() }
+            });
+            return handleResponse(res);
+        },
+        syncCart: async (cart) => {
+            const res = await fetch(`${API_BASE_URL}/user/cart`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...getAuthHeader()
+                },
+                body: JSON.stringify({ cart })
+            });
+            return handleResponse(res);
         }
     },
     navigation: {
@@ -99,6 +116,13 @@ export const api = {
     reviews: {
         getAll: async () => {
             const res = await fetch(`${API_BASE_URL}/reviews`);
+            return res.json();
+        }
+    },
+    recommendations: {
+        getAll: async (type) => {
+            const query = type ? `?type=${type}` : '';
+            const res = await fetch(`${API_BASE_URL}/recommendations${query}`);
             return res.json();
         }
     }

@@ -20,6 +20,7 @@ import {
   HelpCircle,
   Compass,
   Palette,
+  Sparkles,
   Layout,
   ShoppingBag
 } from 'lucide-react';
@@ -33,6 +34,8 @@ const BannersView = React.lazy(() => import('./components/views/BannersView'));
 const CategoriesView = React.lazy(() => import('./components/views/CategoriesView'));
 const ShopHijabView = React.lazy(() => import('./components/views/ShopHijabView'));
 const NotificationsView = React.lazy(() => import('./components/views/NotificationsView'));
+
+const RecommendationsView = React.lazy(() => import('./components/views/RecommendationsView'));
 
 // Views
 import DashboardView from './components/views/DashboardView';
@@ -80,6 +83,15 @@ const App = () => {
     { id: 'banners', icon: Layout, label: 'Banners' },
     { id: 'categories', icon: Layers, label: 'Categories' },
     { id: 'shop-hijab', icon: ShoppingBag, label: 'Shop Hijab' },
+    { 
+      id: 'recommendations', 
+      icon: Sparkles, 
+      label: 'Recommends',
+      subTabs: [
+        { id: 'cart', label: 'Cart Recommendation' },
+        { id: 'checkout', label: 'Checkout Recommendation' }
+      ]
+    },
     { id: 'notifications', icon: Bell, label: 'Notifications' },
     { id: 'admins', icon: ShieldCheck, label: 'Admins' },
   ];
@@ -229,6 +241,7 @@ const App = () => {
               {activeTab === 'categories' && <CategoriesView />}
               {activeTab === 'shop-hijab' && <ShopHijabView />}
               {activeTab === 'notifications' && <NotificationsView />}
+              {activeTab === 'recommendations' && <RecommendationsView type={activeSubTab} />}
               {activeTab === 'admins' && <AdminsView />}
               </React.Suspense>
             </div>

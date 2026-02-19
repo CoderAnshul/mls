@@ -19,6 +19,19 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Product'
   }],
+  cart: [{
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product'
+    },
+    selectedSize: String,
+    selectedLength: String,
+    selectedColor: String,
+    quantity: {
+      type: Number,
+      default: 1
+    }
+  }],
   isAdmin: {
     type: Boolean,
     default: false

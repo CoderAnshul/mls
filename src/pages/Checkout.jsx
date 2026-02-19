@@ -1,27 +1,79 @@
-import React, { useState } from 'react';
+import { IoBagOutline, IoChevronDown, IoInformationCircleOutline, IoLockClosedOutline, IoSearchOutline } from 'react-icons/io5';
+import { api } from '../utils/api';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IoChevronDown, IoSearchOutline, IoInformationCircleOutline, IoLockClosedOutline, IoBagOutline } from 'react-icons/io5';
+import { useToast } from '../components/common/Toast';
 
 const Checkout = () => {
-  const [email, setEmail] = useState('');
+  const toast = useToast();
+  const { cart, cartTotal, cartCount, addToCart } = useCart();
+  const { user } = useAuth();
+  const [email, setEmail] = useState(user?.email || '');
   const [paymentMethod, setPaymentMethod] = useState('credit-card');
+  const [recommendations, setRecommendations] = useState([]);
+  const [expandedDesc, setExpandedDesc] = useState(null); // Track which ID is expanded
+  const [upsellQuantities, setUpsellQuantities] = useState({}); // { recId: quantity }
 
-  const upsellProducts = [
-    {
-      id: 1,
-      name: "Silani Oud Bakhoor",
-      originalPrice: "35.00",
-      discountPrice: "26.25",
-      image: "https://aabcollection.com/cdn/shop/files/Aab_Massai_Maxi_Dress_Multicolour_1.jpg?v=1708428543&width=100"
-    },
-    {
-      id: 2,
-      name: "Criss Cross Hijab Undercap",
-      originalPrice: "9.00",
-      discountPrice: "6.75",
-      image: "https://aabcollection.com/cdn/shop/files/Aab_Massai_Maxi_Dress_Multicolour_1.jpg?v=1708428543&width=100"
-    }
-  ];
+  useEffect(() => {
+    const loadRecommendations = async () => {
+        try {
+            const data = await api.recommendations.getAll('checkout');
+            setRecommendations(data);
+            // Initialize quantities
+            const q = {};
+            data.forEach(r => q[r._id] = 1);
+            setUpsellQuantities(q);
+        } catch (err) {
+            console.error('Failed to load checkout recommendations', err);
+        }
+    };
+    loadRecommendations();
+  }, []);
+
+  // UK VAT is 20% of the total price (already included in product prices usually, but let's show it as "including £X in taxes")
+  const VAT_RATE = 0.20;
+  const taxes = cartTotal * (VAT_RATE / (1 + VAT_RATE)); // If price includes tax
+  
+  const handleAddUpsell = (rec) => {
+    // Ensure all required properties are present for the cart
+    const productToBag = {
+        ...rec.product,
+        selectedSize: rec.product.sizes?.[0] || 'One Size',
+        selectedLength: rec.product.lengths?.[0] || 'Standard',
+        selectedColor: rec.product.colors?.[0] || 'Original',
+        quantity: upsellQuantities[rec._id] || 1
+    };
+    addToCart(productToBag);
+    toast.success(`${rec.product.title} added to bag!`);
+  };
+
+  const updateUpsellQty = (id, delta) => {
+    setUpsellQuantities(prev => ({
+        ...prev,
+        [id]: Math.max(1, (prev[id] || 1) + delta)
+    }));
+  };
+
+  const toggleDescription = (id) => {
+    setExpandedDesc(expandedDesc === id ? null : id);
+  };
+
+  const activeUpsells = recommendations.filter(rec => 
+    rec.product && !cart.some(item => (item._id || item.id) === (rec.product._id || rec.product.id))
+  );
+
+  if (cart.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#F4F2EA] flex flex-col items-center justify-center p-8 text-center text-neutral-800">
+        <h1 className="text-[22px] tracking-[0.35em] font-light uppercase mb-8">Checkout is Empty</h1>
+        <Link to="/collections/all" className="bg-[#1C1C1C] text-white px-12 py-4 text-[11px] tracking-[0.2em] font-medium uppercase hover:bg-black transition-all">
+          Return to Shop
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -33,54 +85,16 @@ const Checkout = () => {
           </Link>
           <div className="relative">
             <IoBagOutline size={22} className="text-neutral-700" />
-            <span className="absolute -top-1 -right-1.5 text-[9px] font-bold text-neutral-600">(1)</span>
+            <span className="absolute -top-1 -right-1.5 text-[9px] font-bold text-neutral-600">({cartCount})</span>
           </div>
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto grid lg:grid-cols-2">
-      {/* <div className="max-w-screen-2xl mx-auto grid lg:grid-cols-2"> */}
-        
         {/* Left Column: Forms */}
         <div className="p-8 lg:p-16 lg:max-w-3xl ml-auto w-full">
           <div className="space-y-12">
             
-            {/* Upsell Sections */}
-            <div className="space-y-6 pt-4">
-              {upsellProducts.map((product) => (
-                <div key={product.id} className="border border-neutral-200 p-6 rounded-sm bg-neutral-50/30">
-                  <p className="text-[11px] tracking-widest font-bold mb-4">Add this product to your order and get 25% OFF</p>
-                  <div className="flex gap-4">
-                    <img src={product.image} alt={product.name} className="w-16 h-20 object-cover border border-neutral-200" />
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="text-[13px] font-bold tracking-tight">{product.name}</h4>
-                          <button className="text-[11px] text-neutral-500 flex items-center gap-1 mt-1 uppercase tracking-widest">
-                            Description <IoChevronDown size={10} />
-                          </button>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-[11px] text-red-600 line-through">£{product.originalPrice}</p>
-                          <p className="text-[13px] font-bold">£{product.discountPrice}</p>
-                        </div>
-                      </div>
-                      <div className="mt-4 flex gap-3">
-                        <div className="flex items-center border border-neutral-300 rounded-sm">
-                          <button className="px-3 py-1 text-neutral-400">—</button>
-                          <span className="px-2 text-[12px]">1</span>
-                          <button className="px-3 py-1 text-neutral-400">+</button>
-                        </div>
-                        <button className="flex-1 bg-neutral-100 border border-neutral-300 py-2.5 text-[11px] tracking-widest uppercase font-bold hover:bg-neutral-200 transition-colors">
-                          Add to cart
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
             {/* Express Checkout */}
             <div>
               <p className="text-center text-[11px] tracking-widest text-neutral-500 uppercase mb-4">Express checkout</p>
@@ -100,10 +114,12 @@ const Checkout = () => {
             <section>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-[17px] font-medium">Contact</h2>
-                <Link to="/login" className="text-[12px] underline text-neutral-600 font-medium">Have an account? Log in</Link>
+                {!user && <Link to="/login" className="text-[12px] underline text-neutral-600 font-medium">Have an account? Log in</Link>}
               </div>
               <input 
                 type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email" 
                 className="w-full border border-neutral-300 p-3.5 rounded-sm text-[14px] outline-none focus:ring-1 focus:ring-black transition-all"
               />
@@ -290,21 +306,90 @@ const Checkout = () => {
         {/* Right Column: Summary Overlay */}
         <div className="bg-[#F4F2EA] lg:sticky lg:top-0 lg:h-screen p-8 lg:p-16 border-l border-neutral-200 overflow-y-auto hidden lg:block">
           <div className="lg:max-w-md w-full">
-            <div className="flex items-center gap-4 mb-10">
-              <div className="relative">
-                <img 
-                  src="https://aabcollection.com/cdn/shop/files/Aab_Massai_Maxi_Dress_Multicolour_1.jpg?v=1708428543&width=150" 
-                  alt="Product" 
-                  className="w-16 h-20 object-cover border border-neutral-300 rounded-md" 
-                />
-                <span className="absolute -top-2 -right-2 bg-neutral-600/90 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold">1</span>
-              </div>
-              <div className="flex-1 text-[13px]">
-                <h3 className="font-bold tracking-tight">Massai Maxi</h3>
-                <p className="text-neutral-500 text-[11px]">S / 56</p>
-              </div>
-              <p className="text-[13px] font-bold tracking-widest">£53.40</p>
+            <div className="space-y-6 mb-10">
+              {cart.map((item, idx) => (
+                <div key={`${item._id || item.id}-${idx}`} className="flex items-center gap-4">
+                  <div className="relative">
+                    <img 
+                      src={item.coverImage || item.image || item.images?.[0] || 'https://via.placeholder.com/150'} 
+                      alt={item.title} 
+                      className="w-16 h-20 object-cover border border-neutral-300 rounded-md" 
+                    />
+                    <span className="absolute -top-2 -right-2 bg-neutral-600/90 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold">
+                      {item.quantity}
+                    </span>
+                  </div>
+                  <div className="flex-1 text-[13px]">
+                    <h3 className="font-bold tracking-tight">{item.title}</h3>
+                    <p className="text-neutral-500 text-[11px]">
+                      {[item.selectedSize, item.selectedLength, item.selectedColor].filter(Boolean).join(' / ')}
+                    </p>
+                  </div>
+                  <p className="text-[13px] font-bold tracking-widest">£{(item.price * item.quantity).toFixed(2)}</p>
+                </div>
+              ))}
             </div>
+
+            {/* Checkout Upsells (Sidebar) */}
+            {activeUpsells.length > 0 && (
+                <div className="mb-10 space-y-4 animate-in fade-in duration-700">
+                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 border-b border-neutral-200 pb-4 mb-4">Recommended for you</h3>
+                    {activeUpsells.map((rec) => (
+                        <div key={rec._id} className="bg-white border border-neutral-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
+                            <div className="flex gap-4">
+                                <div className="w-16 h-20 bg-neutral-100 rounded-lg overflow-hidden shrink-0 border border-neutral-200">
+                                    <img 
+                                        src={rec.image || rec.product.images?.[0] || rec.product.image || rec.product.coverImage || 'https://via.placeholder.com/150'} 
+                                        alt={rec.product.title} 
+                                        className="w-full h-full object-cover" 
+                                    />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex justify-between items-start gap-2">
+                                        <h4 className="text-[12px] font-bold tracking-tight text-neutral-800 uppercase leading-tight truncate">{rec.product.title}</h4>
+                                        <div className="text-right shrink-0">
+                                            <p className="text-[10px] text-red-600 line-through font-medium">£{rec.product.price.toFixed(2)}</p>
+                                            <p className="text-[12px] font-black text-neutral-900">£{(rec.product.price * (1 - rec.discountPercentage/100)).toFixed(2)}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <p className="text-[11px] text-neutral-500 font-medium mt-1 uppercase tracking-tighter line-clamp-1">{rec.heading}</p>
+                                    
+                                    <button 
+                                        onClick={() => toggleDescription(rec._id)}
+                                        className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mt-2 flex items-center gap-1 hover:text-black transition-colors"
+                                    >
+                                        Details <IoChevronDown size={12} className={`transition-transform duration-300 ${expandedDesc === rec._id ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {/* Description Accordion */}
+                                    <div className={`grid transition-all duration-500 ease-in-out ${expandedDesc === rec._id ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0'}`}>
+                                        <div className="overflow-hidden">
+                                            <p className="text-[10px] leading-relaxed text-neutral-500 bg-neutral-50 p-3 rounded-lg border border-neutral-100">
+                                                {rec.description || rec.product.description || 'A hand-crafted protocol designed for the modern lifestyle.'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-3 flex items-center gap-2">
+                                        <div className="flex items-center border border-neutral-200 rounded-lg bg-white h-8 px-1">
+                                            <button onClick={() => updateUpsellQty(rec._id, -1)} className="w-6 h-6 flex items-center justify-center text-neutral-400 hover:text-black transition-colors text-lg font-light">—</button>
+                                            <span className="w-6 text-center text-[11px] font-black">{upsellQuantities[rec._id] || 1}</span>
+                                            <button onClick={() => updateUpsellQty(rec._id, 1)} className="w-6 h-6 flex items-center justify-center text-neutral-400 hover:text-black transition-colors text-lg font-light">+</button>
+                                        </div>
+                                        <button 
+                                            onClick={() => handleAddUpsell(rec)}
+                                            className="grow bg-[#1C1C1C] text-white h-8 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all active:scale-[0.98] shadow-sm"
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             <div className="flex gap-3 mb-10">
               <input 
@@ -320,20 +405,22 @@ const Checkout = () => {
             <div className="space-y-4 pt-6 border-t border-neutral-300/70">
               <div className="flex justify-between text-[13px]">
                 <span className="text-neutral-600">Subtotal</span>
-                <span className="font-bold tracking-widest">£53.40</span>
+                <span className="font-bold tracking-widest">£{cartTotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-[13px]">
                 <span className="text-neutral-600">Shipping</span>
-                <span className="text-[11px] text-neutral-400 uppercase tracking-widest leading-loose">Enter shipping address</span>
+                <span className="text-[11px] text-neutral-400 uppercase tracking-widest leading-loose">
+                  {cartTotal >= 120 ? 'Free' : 'Calculated at next step'}
+                </span>
               </div>
               <div className="flex justify-between items-center pt-4">
                 <span className="text-[17px] font-medium">Total</span>
                 <div className="text-right">
                   <span className="text-[11px] text-neutral-400 mr-2">GBP</span>
-                  <span className="text-[22px] font-black tracking-widest">£53.40</span>
+                  <span className="text-[22px] font-black tracking-widest">£{cartTotal.toFixed(2)}</span>
                 </div>
               </div>
-              <p className="text-[11px] text-neutral-400 text-right mt-1">Including £8.90 in taxes</p>
+              <p className="text-[11px] text-neutral-400 text-right mt-1">Including £{taxes.toFixed(2)} in taxes</p>
             </div>
           </div>
         </div>

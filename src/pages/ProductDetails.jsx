@@ -9,14 +9,17 @@ import { useCart } from '../context/CartContext';
 import { api } from '../utils/api';
 import ProductSliderSection from '../components/sections/ProductSliderSection';
 import HowWeDoIt from '../components/sections/HowWeDoIt';
+import { useToast } from '../components/common/Toast';
 
 const ProductDetails = () => {
+  const toast = useToast();
   const { id } = useParams();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState('');
+  const [selectedLength, setSelectedLength] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [activeAccordion, setActiveAccordion] = useState('description');
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -27,7 +30,7 @@ const ProductDetails = () => {
       try {
         const data = await api.products.getOne(id);
         setProduct(data);
-        if (data.sizes?.length > 0) setSelectedSize(data.sizes[0]);
+        // We don't auto-select size/length to force user interaction as requested
         if (data.colors?.length > 0) setSelectedColor(data.colors[0]);
 // ... (rest of effect)
         // Save to recently viewed
@@ -166,9 +169,9 @@ const ProductDetails = () => {
               {/* Color */}
               {product.colors?.length > 0 && (
                 <div>
-                  <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] mb-4 text-[#252423]">
+                  <h5 className="text-[11px] font-bold uppercase tracking-[0.15em] mb-4 text-[#252423]">
                     AVAILABLE COLOURS
-                  </h4>
+                  </h5>
                   <div className="flex gap-3">
                     {product.colors.map((c, i) => (
                       <div 
@@ -189,42 +192,105 @@ const ProductDetails = () => {
               {product.sizes?.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#252423]">
+                    <h5 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#252423]">
                       SELECT SIZE
-                    </h4>
+                    </h5>
                     <button className="text-[10px] font-bold uppercase tracking-[0.15em] underline underline-offset-4 text-neutral-500 hover:text-black">
                       SIZE GUIDE
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {product.sizes.map((size) => (
-                      <button
-                        key={size}
-                        onClick={() => setSelectedSize(size)}
-                        className={`h-12 min-w-[3rem] px-4 flex items-center justify-center text-[12px] font-black tracking-widest transition-all duration-300 border ${
-                          selectedSize === size 
-                            ? 'border-black bg-black text-white shadow-xl shadow-black/10 scale-105' 
-                            : 'border-black/10 bg-white/50 hover:border-black text-neutral-700'
-                        }`}
-                      >
-                        {size}
-                      </button>
-                    ))}
+                    {product.sizes.map((size) => {
+                      const isOutOfStock = ['XXS', 'XS', 'XL', 'XXL'].includes(size); // For design demo
+                      return (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`relative h-12 min-w-[4rem] px-4 flex items-center justify-center text-[12px] font-black tracking-widest transition-all duration-300 border 
+                            ${selectedSize === size 
+                              ? 'border-black bg-black text-white shadow-xl shadow-black/10' 
+                              : isOutOfStock 
+                                ? 'border-black/10 bg-white/30 text-neutral-400 cursor-default' 
+                                : 'border-black/10 bg-white/50 hover:border-black text-neutral-700'
+                            }`}
+                        >
+                          <span className="relative z-10 flex items-center gap-1.5">
+                            {isOutOfStock && <IoMailOutline className="w-3.5 h-3.5" />}
+                            {size}
+                          </span>
+                          {isOutOfStock && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="w-full h-[1px] bg-neutral-300 -rotate-[25deg]" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
+              )}
+
+              {/* Lengths - Only shows when size is selected */}
+              {selectedSize && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-500">
+                  <h5 className="text-[11px] font-bold uppercase tracking-[0.15em] mb-4 text-[#252423]">
+                    SELECT LENGTH (INCHES)
+                  </h5>
+                  <div className="flex flex-wrap gap-2">
+                    {['52', '54', '56', '58', '62'].map((len) => {
+                      const isOutOfStock = len === '52'; // For design demo
+                      return (
+                        <button
+                          key={len}
+                          onClick={() => setSelectedLength(len)}
+                          className={`relative h-12 min-w-[4rem] px-4 flex items-center justify-center text-[12px] font-black tracking-widest transition-all duration-300 border 
+                            ${selectedLength === len 
+                              ? 'border-black bg-black text-white shadow-xl shadow-black/10' 
+                              : isOutOfStock 
+                                ? 'border-black/10 bg-white/30 text-neutral-400 cursor-default' 
+                                : 'border-black/10 bg-white/50 hover:border-black text-neutral-700'
+                            }`}
+                        >
+                          <span className="relative z-10 flex items-center gap-1.5">
+                            {isOutOfStock && <IoMailOutline className="w-3.5 h-3.5" />}
+                            {len}
+                          </span>
+                          {isOutOfStock && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="w-full h-[1px] bg-neutral-300 -rotate-[25deg]" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Stock Urgency */}
+              {selectedSize && selectedLength && (
+                <p className="text-[12px] text-neutral-600 italic tracking-wide animate-in fade-in duration-700">
+                  Hurry last 2 remaining
+                </p>
               )}
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-3">
                 <button 
                   onClick={() => {
-                    if (!selectedSize) {
-                      alert('Please select a size');
+                    if (!selectedSize || !selectedLength) {
+                      toast.error('Please select size and length');
                       return;
                     }
-                    addToCart(product, selectedSize, null, selectedColor);
+                    addToCart(product, selectedSize, selectedLength, selectedColor);
+                    toast.success('Protocol added to bag');
                   }}
-                  className="group relative w-full bg-[#252423] text-white py-5 text-[12px] font-bold uppercase tracking-[0.25em] overflow-hidden transition-all hover:bg-black active:scale-[0.98]"
+                  disabled={!selectedSize || !selectedLength}
+                  className={`group relative w-full py-5 text-[12px] font-bold uppercase tracking-[0.25em] transition-all active:scale-[0.98] 
+                    ${(!selectedSize || !selectedLength) 
+                      ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed' 
+                      : 'bg-[#252423] text-white hover:bg-black shadow-lg shadow-black/10'
+                    }`}
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     <IoBagOutline className="w-4 h-4" />
@@ -238,7 +304,7 @@ const ProductDetails = () => {
                   {isInWishlist(product._id || product.id) ? (
                     <>
                       <IoHeart className="w-5 h-5 text-black" />
-                      IN WISHLIST
+                      REMOVE FROM WISHLIST
                     </>
                   ) : (
                     <>

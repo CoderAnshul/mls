@@ -181,5 +181,34 @@ export const api = {
             });
             return res.json();
         }
+    },
+    // Recommendations
+    recommendations: {
+        getAll: async () => {
+            const res = await fetch(`${API_BASE_URL}/recommendations/all`);
+            return res.json();
+        },
+        create: async (data) => {
+            const res = await fetch(`${API_BASE_URL}/recommendations`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return res.json();
+        },
+        update: async (id, data) => {
+            const res = await fetch(`${API_BASE_URL}/recommendations/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return res.json();
+        },
+        delete: async (id) => {
+            const res = await fetch(`${API_BASE_URL}/recommendations/${id}`, {
+                method: 'DELETE'
+            });
+            return res.json();
+        }
     }
 };

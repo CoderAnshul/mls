@@ -42,4 +42,44 @@ router.post('/wishlist/toggle', protect, async (req, res) => {
   }
 });
 
+// @desc    Get user cart
+// @route   GET /api/user/cart
+// @access  Private
+router.get('/cart', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate('cart.product');
+    res.json(user.cart);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @desc    Sync user cart
+// @route   POST /api/user/cart
+// @access  Private
+router.post('/cart', protect, async (req, res) => {
+  const { cart } = req.body;
+
+  try {
+    const user = await User.findById(req.user._id);
+    
+    // Transform cart to store in DB
+    user.cart = cart.map(item => ({
+      product: item._id || item.id,
+      selectedSize: item.selectedSize,
+      selectedLength: item.selectedLength,
+      selectedColor: item.selectedColor,
+      quantity: item.quantity
+    }));
+
+    await user.save();
+    
+    // Return the updated populated cart
+    const updatedUser = await User.findById(req.user._id).populate('cart.product');
+    res.json(updatedUser.cart);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;

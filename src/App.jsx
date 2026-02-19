@@ -12,6 +12,7 @@ import Checkout from './pages/Checkout';
 import Journal from './pages/Journal';
 import Lookbook from './pages/Lookbook';
 import JournalDetail from './pages/JournalDetail';
+import { ToastProvider } from './components/common/Toast';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -26,7 +27,7 @@ function App() {
   const isCheckoutPage = location.pathname === '/checkout';
 
   return (
-    <>
+    <ToastProvider>
       <ScrollToTop />
       <div className="min-h-screen flex flex-col">
         {!isCheckoutPage && <AnnouncementBar />}
@@ -47,7 +48,7 @@ function App() {
         
         {!isCheckoutPage && <Footer />}
       </div>
-    </>
+    </ToastProvider>
   );
 }
 

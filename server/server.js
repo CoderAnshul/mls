@@ -59,6 +59,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const recommendationRoutes = require('./routes/recommendationRoutes');
 
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
@@ -71,6 +72,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
