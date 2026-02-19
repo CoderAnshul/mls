@@ -9,6 +9,7 @@ import JournalFooterImage from '../components/journal/JournalFooterImage';
 const JournalDetail = () => {
   const { slug } = useParams();
   const [journal, setJournal] = useState(null);
+  const [otherJournals, setOtherJournals] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,6 +18,13 @@ const JournalDetail = () => {
         setLoading(true);
         const data = await api.journals.getOne(slug);
         setJournal(data);
+        if (data?.title) {
+          document.title = `${data.title.replace(/<[^>]*>/g, '')} | Aab Journal`;
+        }
+
+        // Fetch other journals for "Continue Reading"
+        const allJournals = await api.journals.getAll();
+        setOtherJournals(allJournals.filter(j => j.slug !== slug).slice(0, 3));
       } catch (err) {
         console.error('Error loading journal:', err);
       } finally {
@@ -28,6 +36,7 @@ const JournalDetail = () => {
   }, [slug]);
 
   const renderBlock = (block, idx) => {
+    // ... switch cases ...
     switch (block.type) {
       case 'header':
         return (
@@ -86,7 +95,10 @@ const JournalDetail = () => {
   if (loading) {
     return (
       <div className="bg-[#F4F2EA] min-h-screen pt-[120px] flex items-center justify-center">
-        <p className="uppercase tracking-[0.2em] text-neutral-400 text-xs">Unfolding the story...</p>
+        <p className="uppercase tracking-[0.2em] text-neutral-400 text-xs text-center">
+          <span className="block mb-2">Unfolding the story...</span>
+          <span className="animate-pulse">●</span>
+        </p>
       </div>
     );
   }
@@ -115,14 +127,32 @@ const JournalDetail = () => {
       </div>
 
       <JournalCTA ctaText={journal.ctaText || "View Collection"} ctaLink={journal.ctaLink || "/collections/all"} />
+
+      {/* Continue Reading Section */}
+      {/* {otherJournals.length > 0 && (
+        <section className="max-w-[1200px] mx-auto px-4 py-20 border-t border-neutral-200/50">
+          <h4 className="text-[11px] tracking-[0.3em] uppercase text-neutral-400 mb-12 text-center font-light">Continue Reading</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {otherJournals.map(entry => (
+              <Link key={entry._id} to={`/journal/${entry.slug}`} className="group block text-center">
+                <div className="aspect-[3/4] overflow-hidden mb-6 bg-neutral-200">
+                  <img src={entry.heroImage} className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700" alt={entry.title} />
+                </div>
+                <h5 className="text-[12px] tracking-widest uppercase font-bold text-neutral-800 group-hover:text-[#A47F58] transition-colors line-clamp-2 px-4" dangerouslySetInnerHTML={{ __html: entry.title }} />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )} */}
+
       <JournalFooterImage />
 
       <div className="w-full max-w-[1200px] mx-auto px-4 py-16 flex justify-between items-center text-[10px] uppercase tracking-[0.2em] text-neutral-400 border-t border-neutral-200/50 mt-12 font-light">
         <div className="flex-1 text-left">
           {journal.prev ? (
             <Link to={`/journal/${journal.prev.slug}`} className="hover:text-black transition-colors group">
-              <span className="block text-neutral-300 mb-1">← Previous</span>
-              <span className="hidden md:inline-block group-hover:text-black line-clamp-1 max-w-[200px]">{journal.prev.title}</span>
+              <span className="block text-neutral-300 mb-1 italic">← Previous</span>
+              <span className="hidden md:inline-block group-hover:text-black line-clamp-1 max-w-[200px]" dangerouslySetInnerHTML={{ __html: journal.prev.title }} />
             </Link>
           ) : (
             <span className="opacity-0">No Prev</span>
@@ -130,14 +160,14 @@ const JournalDetail = () => {
         </div>
 
         <div className="flex-none px-4">
-          <Link to="/journal" className="hover:text-black transition-colors">Back to Journal</Link>
+          <Link to="/journal" className="hover:text-black transition-colors font-bold">Journal</Link>
         </div>
 
         <div className="flex-1 text-right">
           {journal.next ? (
             <Link to={`/journal/${journal.next.slug}`} className="hover:text-black transition-colors group">
-              <span className="block text-neutral-300 mb-1">Next →</span>
-              <span className="hidden md:inline-block group-hover:text-black line-clamp-1 max-w-[200px]">{journal.next.title}</span>
+              <span className="block text-neutral-300 mb-1 italic text-[10px]">Next →</span>
+              <span className="hidden md:inline-block group-hover:text-black line-clamp-1 max-w-[200px]" dangerouslySetInnerHTML={{ __html: journal.next.title }} />
             </Link>
           ) : (
             <span className="opacity-0">No Next</span>

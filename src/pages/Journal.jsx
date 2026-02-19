@@ -11,6 +11,8 @@ const Journal = () => {
   const searchInputRef = useRef(null);
 
   useEffect(() => {
+    document.title = "Journal | Aab Collection";
+
     const fetchJournals = async () => {
       try {
         setLoading(true);
@@ -111,12 +113,18 @@ const Journal = () => {
             {filteredArticles.map((article) => (
               <Link key={article._id} to={`/journal/${article.slug}`} className="group block text-center">
                 {/* Image with hover effect */}
-                <div className="aspect-[1.5/1] bg-neutral-200 overflow-hidden mb-8">
+                <div className="aspect-[1.5/1] bg-neutral-200 overflow-hidden mb-8 relative">
                   <img
                     src={article.heroImage}
                     alt={article.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
+                  {/* Hover Overlay with button */}
+                  <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
+                    <span className="bg-[#F4F2EA]/90 backdrop-blur-md px-6 py-2.5 text-[9px] tracking-[0.3em] font-medium uppercase text-neutral-900 translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                      Read Story
+                    </span>
+                  </div>
                 </div>
 
                 {/* Text Content */}

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Editor from './Editor';
 import ImageUpload from './ImageUpload';
-import { BookOpen, Plus, Trash2, Edit, CheckCircle2, Search } from 'lucide-react';
+import { BookOpen, Plus, Trash2, Edit, CheckCircle2, Search, Eye } from 'lucide-react';
 import { api } from '../../utils/api';
+import { useToast } from '../common/Toast';
 
 const JournalView = () => {
+    const toast = useToast();
     const [journals, setJournals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
@@ -24,6 +26,7 @@ const JournalView = () => {
             setJournals(data);
         } catch (err) {
             console.error(err);
+            toast.error("Failed to load journals archive");
         } finally {
             setLoading(false);
         }
@@ -45,8 +48,10 @@ const JournalView = () => {
             };
             if (editingSlug) {
                 await api.journals.update(editingSlug, payload);
+                toast.success("Journal record updated successfully");
             } else {
                 await api.journals.create(payload);
+                toast.success("New journal added successfully");
             }
             setIsEditing(false);
             setEditingSlug(null);
@@ -56,6 +61,7 @@ const JournalView = () => {
             loadJournals();
         } catch (err) {
             console.error(err);
+            toast.error("Protocol failed: Check all mandatory fields");
         }
     };
 
@@ -75,8 +81,13 @@ const JournalView = () => {
 
     const handleDelete = async (slug) => {
         if (window.confirm('Are you sure you want to delete this journal?')) {
-            await api.journals.delete(slug);
-            loadJournals();
+            try {
+                await api.journals.delete(slug);
+                toast.success("Journal record deleted successfully");
+                loadJournals();
+            } catch (err) {
+                toast.error("Deletion protocol failed");
+            }
         }
     };
 
@@ -98,7 +109,16 @@ const JournalView = () => {
                             <input
                                 type="text"
                                 value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                onChange={(e) => {
+                                    const title = e.target.value;
+                                    const update = { title };
+                                    if (!editingSlug) {
+                                        update.slug = title.toLowerCase()
+                                            .replace(/[^a-z0-9]+/g, '-')
+                                            .replace(/(^-|-$)/g, '');
+                                    }
+                                    setFormData({ ...formData, ...update });
+                                }}
                                 className="w-full bg-admin-bg border border-admin-border px-3 py-2 rounded-lg text-xs font-bold"
                             />
                         </div>
@@ -178,8 +198,16 @@ const JournalView = () => {
                             <div className="aspect-video relative overflow-hidden">
                                 <img src={j.heroImage} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" alt={j.title} />
                                 <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button className="bg-black/50 p-2 rounded-lg backdrop-blur-sm hover:text-admin-accent" onClick={() => handleEdit(j)}><Edit size={14} /></button>
-                                    <button className="bg-black/50 p-2 rounded-lg backdrop-blur-sm hover:text-rose-500" onClick={() => handleDelete(j.slug)}><Trash2 size={14} /></button>
+                                    <a
+                                        href={`${window.location.origin.replace('5173', '5174')}/journal/${j.slug}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="bg-black/50 p-2 rounded-lg backdrop-blur-sm hover:text-cyan-400 transition-colors"
+                                    >
+                                        <Eye size={14} />
+                                    </a>
+                                    <button className="bg-black/50 p-2 rounded-lg backdrop-blur-sm hover:text-admin-accent transition-colors" onClick={() => handleEdit(j)}><Edit size={14} /></button>
+                                    <button className="bg-black/50 p-2 rounded-lg backdrop-blur-sm hover:text-rose-500 transition-colors" onClick={() => handleDelete(j.slug)}><Trash2 size={14} /></button>
                                 </div>
                             </div>
                             <div className="p-4 space-y-2">

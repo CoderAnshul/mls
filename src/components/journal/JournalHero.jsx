@@ -3,11 +3,11 @@ import React from 'react';
 const JournalHero = ({ data }) => {
     if (!data) return null;
 
-    const formattedDate = new Date(data.date).toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
+    const formattedDate = new Date(data.date).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
         year: 'numeric'
-    });
+    }).toUpperCase();
 
     return (
         <section className="w-full max-w-[1200px] mx-auto px-4 pt-16 pb-12 mb-20 text-center">
