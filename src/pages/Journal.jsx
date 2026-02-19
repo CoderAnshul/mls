@@ -121,16 +121,22 @@ const Journal = () => {
 
                 {/* Text Content */}
                 <div className="px-4">
-                  <h5 className="text-[13px] md:text-[14px] tracking-[0.15em] font-bold uppercase leading-relaxed mb-3 text-neutral-800 group-hover:text-neutral-600 transition-colors px-2">
-                    {article.title}
-                  </h5>
+                  <h5
+                    className="text-[13px] md:text-[14px] tracking-[0.15em] font-bold uppercase leading-relaxed mb-3 text-neutral-800 group-hover:text-neutral-600 transition-colors px-2 [&_b]:font-black [&_strong]:font-black"
+                    dangerouslySetInnerHTML={{ __html: article.title }}
+                  />
 
                   <p className="text-[10px] tracking-[0.2em] font-light text-neutral-400 uppercase mb-6">
                     {formatDate(article.date)}
                   </p>
 
-                  <div className="text-[13px] md:text-[15px] font-light text-neutral-500 leading-relaxed max-w-sm mx-auto tracking-wide">
-                    {article.excerpt || (article.content?.blocks?.find(b => b.type === 'paragraph')?.data?.text?.replace(/<[^>]*>/g, '').substring(0, 160) + '...') || ''}
+                  <div
+                    className="text-[13px] md:text-[15px] font-light text-neutral-500 leading-relaxed max-w-sm mx-auto tracking-wide 
+                      [&_a]:text-[#A47F58] [&_a]:underline [&_a]:underline-offset-2 [&_b]:font-bold [&_strong]:font-bold [&_u]:underline"
+                  >
+                    <span dangerouslySetInnerHTML={{
+                      __html: article.excerpt || (article.content?.blocks?.find(b => b.type === 'paragraph')?.data?.text?.substring(0, 160) + '...') || ''
+                    }} />
                   </div>
                 </div>
               </Link>

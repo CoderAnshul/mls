@@ -55,6 +55,9 @@ const Editor = ({ data, onChange, holder = "editorjs" }) => {
                 defaultLevel: 2,
               },
             },
+            paragraph: {
+              inlineToolbar: ["link", "bold", "italic"],
+            },
             list: {
               class: List,
               inlineToolbar: ["link", "bold", "italic"],

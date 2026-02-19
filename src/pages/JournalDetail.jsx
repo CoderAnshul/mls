@@ -41,26 +41,26 @@ const JournalDetail = () => {
         );
       case 'paragraph':
         return (
-          <div key={idx} className="max-w-[800px] mx-auto px-4 mb-8 text-center">
-            <p className="text-gray-700 leading-relaxed font-light text-lg"
+          <div key={idx} className="max-w-[800px] mx-auto px-4 mb-4 text-center">
+            <p className="text-gray-700 leading-relaxed font-light text-lg [&_a]:text-[#A47F58] [&_a]:underline [&_a]:underline-offset-4 [&_b]:font-bold [&_strong]:font-bold [&_u]:underline"
               dangerouslySetInnerHTML={{ __html: block.data.text }} />
           </div>
         );
       case 'image':
         return (
-          <div key={idx} className="w-full max-w-[1000px] mx-auto px-4 mb-12">
-            <div className="aspect-[16/9] relative overflow-hidden">
-              <img src={block.data.file.url} alt={block.data.caption || ''} className="w-full h-full object-cover" />
+          <div key={idx} className="w-full max-w-[1000px] mx-auto px-4 mb-12 mt-12">
+            <div className="aspect-[16/9] md:aspect-[2/1] relative overflow-hidden">
+              <img src={block.data.file.url} alt={block.data.caption || ''} className="w-full h-full object-cover grayscale-[10%] hover:grayscale-0 transition-all duration-700" />
             </div>
             {block.data.caption && (
-              <p className="text-center text-xs text-gray-400 mt-2 italic">{block.data.caption}</p>
+              <p className="text-center text-[10px] uppercase tracking-widest text-gray-400 mt-4 italic">{block.data.caption}</p>
             )}
           </div>
         );
       case 'list':
         return (
-          <div key={idx} className="max-w-[600px] mx-auto px-4 mb-8 text-left">
-            <ul className={`${block.data.style === 'ordered' ? 'list-decimal' : 'list-disc'} space-y-2 text-gray-700 ml-6`}>
+          <div key={idx} className="max-w-[600px] mx-auto px-4 mb-8 text-left py-4">
+            <ul className={`${block.data.style === 'ordered' ? 'list-decimal' : 'list-disc'} space-y-3 text-gray-700 ml-6 tracking-wide font-light [&_a]:text-[#A47F58] [&_a]:underline [&_b]:font-bold [&_u]:underline`}>
               {block.data.items.map((item, i) => (
                 <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
               ))}
@@ -69,12 +69,12 @@ const JournalDetail = () => {
         );
       case 'quote':
         return (
-          <div key={idx} className="max-w-[800px] mx-auto px-4 mb-12 text-center">
-            <blockquote className="text-2xl italic text-[#A47F58] font-serif border-l-4 border-[#A47F58]/20 pl-4 py-4 decoration-none">
+          <div key={idx} className="max-w-[800px] mx-auto px-4 mb-16 text-center py-8">
+            <blockquote className="text-2xl md:text-3xl italic text-[#A47F58] font-serif leading-relaxed px-8">
               "{block.data.text}"
             </blockquote>
             {block.data.caption && (
-              <cite className="text-xs uppercase tracking-widest text-gray-400 mt-2 block">— {block.data.caption}</cite>
+              <cite className="text-[10px] uppercase tracking-[0.2em] text-gray-400 mt-6 block">— {block.data.caption}</cite>
             )}
           </div>
         );
