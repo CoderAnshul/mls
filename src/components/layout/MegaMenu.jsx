@@ -51,7 +51,7 @@ const MegaMenu = ({ data, isVisible, onClose }) => {
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500 flex flex-col justify-end p-8 text-center">
-                  <h4 className="text-white text-2xl font-serif italic mb-4">
+                  <h4 className="text-white text-2xl  italic mb-4">
                     {feature.title}
                   </h4>
                   <div className="flex justify-center">

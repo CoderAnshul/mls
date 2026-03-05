@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
 import { Compass, Plus, Trash2, Edit, ChevronDown, Layers, Image as ImageIcon, X, Save, Upload } from 'lucide-react';
 import { api } from '../../utils/api';
+import ImageUpload from './ImageUpload';
 
 const NavigationView = () => {
     const [navItems, setNavItems] = useState([]);
@@ -74,21 +74,6 @@ const NavigationView = () => {
         }
     };
 
-    const handleImageUpload = async (e, index, type) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        try {
-            const { url } = await api.navigation.uploadImage(file);
-            if (type === 'feature') {
-                const newFeatures = [...formData.features];
-                newFeatures[index].image = url;
-                setFormData({ ...formData, features: newFeatures });
-            }
-        } catch (err) {
-            console.error('Upload failed:', err);
-        }
-    };
 
     const addSection = () => {
         setFormData({
@@ -346,16 +331,16 @@ const NavigationView = () => {
                                                         <ImageIcon size={32} />
                                                     </div>
                                                 )}
-                                                <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-all">
-                                                    <Upload className="text-white mb-2" />
-                                                    <span className="text-white text-[11px] font-black uppercase">Upload Image</span>
-                                                    <input 
-                                                        type="file" 
-                                                        className="hidden" 
-                                                        accept="image/*"
-                                                        onChange={(e) => handleImageUpload(e, fIdx, 'feature')}
+                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                                                    <ImageUpload 
+                                                        value={feature.image}
+                                                        onChange={(url) => {
+                                                            const newFeatures = [...formData.features];
+                                                            newFeatures[fIdx].image = url;
+                                                            setFormData({ ...formData, features: newFeatures });
+                                                        }}
                                                     />
-                                                </label>
+                                                </div>
                                             </div>
                                             <div className="space-y-2">
                                                 <input 

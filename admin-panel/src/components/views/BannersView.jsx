@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../utils/api';
 import { useToast } from '../common/Toast';
+import ImageUpload from './ImageUpload';
 
 const BannersView = () => {
   const [assets, setAssets] = useState([]);
@@ -199,16 +200,18 @@ const BannersView = () => {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 transition-all flex items-center justify-center backdrop-blur-[2px]">
-                    <label className="cursor-pointer bg-white text-black px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-neutral-200 transition-all shadow-2xl scale-90 group-hover/img:scale-100">
-                      <Upload size={14} />
-                      {item.image ? 'Change Vision' : 'Import Asset'}
-                      <input 
-                        type="file" 
-                        className="hidden" 
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, assetKey, idx)}
-                      />
-                    </label>
+                    <ImageUpload 
+                      value={item.image}
+                      onChange={(url) => {
+                        const updatedValue = [...(localAssets[assetKey] || [])];
+                        if (updatedValue[idx]) {
+                          updatedValue[idx].image = url;
+                        } else {
+                          updatedValue.push({ image: url, link: '', title: '' });
+                        }
+                        handleLocalUpdate(assetKey, updatedValue);
+                      }}
+                    />
                   </div>
                   {/* Index Indicator */}
                   <div className="absolute bottom-4 left-4 px-2 py-1 bg-black/40 backdrop-blur-md rounded-lg text-[8px] font-black text-white/60 uppercase tracking-widest">
@@ -315,16 +318,10 @@ const BannersView = () => {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/hero:opacity-100 transition-all flex items-center justify-center backdrop-blur-sm">
-                    <label className="cursor-pointer bg-white text-black px-7 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center gap-3 hover:bg-neutral-200 transition-all shadow-2xl scale-95 group-hover/hero:scale-100">
-                      <Upload size={16} />
-                      {banner ? 'Swap Vision' : 'Inject Banner Asset'}
-                      <input 
-                        type="file" 
-                        className="hidden" 
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, bannerKey)}
-                      />
-                    </label>
+                    <ImageUpload 
+                      value={banner}
+                      onChange={(url) => handleLocalUpdate(bannerKey, url)}
+                    />
                   </div>
                </div>
             </div>

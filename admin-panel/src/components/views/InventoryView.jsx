@@ -23,6 +23,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { api } from '../../utils/api';
+import ImageUpload from './ImageUpload';
 
 // ─── Excel Import Component ───────────────────────────────────────────────────
 const ExcelImportModal = ({ onClose, onSuccess }) => {
@@ -74,7 +75,21 @@ const ExcelImportModal = ({ onClose, onSuccess }) => {
           careInstructions: row.careInstructions || row.CareInstructions || '',
           fitInfo: row.fitInfo || row.FitInfo || '',
           isNew: (row.isNew || row.IsNew || '').toString().toLowerCase() === 'true',
+          variants: []
         };
+
+        // Parse Variants from Excel
+        const colorNames = (row.colorNames || row.ColorNames || '').toString().split(',').map(s => s.trim()).filter(Boolean);
+        const colorSwatches = (row.colorSwatches || row.ColorSwatches || '').toString().split(',').map(s => s.trim()).filter(Boolean);
+        const colorImages = (row.colorImages || row.ColorImages || '').toString().split('|').map(s => s.trim()).filter(Boolean);
+
+        if (colorNames.length > 0) {
+          product.variants = colorNames.map((name, idx) => ({
+            colorName: name,
+            colorImage: colorSwatches[idx] || '',
+            images: colorImages[idx] ? colorImages[idx].split(',').map(img => img.trim()).filter(Boolean) : []
+          }));
+        }
         if (!product.title) throw new Error('Missing title');
         await api.products.create(product);
         ok++;
@@ -140,6 +155,9 @@ const ExcelImportModal = ({ onClose, onSuccess }) => {
                     ['careInstructions', 'optional', 'Care guidance'],
                     ['fitInfo', 'optional', 'Fit description'],
                     ['isNew', 'optional', 'true or false'],
+                    ['colorNames', 'optional', 'Comma-sep: Black, Blue'],
+                    ['colorSwatches', 'optional', 'Comma-sep: swatch1, swatch2'],
+                    ['colorImages', 'optional', 'Pipe and Comma: img1,img2 | img3'],
                   ].map(([col, type, hint]) => (
                     <div key={col} className="flex items-center gap-2">
                       <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${type === 'required' ? 'bg-rose-500/20 text-rose-400' : 'bg-admin-border text-admin-muted'}`}>{type}</span>
@@ -218,6 +236,7 @@ export const InventoryView = ({ onEdit }) => {
   const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState(null);
   const [showImport, setShowImport] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const loadProducts = async () => {
     setLoading(true);
@@ -246,12 +265,38 @@ export const InventoryView = ({ onEdit }) => {
     }
   };
 
+  const toggleSelectAll = () => {
+    if (selectedIds.length === products.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(products.map(p => p._id || p.id));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete ${selectedIds.length} products?`)) {
+      try {
+        await api.products.bulkDelete(selectedIds);
+        setSelectedIds([]);
+        loadProducts();
+      } catch (err) {
+        console.error('Bulk delete failed', err);
+        alert('Bulk delete failed. Check console.');
+      }
+    }
+  };
+
   if (editingProduct || onEdit === true) {
     return <ProductForm 
       product={editingProduct} 
       onCancel={() => {
         setEditingProduct(null);
-        if (typeof onEdit === 'function') onEdit();
         loadProducts();
       }} 
     />;
@@ -284,6 +329,23 @@ export const InventoryView = ({ onEdit }) => {
         </div>
       </div>
 
+      {selectedIds.length > 0 && (
+        <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4 flex items-center justify-between animate-in slide-in-from-top-4 duration-300">
+          <div className="flex items-center gap-3">
+            <AlertCircle size={18} className="text-rose-400" />
+            <p className="text-[13px] font-bold text-rose-400 uppercase tracking-widest">
+              {selectedIds.length} Products Selected
+            </p>
+          </div>
+          <button 
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all shadow-lg shadow-rose-500/20"
+          >
+            <Trash2 size={14} /> Bulk Delete Assets
+          </button>
+        </div>
+      )}
+
       {showImport && (
         <ExcelImportModal
           onClose={() => setShowImport(false)}
@@ -295,7 +357,14 @@ export const InventoryView = ({ onEdit }) => {
         <table className="w-full text-left density-table">
           <thead>
             <tr>
-              <th className="w-8 px-4 py-3"><input type="checkbox" className="rounded border-admin-border bg-admin-bg" /></th>
+              <th className="w-8 px-4 py-3">
+                <input 
+                  type="checkbox" 
+                  className="rounded border-admin-border bg-admin-bg cursor-pointer" 
+                  checked={products.length > 0 && selectedIds.length === products.length}
+                  onChange={toggleSelectAll}
+                />
+              </th>
               <th>Product Details</th>
               <th>SKU</th>
               <th>Category</th>
@@ -312,8 +381,15 @@ export const InventoryView = ({ onEdit }) => {
               </tr>
             ) : products.length > 0 ? (
               products.map((p) => (
-                <tr key={p._id || p.id} className="group hover:bg-admin-bg transition-colors">
-                  <td className="px-4 py-2.5"><input type="checkbox" className="rounded border-admin-border bg-admin-bg" /></td>
+                <tr key={p._id || p.id} className={`group hover:bg-admin-bg transition-colors ${selectedIds.includes(p._id || p.id) ? 'bg-admin-bg/50' : ''}`}>
+                  <td className="px-4 py-2.5">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-admin-border bg-admin-bg cursor-pointer" 
+                      checked={selectedIds.includes(p._id || p.id)}
+                      onChange={() => toggleSelect(p._id || p.id)}
+                    />
+                  </td>
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-3">
                       <img src={p.coverImage || p.images?.[0] || '/img/placeholder-product.jpg'} className="w-10 h-10 rounded-lg object-cover border border-admin-border shadow-sm" alt="" />
@@ -381,6 +457,7 @@ export const ProductForm = ({ product, onCancel }) => {
   const [categories, setCategories] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [attributes, setAttributes] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -399,7 +476,8 @@ export const ProductForm = ({ product, onCancel }) => {
     fabricDetails: '',
     careInstructions: '',
     fitInfo: '',
-    wearWith: []
+    wearWith: [],
+    variants: []
   });
 
   useEffect(() => {
@@ -408,8 +486,9 @@ export const ProductForm = ({ product, onCancel }) => {
         ...product,
         price: product.price || '',
         discount: product.discount || '',
-        stock: product.stock || '',
-        wearWith: product.wearWith ? product.wearWith.map(p => typeof p === 'object' ? p._id : p) : []
+        sizes: Array.isArray(product.sizes) ? product.sizes : [],
+        wearWith: product.wearWith ? product.wearWith.map(p => typeof p === 'object' ? p._id : p) : [],
+        variants: product.variants || []
       });
     }
   }, [product]);
@@ -417,12 +496,14 @@ export const ProductForm = ({ product, onCancel }) => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [cats, prods] = await Promise.all([
+        const [cats, prods, attrs] = await Promise.all([
           api.categories.getAll(),
-          api.products.getAll()
+          api.products.getAll(),
+          api.attributes.getAll()
         ]);
         setCategories(cats);
         setAllProducts(prods.filter(p => p._id !== (product?._id || product?.id)));
+        setAttributes(attrs);
         if (cats.length > 0 && !product) setFormData(prev => ({ ...prev, category: cats[0].name }));
       } catch (err) {
         console.error('Failed to fetch data', err);
@@ -458,12 +539,17 @@ export const ProductForm = ({ product, onCancel }) => {
   };
 
   const toggleSize = (s) => {
-    setFormData(prev => ({
-      ...prev,
-      sizes: prev.sizes.includes(s) 
-        ? prev.sizes.filter(size => size !== s) 
-        : [...prev.sizes, s]
-    }));
+    const normalized = s.trim().toUpperCase();
+    setFormData(prev => {
+      const currentSizes = Array.isArray(prev.sizes) ? prev.sizes : [];
+      const hasSize = currentSizes.some(size => size.trim().toUpperCase() === normalized);
+      return {
+        ...prev,
+        sizes: hasSize 
+          ? currentSizes.filter(size => size.trim().toUpperCase() !== normalized) 
+          : [...currentSizes, normalized]
+      };
+    });
   };
 
   const toggleWearWith = (id) => {
@@ -473,6 +559,38 @@ export const ProductForm = ({ product, onCancel }) => {
         ? prev.wearWith.filter(i => i !== id)
         : [...prev.wearWith, id]
     }));
+  };
+
+  const addVariant = () => {
+    setFormData(prev => ({
+      ...prev,
+      variants: [...prev.variants, { colorName: '', colorImage: '', images: [] }]
+    }));
+  };
+
+  const updateVariant = (index, field, value) => {
+    const newVariants = [...formData.variants];
+    newVariants[index][field] = value;
+    setFormData(prev => ({ ...prev, variants: newVariants }));
+  };
+
+  const removeVariant = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      variants: prev.variants.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateVariantImages = (vIndex, urls) => {
+    const newVariants = [...formData.variants];
+    newVariants[vIndex].images = urls;
+    setFormData(prev => ({ ...prev, variants: newVariants }));
+  };
+
+  const removeVariantImage = (vIndex, iIndex) => {
+    const newVariants = [...formData.variants];
+    newVariants[vIndex].images = newVariants[vIndex].images.filter((_, i) => i !== iIndex);
+    setFormData(prev => ({ ...prev, variants: newVariants }));
   };
 
   return (
@@ -560,56 +678,121 @@ export const ProductForm = ({ product, onCancel }) => {
           <div className="bg-admin-card border border-admin-border rounded-2xl p-6 space-y-6 shadow-sm">
             <h3 className="text-[14px] font-black uppercase tracking-widest text-admin-muted border-b border-admin-border pb-3">Visual Media Registry</h3>
             <div className="grid grid-cols-2 gap-6">
-               <div className="space-y-2">
-                 <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.2em]">Cover Image (Default)</label>
-                 <input 
-                  type="text" 
+                <ImageUpload 
+                  label="Cover Image (Default)"
                   value={formData.coverImage}
-                  onChange={e => setFormData({...formData, coverImage: e.target.value})}
-                  placeholder="https://... cover.jpg" 
-                  className="w-full bg-admin-bg border border-admin-border px-3 py-2 rounded-lg text-xs font-mono" 
+                  onChange={url => setFormData({...formData, coverImage: url})}
                 />
-                {formData.coverImage && <img src={formData.coverImage} className="w-full h-32 object-cover rounded-lg border border-admin-border" />}
-               </div>
-               <div className="space-y-2">
-                 <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.2em]">Hover Image (Secondary)</label>
-                 <input 
-                  type="text" 
+                <ImageUpload 
+                  label="Hover Image (Secondary)"
                   value={formData.hoverImage}
-                  onChange={e => setFormData({...formData, hoverImage: e.target.value})}
-                  placeholder="https://... hover.jpg" 
-                  className="w-full bg-admin-bg border border-admin-border px-3 py-2 rounded-lg text-xs font-mono" 
+                  onChange={url => setFormData({...formData, hoverImage: url})}
                 />
-                {formData.hoverImage && <img src={formData.hoverImage} className="w-full h-32 object-cover rounded-lg border border-admin-border" />}
-               </div>
             </div>
             <div className="space-y-3">
                <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.2em]">Gallery Showcase</label>
-               <div className="grid grid-cols-4 gap-2">
+               <div className="grid grid-cols-4 gap-4">
                  {formData.gallery.map((url, i) => (
-                   <div key={i} className="relative group">
-                     <img src={url} className="w-full h-20 object-cover rounded-lg border border-admin-border" />
+                   <div key={i} className="relative group h-20">
+                     <img src={url} className="w-full h-full object-cover rounded-lg border border-admin-border" />
                      <button 
                       type="button" 
                       onClick={() => setFormData({...formData, gallery: formData.gallery.filter((_, idx) => idx !== i)})}
-                      className="absolute -top-1 -right-1 bg-rose-500 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><XCircle size={10} /></button>
+                      className="absolute -top-2 -right-2 bg-rose-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                        <XCircle size={12} />
+                      </button>
                    </div>
                  ))}
-                 <button 
-                  type="button"
-                  onClick={() => {
-                    const url = prompt('Enter Image URL:');
-                    if (url) setFormData({...formData, gallery: [...formData.gallery, url]});
-                  }}
-                  className="w-full h-20 rounded-lg border border-dashed border-admin-border flex flex-col items-center justify-center text-admin-muted hover:border-admin-accent hover:text-admin-accent transition-all">
-                   <Plus size={16} />
-                   <span className="text-[8px] font-black uppercase mt-1">Add Shot</span>
-                 </button>
+                 
+                 <div className="h-20">
+                    <ImageUpload 
+                      value=""
+                      onChange={url => url && setFormData({...formData, gallery: [...formData.gallery, url]})}
+                      className="h-full"
+                    />
+                 </div>
                </div>
             </div>
           </div>
 
-          {/* Details & Specs */}
+          {/* Variants Configuration */}
+          <div className="bg-admin-card border border-admin-border rounded-2xl p-6 space-y-6 shadow-sm">
+            <div className="flex items-center justify-between border-b border-admin-border pb-3">
+               <h3 className="text-[14px] font-black uppercase tracking-widest text-admin-muted">Product Variants (Colors)</h3>
+               <button type="button" onClick={addVariant} className="flex items-center gap-1.5 px-3 py-1.5 bg-admin-accent/10 text-admin-accent rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-admin-accent hover:text-white transition-all">
+                  <Plus size={12} /> Add Variant Cluster
+               </button>
+            </div>
+            
+            {formData.variants.length === 0 ? (
+                <div className="py-10 text-center border-2 border-dashed border-admin-border rounded-xl bg-admin-bg/30">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-admin-muted">No variant clusters detected</p>
+                </div>
+            ) : (
+                <div className="space-y-8">
+                    {formData.variants.map((variant, vIdx) => (
+                        <div key={vIdx} className="p-6 bg-admin-bg/50 border border-admin-border rounded-2xl space-y-6 relative group/variant">
+                            <button 
+                                type="button"
+                                onClick={() => removeVariant(vIdx)}
+                                className="absolute top-4 right-4 p-1.5 bg-rose-500/10 text-rose-500 rounded-lg opacity-0 group-hover/variant:opacity-100 transition-opacity hover:bg-rose-500 hover:text-white"
+                            >
+                                <Trash2 size={12} />
+                            </button>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <div className="space-y-1">
+                                        <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.2em]">Variant Identity (e.g. Midnight Black)</label>
+                                        <input 
+                                            type="text"
+                                            value={variant.colorName}
+                                            onChange={(e) => updateVariant(vIdx, 'colorName', e.target.value)}
+                                            className="w-full bg-admin-card border border-admin-border px-3 py-2 rounded-lg text-xs font-bold"
+                                            placeholder="Midnight Black"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.2em]">Color Swatch / Accent</label>
+                                        <ImageUpload 
+                                            value={variant.colorImage}
+                                            onChange={(url) => updateVariant(vIdx, 'colorImage', url)}
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.2em]">Variant Photo Gallery</label>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {variant.images.map((img, iIdx) => (
+                                            <div key={iIdx} className="relative aspect-square rounded-lg overflow-hidden border border-admin-border group/img">
+                                                <img src={img} className="w-full h-full object-cover" />
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => removeVariantImage(vIdx, iIdx)}
+                                                    className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 flex items-center justify-center text-white transition-all"
+                                                >
+                                                    <Trash2 size={12} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {/* Multi-image direct adding through a special instance of ImageUpload that appends */}
+                                        <div className="aspect-square">
+                                            <ImageUpload 
+                                                value=""
+                                                onChange={(url) => url && updateVariantImages(vIdx, [...variant.images, url])}
+                                                className="h-full"
+                                            />
+                                        </div>
+                                    </div>
+                                    <p className="text-[8px] text-admin-muted uppercase font-bold tracking-widest text-center mt-2">Add high-resolution variant captures</p>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+          </div>
           <div className="bg-admin-card border border-admin-border rounded-2xl p-6 space-y-6 shadow-sm">
             <h3 className="text-[14px] font-black uppercase tracking-widest text-admin-muted border-b border-admin-border pb-3">Technical Specifications</h3>
             <div className="space-y-4">
@@ -691,15 +874,18 @@ export const ProductForm = ({ product, onCancel }) => {
                <div className="space-y-3">
                  <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.2em]">Size Options</label>
                  <div className="flex flex-wrap gap-2">
-                    {['S', 'M', 'L', 'XL', 'XXL', 'ONESIZE'].map(s => (
-                       <button 
-                        key={s} 
-                        type="button"
-                        onClick={() => toggleSize(s)}
-                        className={`px-2 py-1.5 rounded-lg border text-[8px] font-black uppercase tracking-widest transition-all ${formData.sizes.includes(s) ? 'bg-admin-accent border-admin-accent text-white' : 'border-admin-border text-admin-muted hover:bg-admin-bg'}`}>
-                         {s}
-                       </button>
-                    ))}
+                     {(attributes.find(a => a.name === 'Size Archetypes')?.values || ['S', 'M', 'L', 'XL', 'XXL', 'ONESIZE']).map(s => {
+                        const isSelected = (formData.sizes || []).some(size => size.trim().toUpperCase() === s.trim().toUpperCase());
+                        return (
+                          <button 
+                           key={s} 
+                           type="button"
+                           onClick={() => toggleSize(s)}
+                           className={`px-2 py-1.5 rounded-lg border text-[8px] font-black uppercase tracking-widest transition-all ${isSelected ? 'bg-admin-accent border-admin-accent text-white' : 'border-admin-border text-admin-muted hover:bg-admin-bg'}`}>
+                            {s}
+                          </button>
+                        );
+                     })}
                  </div>
                </div>
 

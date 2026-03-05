@@ -32,12 +32,32 @@ export const api = {
                 method: 'DELETE'
             });
             return res.json();
+        },
+        bulkDelete: async (ids) => {
+            const res = await fetch(`${API_BASE_URL}/products/bulk-delete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids })
+            });
+            return res.json();
+        }
+    },
+    // Upload Utility
+    upload: {
+        image: async (file) => {
+            const formData = new FormData();
+            formData.append('image', file);
+            const res = await fetch(`${API_BASE_URL}/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            return res.json();
         }
     },
     // Journals
     journals: {
         getAll: async () => {
-            const res = await fetch(`${API_BASE_URL}/journals`);
+            const res = await fetch(`${API_BASE_URL}/journals?admin=true`);
             return res.json();
         },
         create: async (data) => {
@@ -59,15 +79,6 @@ export const api = {
         delete: async (slug) => {
             const res = await fetch(`${API_BASE_URL}/journals/${slug}`, {
                 method: 'DELETE'
-            });
-            return res.json();
-        },
-        uploadImage: async (file) => {
-            const formData = new FormData();
-            formData.append('image', file);
-            const res = await fetch(`${API_BASE_URL}/upload`, {
-                method: 'POST',
-                body: formData
             });
             return res.json();
         }
@@ -112,15 +123,6 @@ export const api = {
         delete: async (id) => {
             const res = await fetch(`${API_BASE_URL}/navigation/${id}`, {
                 method: 'DELETE'
-            });
-            return res.json();
-        },
-        uploadImage: async (file) => {
-            const formData = new FormData();
-            formData.append('image', file);
-            const res = await fetch(`${API_BASE_URL}/upload`, {
-                method: 'POST',
-                body: formData
             });
             return res.json();
         }
@@ -259,6 +261,71 @@ export const api = {
         delete: async (id) => {
             const res = await fetch(`${API_BASE_URL}/lookbooks/${id}`, {
                 method: 'DELETE'
+            });
+            return res.json();
+        }
+    },
+    // Orders
+    orders: {
+        getAll: async () => {
+            const res = await fetch(`${API_BASE_URL}/orders`);
+            return res.json();
+        },
+        updateStatus: async (id, statusData) => {
+            const res = await fetch(`${API_BASE_URL}/orders/${id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(statusData)
+            });
+            return res.json();
+        },
+        dispatch: async (id, dispatchData) => {
+            const res = await fetch(`${API_BASE_URL}/orders/${id}/dispatch`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dispatchData)
+            });
+            return res.json();
+        }
+    },
+    // Delivery Partners
+    deliveryPartners: {
+        getAll: async () => {
+            const res = await fetch(`${API_BASE_URL}/delivery-partners`);
+            return res.json();
+        },
+        create: async (data) => {
+            const res = await fetch(`${API_BASE_URL}/delivery-partners`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return res.json();
+        },
+        update: async (id, data) => {
+            const res = await fetch(`${API_BASE_URL}/delivery-partners/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return res.json();
+        },
+        delete: async (id) => {
+            const res = await fetch(`${API_BASE_URL}/delivery-partners/${id}`, {
+                method: 'DELETE'
+            });
+            return res.json();
+        }
+    },
+    // Users
+    users: {
+        getAll: async (keyword = '') => {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const token = user.token;
+            const res = await fetch(`${API_BASE_URL}/user?keyword=${keyword}`, {
+                headers: { 
+                    'Authorization': token ? `Bearer ${token}` : ''
+                }
             });
             return res.json();
         }

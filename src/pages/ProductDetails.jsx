@@ -30,8 +30,12 @@ const ProductDetails = () => {
       try {
         const data = await api.products.getOne(id);
         setProduct(data);
-        // We don't auto-select size/length to force user interaction as requested
-        if (data.colors?.length > 0) setSelectedColor(data.colors[0]);
+        // Initialize color from variants if available
+        if (data.variants?.length > 0) {
+          setSelectedColor(data.variants[0].colorName);
+        } else if (data.colors?.length > 0) {
+          setSelectedColor(data.colors[0]);
+        }
 // ... (rest of effect)
         // Save to recently viewed
         try {
@@ -84,9 +88,17 @@ const ProductDetails = () => {
     );
   }
 
-  const allImages = [product.coverImage, product.hoverImage, ...(product.gallery || [])].filter(Boolean);
-  if (allImages.length === 0 && product.images?.length > 0) {
-    allImages.push(...product.images);
+  // Determine gallery images based on selected variant or fallback to general images
+  let allImages = [];
+  const selectedVariant = product.variants?.find(v => v.colorName === selectedColor);
+  
+  if (selectedVariant && selectedVariant.images?.length > 0) {
+    allImages = [...selectedVariant.images];
+  } else {
+    allImages = [product.coverImage, product.hoverImage, ...(product.gallery || [])].filter(Boolean);
+    if (allImages.length === 0 && product.images?.length > 0) {
+      allImages.push(...product.images);
+    }
   }
 
   return (
@@ -166,24 +178,45 @@ const ProductDetails = () => {
             {/* Selection Options */}
             <div className="flex flex-col gap-4 border-t border-black/10 pt-3">
               
-              {/* Color */}
-              {product.colors?.length > 0 && (
+              {/* Color Selection - Support both simple colors and variants */}
+              {(product.variants?.length > 0 || product.colors?.length > 0) && (
                 <div>
                   <h5 className="text-[11px] font-bold uppercase tracking-[0.15em] mb-4 text-[#252423]">
-                    AVAILABLE COLOURS
+                    COLOUR: {selectedColor}
                   </h5>
-                  <div className="flex gap-3">
-                    {product.colors.map((c, i) => (
-                      <div 
-                        key={i} 
-                        onClick={() => setSelectedColor(c)}
-                        className={`w-8 h-8 rounded-full border-2 shadow-md cursor-pointer transition-all duration-300 transform hover:scale-110 
-                          ${selectedColor === c ? 'border-black scale-110 ring-2 ring-black/5 ring-offset-2' : 'border-white'}
-                        `} 
-                        style={{ backgroundColor: c }}
-                        title={c}
-                      />
-                    ))}
+                  <div className="flex flex-wrap gap-3">
+                    {/* Render Variants if available */}
+                    {product.variants?.length > 0 ? (
+                      product.variants.map((v, i) => (
+                        <div 
+                          key={i} 
+                          onClick={() => setSelectedColor(v.colorName)}
+                          className={`w-10 h-10 rounded-full border-2 shadow-md cursor-pointer transition-all duration-300 transform hover:scale-110 flex items-center justify-center overflow-hidden
+                            ${selectedColor === v.colorName ? 'border-black scale-110 ring-2 ring-black/5 ring-offset-2' : 'border-white'}
+                          `} 
+                          title={v.colorName}
+                        >
+                          {v.colorImage ? (
+                            <img src={v.colorImage} alt={v.colorName} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-neutral-200" />
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      /* Fallback to simple colors */
+                      product.colors.map((c, i) => (
+                        <div 
+                          key={i} 
+                          onClick={() => setSelectedColor(c)}
+                          className={`w-8 h-8 rounded-full border-2 shadow-md cursor-pointer transition-all duration-300 transform hover:scale-110 
+                            ${selectedColor === c ? 'border-black scale-110 ring-2 ring-black/5 ring-offset-2' : 'border-white'}
+                          `} 
+                          style={{ backgroundColor: c }}
+                          title={c}
+                        />
+                      ))
+                    )}
                   </div>
                 </div>
               )}
@@ -201,7 +234,6 @@ const ProductDetails = () => {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {product.sizes.map((size) => {
-                      const isOutOfStock = ['XXS', 'XS', 'XL', 'XXL'].includes(size); // For design demo
                       return (
                         <button
                           key={size}
@@ -209,20 +241,12 @@ const ProductDetails = () => {
                           className={`relative h-12 min-w-[4rem] px-4 flex items-center justify-center text-[12px] font-black tracking-widest transition-all duration-300 border 
                             ${selectedSize === size 
                               ? 'border-black bg-black text-white shadow-xl shadow-black/10' 
-                              : isOutOfStock 
-                                ? 'border-black/10 bg-white/30 text-neutral-400 cursor-default' 
-                                : 'border-black/10 bg-white/50 hover:border-black text-neutral-700'
+                              : 'border-black/10 bg-white/50 hover:border-black text-neutral-700'
                             }`}
                         >
-                          <span className="relative z-10 flex items-center gap-1.5">
-                            {isOutOfStock && <IoMailOutline className="w-3.5 h-3.5" />}
+                          <span className="relative z-10">
                             {size}
                           </span>
-                          {isOutOfStock && (
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <div className="w-full h-[1px] bg-neutral-300 -rotate-[25deg]" />
-                            </div>
-                          )}
                         </button>
                       );
                     })}

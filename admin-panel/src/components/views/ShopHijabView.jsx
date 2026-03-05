@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../utils/api';
 import { useToast } from '../common/Toast';
+import ImageUpload from './ImageUpload';
 
 const ShopHijabView = () => {
   const [assets, setAssets] = useState([]);
@@ -68,20 +69,6 @@ const ShopHijabView = () => {
     }
   };
 
-  const handleImageUpload = async (e, index) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    try {
-      const { url } = await api.navigation.uploadImage(file);
-      const updatedValue = [...localValue];
-      updatedValue[index].image = url;
-      setLocalValue(updatedValue);
-      toast.success('Visual asset buffered');
-    } catch (err) {
-      toast.error('Upload failed');
-    }
-  };
 
   const addItem = () => {
     setLocalValue([...localValue, { image: '', link: '', title: '' }]);
@@ -179,16 +166,14 @@ const ShopHijabView = () => {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-sm">
-                    <label className="cursor-pointer bg-white text-black px-5 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-neutral-200 transition-all shadow-2xl scale-90 group-hover:scale-100">
-                      <Upload size={14} />
-                      {item.image ? 'Swap Vision' : 'Inject Asset'}
-                      <input 
-                        type="file" 
-                        className="hidden" 
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, idx)}
-                      />
-                    </label>
+                    <ImageUpload 
+                      value={item.image}
+                      onChange={(url) => {
+                        const updatedValue = [...localValue];
+                        updatedValue[idx].image = url;
+                        setLocalValue(updatedValue);
+                      }}
+                    />
                   </div>
                 </div>
 

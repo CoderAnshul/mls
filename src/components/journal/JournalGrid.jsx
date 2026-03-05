@@ -82,9 +82,9 @@ const JournalGrid = ({ items }) => {
                              <path d="M12 2L15 9L22 9L16 14L18 21L12 17L6 21L8 14L2 9L9 9L12 2Z" />
                            </svg>
                         </div>
-                        <h3 className="text-2xl font-serif text-[#252423] mb-2">{item.title}</h3>
+                        <h3 className="text-2xl  text-[#252423] mb-2">{item.title}</h3>
                         <p className="text-sm uppercase tracking-widest text-gray-500 mb-6">{item.subtitle}</p>
-                         <p className="font-serif italic text-gray-600">
+                         <p className=" italic text-gray-600">
                              {item.content}
                          </p>
                          <div className="font-cursive text-2xl mt-4">

@@ -21,8 +21,14 @@ router.post('/', upload.single('image'), (req, res) => {
     return res.status(400).json({ message: 'No file uploaded' });
   }
   
-  // Return the URL to the uploaded file
-  const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+  // Return the path. If BASE_URL is set (production), we use it. 
+  // Otherwise, we return a relative path which the frontend can prefix.
+  // This prevents 'localhost' from being hardcoded in DB entries during production.
+  const baseUrl = process.env.BASE_URL || '';
+  const fileUrl = baseUrl 
+    ? `${baseUrl}/uploads/${req.file.filename}`
+    : `/uploads/${req.file.filename}`;
+    
   res.json({ url: fileUrl });
 });
 

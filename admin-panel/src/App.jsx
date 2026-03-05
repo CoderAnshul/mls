@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   LayoutDashboard,
   Package,
   ShoppingCart,
   Users,
-  Settings,
   Plus,
   Search,
   Bell,
-  BarChart3,
   Layers,
   CreditCard,
   Truck,
@@ -19,12 +17,12 @@ import {
   BookOpen,
   HelpCircle,
   Compass,
-  Palette,
   Sparkles,
   Layout,
   ShoppingBag,
   Camera
 } from 'lucide-react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ToastProvider } from './components/common/Toast';
 
 const JournalView = React.lazy(() => import('./components/views/JournalView'));
@@ -53,51 +51,72 @@ import AdminsView from './components/views/AdminsView';
 import AttributesView from './components/views/AttributesView';
 
 const App = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [activeSubTab, setActiveSubTab] = useState('all');
-  const [isAddingProduct, setIsAddingProduct] = useState(false);
-  const [expandedTabs, setExpandedTabs] = useState(['catalog']);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Expanded tabs state should persist minimally, maybe keep it in local storage or just state
+  const [expandedTabs, setExpandedTabs] = useState(['catalog', 'recommendations']);
 
   const navItems = [
-    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/' },
     {
       id: 'catalog',
       icon: Package,
       label: 'Products',
+      path: '/products',
       subTabs: [
-        { id: 'all', label: 'All Products' },
-        { id: 'add', label: 'Add New' },
-        { id: 'categories', label: 'Categories' },
-        { id: 'attributes', label: 'Attributes' },
-        { id: 'inventory', label: 'Inventory' }
+        { id: 'all', label: 'All Products', path: '/products' },
+        { id: 'add', label: 'Add New', path: '/products/add' },
+        { id: 'categories', label: 'Categories', path: '/products/categories' },
+        { id: 'attributes', label: 'Attributes', path: '/products/attributes' },
+        { id: 'inventory', label: 'Inventory', path: '/products/inventory' }
       ]
     },
-    { id: 'orders', icon: ShoppingCart, label: 'Orders' },
-    { id: 'customers', icon: Users, label: 'Customers' },
-    { id: 'payments', icon: CreditCard, label: 'Payments' },
-    { id: 'shipping', icon: Truck, label: 'Shipping' },
-    { id: 'discounts', icon: Ticket, label: 'Discounts' },
-    { id: 'analytics', icon: BarChart3, label: 'Analytics' },
-    { id: 'reviews', icon: MessageSquare, label: 'Reviews' },
-    { id: 'journal', icon: BookOpen, label: 'Journal' },
-    { id: 'faq', icon: HelpCircle, label: 'FAQ' },
-    { id: 'navigation', icon: Compass, label: 'Navigation' },
-    { id: 'banners', icon: Layout, label: 'Banners' },
-    { id: 'categories', icon: Layers, label: 'Categories' },
-    { id: 'shop-hijab', icon: ShoppingBag, label: 'Shop Hijab' },
+    { id: 'orders', icon: ShoppingCart, label: 'Orders', path: '/orders' },
+    { id: 'customers', icon: Users, label: 'Customers', path: '/customers' },
+    { id: 'payments', icon: CreditCard, label: 'Payments', path: '/payments' },
+    { id: 'shipping', icon: Truck, label: 'Shipping', path: '/shipping' },
+    { id: 'discounts', icon: Ticket, label: 'Discounts', path: '/discounts' },
+
+    { id: 'reviews', icon: MessageSquare, label: 'Reviews', path: '/reviews' },
+    { id: 'journal', icon: BookOpen, label: 'Journal', path: '/journal' },
+    { id: 'faq', icon: HelpCircle, label: 'FAQ', path: '/faq' },
+    { id: 'navigation', icon: Compass, label: 'Navigation', path: '/navigation' },
+    { id: 'banners', icon: Layout, label: 'Banners', path: '/banners' },
+    { id: 'categories', icon: Layers, label: 'Categories', path: '/categories' }, // duplicate? line 86 original
+    { id: 'shop-hijab', icon: ShoppingBag, label: 'Shop Hijab', path: '/shop-hijab' },
     {
       id: 'recommendations',
       icon: Sparkles,
       label: 'Recommends',
+      path: '/recommendations',
       subTabs: [
-        { id: 'cart', label: 'Cart Recommendation' },
-        { id: 'checkout', label: 'Checkout Recommendation' }
+        { id: 'cart', label: 'Cart Recommendation', path: '/recommendations/cart' },
+        { id: 'checkout', label: 'Checkout Recommendation', path: '/recommendations/checkout' }
       ]
     },
-    { id: 'notifications', icon: Bell, label: 'Notifications' },
-    { id: 'lookbook', icon: Camera, label: 'Lookbook' },
-    { id: 'admins', icon: ShieldCheck, label: 'Admins' },
+    { id: 'notifications', icon: Bell, label: 'Notifications', path: '/notifications' },
+    { id: 'lookbook', icon: Camera, label: 'Lookbook', path: '/lookbook' },
+    { id: 'admins', icon: ShieldCheck, label: 'Admins', path: '/admins' },
   ];
+
+  // Derived state from URL
+  const activeTab = useMemo(() => {
+    const path = location.pathname;
+    if (path === '/') return 'dashboard';
+    const item = navItems.find(item => path.startsWith(item.path) && item.path !== '/');
+    return item ? item.id : 'dashboard';
+  }, [location.pathname]);
+
+  const activeSubTab = useMemo(() => {
+    const path = location.pathname;
+    const item = navItems.find(item => item.id === activeTab);
+    if (item && item.subTabs) {
+      const sub = item.subTabs.find(sub => sub.path === path);
+      return sub ? sub.id : item.subTabs[0].id;
+    }
+    return 'all';
+  }, [location.pathname, activeTab]);
 
   return (
     <ToastProvider>
@@ -109,7 +128,8 @@ const App = () => {
               <img
                 src="/brand_logo.png"
                 alt="MLS Logo"
-                className="h-10 w-auto object-contain"
+                className="h-10 w-auto object-contain cursor-pointer"
+                onClick={() => navigate('/')}
               />
             </div>
           </div>
@@ -119,20 +139,19 @@ const App = () => {
               <div key={item.id}>
                 <button
                   onClick={() => {
-                    if (activeTab === item.id && item.subTabs) {
-                      setExpandedTabs(prev =>
-                        prev.includes(item.id) ? prev.filter(i => i !== item.id) : [...prev, item.id]
-                      );
-                    } else {
-                      setActiveTab(item.id);
-                      if (item.subTabs) {
-                        setActiveSubTab(item.subTabs[0].id);
+                    if (item.subTabs) {
+                      if (activeTab === item.id) {
+                        setExpandedTabs(prev =>
+                          prev.includes(item.id) ? prev.filter(i => i !== item.id) : [...prev, item.id]
+                        );
+                      } else {
+                        navigate(item.path);
                         if (!expandedTabs.includes(item.id)) {
                           setExpandedTabs(prev => [...prev, item.id]);
                         }
-                      } else {
-                        setIsAddingProduct(false);
                       }
+                    } else {
+                      navigate(item.path);
                     }
                   }}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-300 group ${activeTab === item.id
@@ -147,21 +166,16 @@ const App = () => {
                   {item.subTabs && <ChevronDown size={12} className={`transition-transform duration-300 ${expandedTabs.includes(item.id) ? 'rotate-180' : ''}`} />}
                 </button>
 
-                {/* Sub-tabs for Catalog */}
+                {/* Sub-tabs */}
                 {item.subTabs && expandedTabs.includes(item.id) && (
                   <div className="mt-1 ml-4 pl-3 border-l border-admin-border space-y-1 py-1 animate-in slide-in-from-top-2 duration-300">
                     {item.subTabs.map(sub => (
                       <button
                         key={sub.id}
-                        onClick={() => {
-                          setActiveTab(item.id); // Ensure parent tab becomes active
-                          setActiveSubTab(sub.id);
-                          if (sub.id === 'add') setIsAddingProduct(true);
-                          else setIsAddingProduct(false);
-                        }}
-                        className={`w-full text-left px-3 py-1.5 rounded-lg text-[13px] font-bold transition-all ${activeSubTab === sub.id && !isAddingProduct
+                        onClick={() => navigate(sub.path)}
+                        className={`w-full text-left px-3 py-1.5 rounded-lg text-[13px] font-bold transition-all ${location.pathname === sub.path
                             ? 'text-white'
-                            : isAddingProduct && sub.id === 'add' ? 'text-white' : 'text-admin-muted hover:text-white'
+                            : 'text-admin-muted hover:text-white'
                           }`}
                       >
                         {sub.label}
@@ -202,7 +216,10 @@ const App = () => {
                 <Bell size={15} className="text-admin-muted group-hover:text-white" />
                 <div className="absolute top-3 right-3 w-1.5 h-1.5 bg-admin-accent rounded-full border-2 border-admin-bg" />
               </button>
-              <button className="bg-admin-accent hover:bg-admin-accent/90 text-white px-5 py-2 rounded-xl font-bold text-[14px] flex items-center gap-2 shadow-lg shadow-admin-accent/20 transition-all active:scale-95 group">
+              <button 
+                onClick={() => navigate('/products/add')}
+                className="bg-admin-accent hover:bg-admin-accent/90 text-white px-5 py-2 rounded-xl font-bold text-[14px] flex items-center gap-2 shadow-lg shadow-admin-accent/20 transition-all active:scale-95 group"
+              >
                 <Plus size={18} />
                 NEW
               </button>
@@ -210,41 +227,41 @@ const App = () => {
           </header>
 
           <div className="p-8">
-            <div key={activeTab} className="animate-in fade-in slide-in-from-bottom-2 duration-700">
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-700">
               <React.Suspense fallback={<div className="p-10 text-center text-admin-muted font-black uppercase overflow-hidden">Initializing Matrix...</div>}>
-                {activeTab === 'dashboard' && <DashboardView />}
+                <Routes>
+                  <Route path="/" element={<DashboardView />} />
+                  <Route path="/orders" element={<OrdersView />} />
+                  <Route path="/customers" element={<CustomersView />} />
+                  <Route path="/payments" element={<PaymentsView />} />
+                  <Route path="/shipping" element={<ShippingView />} />
+                  <Route path="/discounts" element={<DiscountsView />} />
+                  <Route path="/analytics" element={<AnalyticsView />} />
+                  <Route path="/reviews" element={<ReviewsView />} />
+                  <Route path="/journal" element={<JournalView />} />
+                  <Route path="/faq" element={<FAQView />} />
+                  <Route path="/navigation" element={<NavigationView />} />
+                  <Route path="/banners" element={<BannersView />} />
+                  <Route path="/categories" element={<CategoriesView />} />
+                  <Route path="/shop-hijab" element={<ShopHijabView />} />
+                  <Route path="/notifications" element={<NotificationsView />} />
+                  <Route path="/lookbook" element={<LookbookView />} />
+                  <Route path="/admins" element={<AdminsView />} />
+                  
+                  {/* Catalog Routes */}
+                  <Route path="/products" element={<InventoryView onEdit={() => navigate('/products/add')} />} />
+                  <Route path="/products/add" element={<ProductForm onCancel={() => navigate('/products')} />} />
+                  <Route path="/products/categories" element={<CategoriesView />} />
+                  <Route path="/products/attributes" element={<AttributesView />} />
+                  <Route path="/products/inventory" element={<InventoryView onEdit={() => navigate('/products/add')} />} />
 
-                {activeTab === 'catalog' && (
-                  <>
-                    {isAddingProduct ? (
-                      <ProductForm onCancel={() => { setIsAddingProduct(false); setActiveSubTab('all'); }} />
-                    ) : (
-                      <>
-                        {(activeSubTab === 'all' || activeSubTab === 'inventory') && <InventoryView onEdit={() => { setActiveSubTab('add'); setIsAddingProduct(true); }} />}
-                        {activeSubTab === 'categories' && <CategoriesView />}
-                        {activeSubTab === 'attributes' && <AttributesView />}
-                      </>
-                    )}
-                  </>
-                )}
-
-                {activeTab === 'orders' && <OrdersView />}
-                {activeTab === 'customers' && <CustomersView />}
-                {activeTab === 'payments' && <PaymentsView />}
-                {activeTab === 'shipping' && <ShippingView />}
-                {activeTab === 'discounts' && <DiscountsView />}
-                {activeTab === 'analytics' && <AnalyticsView />}
-                {activeTab === 'reviews' && <ReviewsView />}
-                {activeTab === 'journal' && <JournalView />}
-                {activeTab === 'faq' && <FAQView />}
-                {activeTab === 'navigation' && <NavigationView />}
-                {activeTab === 'banners' && <BannersView />}
-                {activeTab === 'categories' && <CategoriesView />}
-                {activeTab === 'shop-hijab' && <ShopHijabView />}
-                {activeTab === 'notifications' && <NotificationsView />}
-                {activeTab === 'lookbook' && <LookbookView />}
-                {activeTab === 'recommendations' && <RecommendationsView type={activeSubTab} />}
-                {activeTab === 'admins' && <AdminsView />}
+                  {/* Recommendations */}
+                  <Route path="/recommendations/cart" element={<RecommendationsView type="cart" />} />
+                  <Route path="/recommendations/checkout" element={<RecommendationsView type="checkout" />} />
+                  
+                  {/* Catch all */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
               </React.Suspense>
             </div>
           </div>

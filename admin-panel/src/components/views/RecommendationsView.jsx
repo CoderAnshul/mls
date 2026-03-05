@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../utils/api';
 import { useToast } from '../common/Toast';
+import ImageUpload from './ImageUpload';
 
 const RecommendationsView = ({ type }) => {
   const toast = useToast();
@@ -166,7 +167,6 @@ const RecommendationForm = ({ recommendation, defaultType, onCancel, onSuccess }
     order: recommendation?.order || 0
   });
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [fetchingProducts, setFetchingProducts] = useState(false);
 
   useEffect(() => {
@@ -184,20 +184,6 @@ const RecommendationForm = ({ recommendation, defaultType, onCancel, onSuccess }
     loadProducts();
   }, []);
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const { url } = await api.navigation.uploadImage(file);
-      setFormData(prev => ({ ...prev, image: url }));
-      toast.success('Visual artifact ingested');
-    } catch (err) {
-      toast.error('Transmission failure: Image not loaded');
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -239,7 +225,7 @@ const RecommendationForm = ({ recommendation, defaultType, onCancel, onSuccess }
            </div>
         </div>
         <div className="flex gap-3">
-          <button onClick={handleSubmit} disabled={loading || uploading} className="px-8 py-3 rounded-xl bg-admin-accent text-white text-[11px] font-black uppercase tracking-widest shadow-xl shadow-admin-accent/20 transition-all disabled:opacity-50 hover:scale-105 active:scale-95">
+          <button onClick={handleSubmit} disabled={loading} className="px-8 py-3 rounded-xl bg-admin-accent text-white text-[11px] font-black uppercase tracking-widest shadow-xl shadow-admin-accent/20 transition-all disabled:opacity-50 hover:scale-105 active:scale-95">
             {loading ? 'Processing...' : recommendation ? 'Save Protocol' : 'Finalize Deployment'}
           </button>
         </div>
@@ -275,37 +261,10 @@ const RecommendationForm = ({ recommendation, defaultType, onCancel, onSuccess }
 
             <div className="space-y-4">
                 <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.3em] mb-1">Promotional Visual (Optional)</label>
-                <div className="relative aspect-video rounded-2xl overflow-hidden bg-admin-bg border border-admin-border group border-dashed">
-                      {formData.image ? (
-                        <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-admin-muted gap-2">
-                          <ImageIcon size={32} strokeWidth={1} className="opacity-20" />
-                          <p className="text-[8px] font-black uppercase tracking-widest opacity-40">Using Default Product Image</p>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-sm">
-                        <label className="cursor-pointer bg-white text-black px-4 py-2 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center gap-2 hover:bg-neutral-200 transition-all shadow-2xl">
-                          {uploading ? <RefreshCw className="animate-spin" size={12} /> : <Upload size={14} />}
-                          {formData.image ? 'Swap Artifact' : 'Inject Asset'}
-                          <input 
-                            type="file" 
-                            className="hidden" 
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                          />
-                        </label>
-                        {formData.image && (
-                          <button 
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
-                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
-                          >
-                            <X size={12} />
-                          </button>
-                        )}
-                      </div>
-                </div>
+                <ImageUpload 
+                  value={formData.image}
+                  onChange={url => setFormData(prev => ({ ...prev, image: url }))}
+                />
             </div>
 
             <div className="grid grid-cols-2 gap-4">

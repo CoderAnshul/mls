@@ -54,7 +54,7 @@ const Header = () => {
   return (
     <>
       <header 
-      className={`sticky top-0 z-[100] transition-all duration-500 ${
+      className={`sticky top-0 z-[99] transition-all duration-500 ${
         isScrolled ? 'shadow-md backdrop-blur-md' : ''
       }`} 
       style={{ 
@@ -87,33 +87,7 @@ const Header = () => {
           
           {/* Right Icons */}
           <div className="flex items-center gap-3">
-            {/* Region Selector - Desktop */}
-            <div className="relative">
-              <button 
-                className="flex items-center gap-1 text-[11px] uppercase tracking-widest transition-colors duration-500"
-                onClick={() => setIsRegionOpen(!isRegionOpen)}
-                style={{
-                  color: textColor
-                }}
-              >
-                <span>UK</span>
-              </button>
-              
-              {isRegionOpen && (
-                <div className="absolute top-full right-0 mt-4 bg-white border border-neutral-100 shadow-xl min-w-[150px] animate-fade-in z-50">
-                  {navigationData.regions.map((region, index) => (
-                    <a
-                      key={index}
-                      href={region.href}
-                      className="block px-6 py-3 text-[12px] text-neutral-800 hover:bg-neutral-50 transition-colors uppercase tracking-wider"
-                    >
-                      {region.title}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
-            
+
             {/* Search */}
             <button 
               className="p-1 transition-colors duration-500"

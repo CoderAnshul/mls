@@ -2,25 +2,43 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 
-// Get all products (with optional filtering)
+// Get all products (with optional filtering and pagination)
 router.get('/', async (req, res) => {
     try {
-        const { category, isNew, limit } = req.query;
+        const { category, isNew, limit, page } = req.query;
         let query = {};
 
         if (category && category.toUpperCase() !== 'ALL') {
-            // Normalize separators: treat hyphens, underscores, and spaces as interchangeable
-            // This ensures 'maxi-dresses' from URL matches 'MAXI DRESSES' in DB
             const searchPattern = category.trim().replace(/[_\s-]/g, '[\\s_-]+');
             query.category = { $regex: new RegExp(`^${searchPattern}$`, 'i') };
         }
         if (isNew) query.isNew = true;
 
-        let products = Product.find(query);
+        let productsQuery = Product.find(query);
 
-        if (limit) products = products.limit(Number(limit));
+        if (page) {
+            const p = Number(page) || 1;
+            const l = Number(limit) || 10;
+            const skip = (p - 1) * l;
+            
+            const total = await Product.countDocuments(query);
+            const products = await Product.find(query)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(l)
+                .exec();
 
-        const result = await products.sort({ createdAt: -1 }).exec();
+            return res.json({
+                products,
+                total,
+                page: p,
+                pages: Math.ceil(total / l)
+            });
+        }
+
+        if (limit) productsQuery = productsQuery.limit(Number(limit));
+
+        const result = await productsQuery.sort({ createdAt: -1 }).exec();
         res.json(result);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -82,6 +100,20 @@ router.delete('/:id', async (req, res) => {
     try {
         await Product.findByIdAndDelete(req.params.id);
         res.json({ message: 'Product deleted' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Bulk delete products
+router.post('/bulk-delete', async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!ids || !Array.isArray(ids)) {
+            return res.status(400).json({ message: 'Missing or invalid IDs' });
+        }
+        await Product.deleteMany({ _id: { $in: ids } });
+        res.json({ message: 'Products deleted' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

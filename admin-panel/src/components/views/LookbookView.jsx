@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit, Save, X, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
 import { api } from '../../utils/api';
 import { useToast } from '../common/Toast';
+import ImageUpload from './ImageUpload';
 
 const LookbookView = () => {
     const toast = useToast();
@@ -9,8 +10,7 @@ const LookbookView = () => {
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState(null);
-    const [formData, setFormData] = useState({ title: '', images: [], isActive: true });
-    const [uploading, setUploading] = useState(false);
+    const [formData, setFormData] = useState({ title: '', heading: '', description: '', images: [], isActive: true });
 
     useEffect(() => {
         loadLookbooks();
@@ -73,7 +73,7 @@ const LookbookView = () => {
             }
             setIsEditing(false);
             setEditingId(null);
-            setFormData({ title: '', images: [], isActive: true });
+            setFormData({ title: '', heading: '', description: '', images: [], isActive: true });
             loadLookbooks();
         } catch (err) {
             toast.error("Operation failed");
@@ -81,7 +81,7 @@ const LookbookView = () => {
     };
 
     const handleEdit = (lb) => {
-        setFormData({ title: lb.title, images: lb.images, isActive: lb.isActive });
+        setFormData({ title: lb.title, heading: lb.heading || '', description: lb.description || '', images: lb.images, isActive: lb.isActive });
         setEditingId(lb._id);
         setIsEditing(true);
     };
@@ -123,14 +123,37 @@ const LookbookView = () => {
 
                 <div className="bg-admin-card border border-admin-border rounded-2xl p-6 space-y-6">
                     <div className="space-y-2">
-                        <label className="text-[9px] font-black text-admin-muted uppercase tracking-widest">Lookbook Title</label>
+                        <label className="text-[9px] font-black text-admin-muted uppercase tracking-widest">Lookbook Title (internal reference)</label>
                         <input
                             type="text"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            placeholder="e.g., Summer Collection 2024"
-                            className="w-full bg-admin-bg border border-admin-border px-4 py-3 rounded-xl text-sm font-bold focus:border-admin-accent outline-none self-start"
+                            placeholder="e.g., Ramadan 2025"
+                            className="w-full bg-admin-bg border border-admin-border px-4 py-3 rounded-xl text-sm font-bold focus:border-admin-accent outline-none"
                         />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[9px] font-black text-admin-muted uppercase tracking-widest">Page Heading (shown on website)</label>
+                        <input
+                            type="text"
+                            value={formData.heading}
+                            onChange={(e) => setFormData({ ...formData, heading: e.target.value })}
+                            placeholder="e.g., Welcome Ramadan with Aab"
+                            className="w-full bg-admin-bg border border-admin-border px-4 py-3 rounded-xl text-sm font-bold focus:border-admin-accent outline-none"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[9px] font-black text-admin-muted uppercase tracking-widest">Subheading / Description</label>
+                        <textarea
+                            rows={3}
+                            value={formData.description}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            placeholder="e.g., Join our inner circle and be the first&#10;to receive exclusive offers and updates."
+                            className="w-full bg-admin-bg border border-admin-border px-4 py-3 rounded-xl text-sm font-bold focus:border-admin-accent outline-none resize-none"
+                        />
+                        <p className="text-[9px] text-admin-muted">Use a new line for each sub-line of text.</p>
                     </div>
 
                     <div className="space-y-4">
@@ -149,23 +172,13 @@ const LookbookView = () => {
                                 </div>
                             ))}
 
-                            <label className="aspect-[3/4] border-2 border-dashed border-admin-border rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-admin-accent hover:bg-admin-accent/5 transition-all group">
-                                <input
-                                    type="file"
-                                    multiple
-                                    className="hidden"
-                                    onChange={handleImageUpload}
-                                    accept="image/*"
+                            <div className="aspect-[3/4]">
+                                <ImageUpload 
+                                    value=""
+                                    onChange={(url) => url && setFormData(prev => ({ ...prev, images: [...prev.images, url] }))}
+                                    className="h-full"
                                 />
-                                {uploading ? (
-                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-admin-accent" />
-                                ) : (
-                                    <>
-                                        <Plus className="text-admin-muted group-hover:text-admin-accent mb-2" />
-                                        <span className="text-[10px] font-black text-admin-muted uppercase">Add Images</span>
-                                    </>
-                                )}
-                            </label>
+                            </div>
                         </div>
                     </div>
 

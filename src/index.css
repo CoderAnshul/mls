@@ -95,10 +95,10 @@ button{
     @apply !text-[18px] sm:!text-[21px] xl:!text-[25px] !font-[500];
   }
   h3 {
-    @apply !text-[18px] md:!text-[21px] !font-[500];
+    @apply !text-[16px] md:!text-[18px] !font-[500];
   }
   h4 {
-    @apply !text-[14px] md:!text-[18px] !font-[500];
+    @apply !text-[14px] md:!text-[16px] !font-[500];
   }
 }
 

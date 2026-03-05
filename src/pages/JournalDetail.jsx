@@ -40,7 +40,7 @@ const JournalDetail = () => {
     switch (block.type) {
       case 'header':
         return (
-          <div key={idx} className="max-w-[800px] mx-auto px-4 mb-8 text-center mt-12">
+          <div key={idx} className="max-w-[800px] mx-auto px-4 mb-4 text-center mt-6">
             <h2 className={`font-medium text-[#252423] leading-tight ${block.data.level === 1 ? 'text-4xl' :
               block.data.level === 3 ? 'text-2xl' : 'text-3xl'
               }`}>
@@ -50,14 +50,14 @@ const JournalDetail = () => {
         );
       case 'paragraph':
         return (
-          <div key={idx} className="max-w-[800px] mx-auto px-4 mb-4 text-center">
+          <div key={idx} className="max-w-[800px] mx-auto px-4 mb-3 text-center">
             <p className="text-gray-700 leading-relaxed font-light text-lg [&_a]:text-[#A47F58] [&_a]:underline [&_a]:underline-offset-4 [&_b]:font-bold [&_strong]:font-bold [&_u]:underline"
               dangerouslySetInnerHTML={{ __html: block.data.text }} />
           </div>
         );
       case 'image':
         return (
-          <div key={idx} className="w-full max-w-[1000px] mx-auto px-4 mb-12 mt-12">
+          <div key={idx} className="w-full max-w-[1000px] mx-auto px-4 mb-6 mt-6">
             <div className="aspect-[16/9] md:aspect-[2/1] relative overflow-hidden">
               <img src={block.data.file.url} alt={block.data.caption || ''} className="w-full h-full object-cover grayscale-[10%] hover:grayscale-0 transition-all duration-700" />
             </div>
@@ -68,7 +68,7 @@ const JournalDetail = () => {
         );
       case 'list':
         return (
-          <div key={idx} className="max-w-[600px] mx-auto px-4 mb-8 text-left py-4">
+          <div key={idx} className="max-w-[600px] mx-auto px-4 mb-4 text-left py-2">
             <ul className={`${block.data.style === 'ordered' ? 'list-decimal' : 'list-disc'} space-y-3 text-gray-700 ml-6 tracking-wide font-light [&_a]:text-[#A47F58] [&_a]:underline [&_b]:font-bold [&_u]:underline`}>
               {block.data.items.map((item, i) => (
                 <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
@@ -78,8 +78,8 @@ const JournalDetail = () => {
         );
       case 'quote':
         return (
-          <div key={idx} className="max-w-[800px] mx-auto px-4 mb-16 text-center py-8">
-            <blockquote className="text-2xl md:text-3xl italic text-[#A47F58] font-serif leading-relaxed px-8">
+          <div key={idx} className="max-w-[800px] mx-auto px-4 mb-6 text-center py-6">
+            <blockquote className="text-2xl md:text-3xl italic text-[#A47F58]  leading-relaxed px-8">
               "{block.data.text}"
             </blockquote>
             {block.data.caption && (
@@ -94,7 +94,7 @@ const JournalDetail = () => {
 
   if (loading) {
     return (
-      <div className="bg-[#F4F2EA] min-h-screen pt-[120px] flex items-center justify-center">
+      <div className="bg-[#F4F2EA] min-h-screen pt-[50px] flex items-center justify-center">
         <p className="uppercase tracking-[0.2em] text-neutral-400 text-xs text-center">
           <span className="block mb-2">Unfolding the story...</span>
           <span className="animate-pulse">●</span>
@@ -105,7 +105,7 @@ const JournalDetail = () => {
 
   if (!journal) {
     return (
-      <div className="bg-[#F4F2EA] min-h-screen pt-[120px] flex flex-col items-center justify-center space-y-6">
+      <div className="bg-[#F4F2EA] min-h-screen pt-[50px] flex flex-col items-center justify-center space-y-6">
         <p className="uppercase tracking-[0.2em] text-neutral-400">Journal not found</p>
         <Link to="/journal" className="text-xs uppercase tracking-widest border-b border-black pb-1">Back to Journal</Link>
       </div>
@@ -113,10 +113,29 @@ const JournalDetail = () => {
   }
 
   return (
-    <div className="bg-[#F4F2EA] min-h-screen pt-[120px]">
+    <div className="bg-[#F4F2EA] min-h-screen pt-[50px]">
+
+      {/* Breadcrumb */}
+      <nav className="w-full max-w-[1200px] mx-auto px-6 pt-6 pb-2">
+        <ol className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-medium">
+          <li>
+            <Link to="/" className="hover:text-[#252423] transition-colors duration-200">Home</Link>
+          </li>
+          <li className="text-neutral-300">›</li>
+          <li>
+            <Link to="/journal" className="hover:text-[#252423] transition-colors duration-200">Journal</Link>
+          </li>
+          <li className="text-neutral-300">›</li>
+          <li
+            className="text-[#252423] font-semibold truncate max-w-[200px] md:max-w-xs"
+            dangerouslySetInnerHTML={{ __html: journal.title?.replace(/<[^>]*>/g, '') }}
+          />
+        </ol>
+      </nav>
+
       <JournalHero data={journal} />
 
-      <div className="py-8">
+      <div className="py-2">
         {journal.content?.blocks ? (
           journal.content.blocks.map((block, idx) => renderBlock(block, idx))
         ) : (
@@ -126,7 +145,7 @@ const JournalDetail = () => {
         )}
       </div>
 
-      <JournalCTA ctaText={journal.ctaText || "View Collection"} ctaLink={journal.ctaLink || "/collections/all"} />
+      <JournalCTA ctaText={journal.ctaText || "View Collection"} ctaLink={journal.ctaLink || "/collections/all"} ctaImage={journal.ctaImage} />
 
       {/* Continue Reading Section */}
       {/* {otherJournals.length > 0 && (
@@ -145,7 +164,7 @@ const JournalDetail = () => {
         </section>
       )} */}
 
-      <JournalFooterImage />
+      <JournalFooterImage image={journal.footerImage} />
 
       <div className="w-full max-w-[1200px] mx-auto px-4 py-16 flex justify-between items-center text-[10px] uppercase tracking-[0.2em] text-neutral-400 border-t border-neutral-200/50 mt-12 font-light">
         <div className="flex-1 text-left">

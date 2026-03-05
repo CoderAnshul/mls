@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   Search, 
@@ -15,10 +15,40 @@ import {
   MoreVertical,
   Download
 } from 'lucide-react';
-import { customersData } from '../../data/mockData';
+import { api } from '../../utils/api';
 
 const CustomersView = () => {
   const [selectedUser, setSelectedUser] = useState(null);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  const fetchCustomers = async (keyword = '') => {
+    setLoading(true);
+    try {
+      const data = await api.users.getAll(keyword);
+      setCustomers(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Simple debounce/onEnter logic can be added, but for now just immediate
+    const timeoutId = setTimeout(() => {
+      fetchCustomers(value);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  };
 
   return (
     <div className="space-y-4 animate-in fade-in duration-500 relative">
@@ -30,7 +60,13 @@ const CustomersView = () => {
         <div className="flex gap-2">
            <div className="flex items-center gap-2 bg-admin-card border border-admin-border px-3 py-1.5 rounded-lg">
              <Search size={14} className="text-admin-muted" />
-             <input type="text" placeholder="Search by name or email..." className="bg-transparent border-none outline-none text-[13px] w-48 font-bold" />
+             <input 
+                type="text" 
+                placeholder="Search by name or email..." 
+                className="bg-transparent border-none outline-none text-[13px] w-48 font-bold" 
+                value={searchQuery}
+                onChange={handleSearch}
+             />
            </div>
            <button className="flex items-center gap-2 bg-admin-card border border-admin-border px-3 py-1.5 rounded-lg text-[13px] font-black uppercase tracking-widest hover:bg-admin-border transition-all">
              <Filter size={14} /> Filter
@@ -42,59 +78,70 @@ const CustomersView = () => {
       </div>
 
       <div className="bg-admin-card border border-admin-border rounded-xl overflow-hidden shadow-sm">
-        <table className="w-full text-left density-table">
-          <thead>
-            <tr>
-              <th className="w-8"><input type="checkbox" className="rounded" /></th>
-              <th>Customer Intelligence</th>
-              <th>Location</th>
-              <th>Total Orders</th>
-              <th>Total Spent</th>
-              <th>Account Status</th>
-              <th className="text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-admin-border">
-            {customersData.map((user) => (
-              <tr key={user.id} className="group hover:bg-admin-bg transition-colors cursor-pointer" onClick={() => setSelectedUser(user)}>
-                <td className="px-4 py-2.5"><input type="checkbox" className="rounded" /></td>
-                <td className="px-4 py-2.5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-admin-accent/20 flex items-center justify-center font-bold text-[13px] text-admin-accent border border-admin-accent/20 uppercase tracking-tighter">
-                      {user.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-bold text-[14px] tracking-tight">{user.name}</span>
-                      <span className="text-[12px] text-admin-muted font-medium uppercase tracking-tight">{user.email}</span>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-2.5">
-                   <div className="flex items-center gap-1.5 text-[13px] font-bold text-admin-muted uppercase tracking-widest">
-                      <MapPin size={10} /> {user.location}
-                   </div>
-                </td>
-                <td className="px-4 py-2.5">
-                  <div className="flex items-center gap-2 text-[13px] font-black uppercase">
-                    <ShoppingBag size={10} className="text-blue-400" /> {user.orders}
-                  </div>
-                </td>
-                <td className="px-4 py-2.5 font-mono font-bold text-[14px] text-emerald-400">£{user.totalSpent.toFixed(2)}</td>
-                <td className="px-4 py-2.5">
-                   <div className="inline-flex px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-[12px] font-black uppercase tracking-widest">Active</div>
-                </td>
-                <td className="px-4 py-2.5 text-right font-bold text-admin-accent hover:underline text-[13px] uppercase tracking-widest">
-                  View Case
-                </td>
+        {loading ? (
+          <div className="p-12 text-center text-admin-muted font-bold uppercase tracking-widest">Scanning Neural Records...</div>
+        ) : (
+          <table className="w-full text-left density-table">
+            <thead>
+              <tr>
+                <th className="w-8"><input type="checkbox" className="rounded" /></th>
+                <th>Customer Intelligence</th>
+                <th>Location</th>
+                <th>Total Orders</th>
+                <th>Total Spent</th>
+                <th>Account Status</th>
+                <th className="text-right">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-admin-border">
+              {customers.map((user) => (
+                <tr key={user._id} className="group hover:bg-admin-bg transition-colors cursor-pointer" onClick={() => setSelectedUser(user)}>
+                  <td className="px-4 py-2.5"><input type="checkbox" className="rounded" /></td>
+                  <td className="px-4 py-2.5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-admin-accent/20 flex items-center justify-center font-bold text-[13px] text-admin-accent border border-admin-accent/20 uppercase tracking-tighter">
+                        {user.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-[14px] tracking-tight">{user.name}</span>
+                        <span className="text-[12px] text-admin-muted font-medium uppercase tracking-tight">{user.email}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <div className="flex items-center gap-1.5 text-[13px] font-bold text-admin-muted uppercase tracking-widest">
+                        <MapPin size={10} /> {user.location || 'Unknown'}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <div className="flex items-center gap-2 text-[13px] font-black uppercase">
+                      <ShoppingBag size={10} className="text-blue-400" /> {user.ordersCount || 0}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 font-mono font-bold text-[14px] text-emerald-400">£{(user.totalSpent || 0).toFixed(2)}</td>
+                  <td className="px-4 py-2.5">
+                    <div className={`inline-flex px-2 py-0.5 rounded-md ${user.isAdmin ? 'bg-purple-500/10 text-purple-400' : 'bg-emerald-500/10 text-emerald-400'} text-[12px] font-black uppercase tracking-widest`}>
+                      {user.isAdmin ? 'Admin' : 'Active'}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 text-right font-bold text-admin-accent hover:underline text-[13px] uppercase tracking-widest">
+                    View Case
+                  </td>
+                </tr>
+              ))}
+              {!loading && customers.length === 0 && (
+                <tr>
+                  <td colSpan="7" className="p-12 text-center text-admin-muted font-bold uppercase tracking-widest">No matching records found</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* CRM Detail Panel */}
       {selectedUser && (
-        <div className="fixed inset-0 z-[110] flex justify-end bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[110] flex justify-end bg-black/50 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setSelectedUser(null)}>
            <div 
              className="w-full max-w-2xl bg-admin-card border-l border-admin-border h-full shadow-2xl animate-in slide-in-from-right duration-500 flex flex-col"
              onClick={(e) => e.stopPropagation()}
@@ -106,11 +153,11 @@ const CustomersView = () => {
                    </button>
                    <div>
                      <h2 className="text-lg font-black uppercase tracking-tighter">{selectedUser.name} Profile</h2>
-                     <p className="text-[12px] font-black text-admin-muted uppercase tracking-widest">Member Since {selectedUser.joinDate}</p>
+                     <p className="text-[12px] font-black text-admin-muted uppercase tracking-widest">Member Since {new Date(selectedUser.createdAt).toLocaleDateString()}</p>
                    </div>
                 </div>
                 <button className="flex items-center gap-2 bg-admin-accent text-white px-5 py-1.5 rounded-lg text-[13px] font-black uppercase tracking-widest shadow-lg shadow-admin-accent/20">
-                  Account Options
+                   Account Options
                 </button>
              </div>
 
@@ -122,11 +169,11 @@ const CustomersView = () => {
                    </div>
                    <div className="flex-1">
                       <h3 className="text-xl font-black tracking-tight">{selectedUser.name}</h3>
-                      <p className="text-admin-accent font-bold text-[14px] uppercase tracking-widest">Titanium Tier Member</p>
+                      <p className="text-admin-accent font-bold text-[14px] uppercase tracking-widest">{selectedUser.isAdmin ? 'Admin Node' : 'Tier Member'}</p>
                       <div className="flex gap-4 mt-3">
-                         <span className="flex items-center gap-1 text-[13px] font-bold text-admin-muted"><MapPin size={10} /> {selectedUser.location}</span>
-                         <span className="flex items-center gap-1 text-[13px] font-bold text-admin-muted"><ShoppingBag size={10} /> {selectedUser.orders} Orders</span>
-                         <span className="flex items-center gap-1 text-[13px] font-bold text-emerald-400 font-mono">£{selectedUser.totalSpent.toFixed(2)}</span>
+                         <span className="flex items-center gap-1 text-[13px] font-bold text-admin-muted"><MapPin size={10} /> {selectedUser.location || 'Global'}</span>
+                         <span className="flex items-center gap-1 text-[13px] font-bold text-admin-muted"><ShoppingBag size={10} /> {selectedUser.ordersCount || 0} Orders</span>
+                         <span className="flex items-center gap-1 text-[13px] font-bold text-emerald-400 font-mono">£{(selectedUser.totalSpent || 0).toFixed(2)}</span>
                       </div>
                    </div>
                 </div>
@@ -138,8 +185,8 @@ const CustomersView = () => {
                       </h4>
                       <div className="space-y-3">
                          <div className="p-3 bg-admin-card border border-admin-border rounded-xl relative">
-                            <p className="text-[13px] leading-relaxed text-admin-text/80 italic font-medium">"Prefers priority shipping. High-frequency buyer of the Jouri collection."</p>
-                            <span className="block mt-2 text-[8px] font-black uppercase text-admin-muted">— System, 2 Days Ago</span>
+                            <p className="text-[13px] leading-relaxed text-admin-text/80 italic font-medium">"System metadata initialized for new profile entry."</p>
+                            <span className="block mt-2 text-[8px] font-black uppercase text-admin-muted">— Internal, Just Now</span>
                          </div>
                          <button className="w-full py-2 rounded-lg border border-dashed border-admin-border text-[12px] font-black uppercase text-admin-muted hover:text-white transition-colors">
                            + Add Incident Note
@@ -152,9 +199,7 @@ const CustomersView = () => {
                       </h4>
                       <div className="space-y-2.5">
                          {[
-                           { label: 'Purchased Luxury Abaya', time: '12 Feb 2026', color: 'text-emerald-400' },
-                           { label: 'Refund Requested #1029', time: '05 Jan 2026', color: 'text-rose-400' },
-                           { label: 'Address Updated', time: '12 Dec 2025', color: 'text-blue-400' },
+                           { label: 'Cloud Identity Created', time: new Date(selectedUser.createdAt).toLocaleDateString(), color: 'text-blue-400' },
                          ].map((item, idx) => (
                             <div key={idx} className="flex justify-between items-center border-b border-admin-border/50 pb-2">
                                <p className="text-[13px] font-bold truncate pr-4">{item.label}</p>
@@ -170,18 +215,9 @@ const CustomersView = () => {
                       <h4 className="text-[12px] font-black text-admin-muted uppercase tracking-widest">Complete Order Ledger</h4>
                    </div>
                    <div className="p-0">
-                      <table className="w-full text-left density-table">
-                         <tbody>
-                            {[1, 2, 3].map(i => (
-                               <tr key={i} className="hover:bg-admin-card/50 transition-colors">
-                                  <td className="w-20 font-mono text-admin-accent">#AAB-128{i}</td>
-                                  <td>Luxury Jersey Pack</td>
-                                  <td className="text-emerald-400">Delivered</td>
-                                  <td className="text-right font-mono">£45.00</td>
-                               </tr>
-                            ))}
-                         </tbody>
-                      </table>
+                      <div className="p-8 text-center text-[12px] font-bold text-admin-muted uppercase tracking-widest">
+                        Zero order data found for this node.
+                      </div>
                    </div>
                 </div>
              </div>

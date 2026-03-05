@@ -102,7 +102,7 @@ const Cart = () => {
 
   if (cart.length === 0) {
     return (
-      <div className="bg-[#F4F2EA] min-h-screen flex flex-col items-center justify-center space-y-8 px-4">
+      <div className="bg-[#F6F3EB] min-h-screen flex flex-col items-center justify-center space-y-8 px-4 font-['Outfit']">
         <h1 className="text-[22px] tracking-[0.35em] font-light uppercase">Your Bag is Empty</h1>
         <Link 
           to="/collections/all" 
@@ -115,71 +115,56 @@ const Cart = () => {
   }
 
   return (
-    <div className="bg-[#F4F2EA] min-h-screen py-10 px-4 md:px-8 lg:px-12">
-      <div className="max-w-screen-2xl mx-auto">
-        {/* Back Button */}
-        <Link to="/" className="flex items-center gap-2 text-[11px] tracking-[0.2em] font-light uppercase hover:opacity-70 transition-opacity mb-8">
-          <IoChevronBack size={14} />
-          Back
-        </Link>
-
-        {/* Title */}
-        <h1 className="text-center text-[22px] tracking-[0.35em] font-light uppercase mb-10 lg:mb-16">Shopping Bag</h1>
-
-        <div className="grid lg:grid-cols-12 gap-5 lg:gap-10">
+    <div className="bg-[#F6F3EB] min-h-screen py-10 px-4 md:px-8 lg:px-24 font-['Outfit']">
+      <div className="max-w-[1400px] mx-auto">
+        <div className="grid lg:grid-cols-12 gap-16 lg:gap-24">
           {/* Main Content (Left) */}
-          <div className="lg:col-span-8 space-y-12">
+          <div className="lg:col-span-8">
             
             {/* Managed Offers Section */}
-            {managedOffers.length > 0 && managedOffers.filter(rec => !cart.some(item => (item._id || item.id) === (rec.product?._id || rec.product?.id))).map((offer) => (
-               <div key={offer._id} className="border border-neutral-300/40 p-6 rounded-[1.25rem] bg-neutral-50/10 shadow-sm transition-all duration-500 mb-8 last:mb-12">
-                  <div className="flex flex-col md:flex-row gap-6 ">
-                    <div className="w-24 h-32 bg-neutral-200 rounded-xl overflow-hidden shrink-0 border border-neutral-200 shadow-sm self-center md:self-start">
+            {/* {managedOffers.length > 0 && managedOffers.filter(rec => !cart.some(item => (item._id || item.id) === (rec.product?._id || rec.product?.id))).map((offer) => (
+               <div key={offer._id} className="pb-16 border-b border-neutral-800/10 last:border-0 last:pb-0 mb-16">
+                  <div className="flex flex-col md:flex-row gap-12">
+                    <div className="w-full md:w-[260px] aspect-[2/3] bg-neutral-200 shrink-0">
                         <img 
                           src={offer.image || offer.product?.images?.[0] || offer.product?.image} 
                           alt={offer.product?.title} 
                           className="w-full h-full object-cover"
                         />
                     </div>
-                    <div className="flex-1 text-center md:text-left">
-                        <p className="text-[13px] tracking-tight font-medium mb-4 text-neutral-800">{offer.heading}</p>
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                          <div className="min-w-0">
-                            <h3 className="text-[14px] font-medium tracking-tight text-neutral-800 leading-tight truncate">{offer.product?.title}</h3>
-                            <button 
-                              onClick={() => toggleOfferDescription(offer._id)}
-                              className="text-[12px] text-neutral-400 font-medium mt-1 flex items-center justify-center md:justify-start gap-1.5 hover:text-black transition-colors"
-                            >
-                              Description <IoChevronDown size={14} className={`transition-transform duration-300 ${expandedOfferDesc === offer._id ? 'rotate-180' : ''}`} />
-                            </button>
-                          </div>
-                          <div className="text-center md:text-right">
-                             <p className="text-[12px] text-red-700/60 line-through font-medium">£{offer.product?.price.toFixed(2)}</p>
-                             <p className="text-[14px] font-black text-neutral-900">£{(offer.product?.price * (1 - offer.discountPercentage/100)).toFixed(2)}</p>
+                    <div className="flex-1 flex flex-col pt-2">
+                        <div className="flex justify-between items-start mb-6">
+                          <h3 className="text-[14px] font-medium tracking-[0.15em] uppercase text-[#1C1C1C] leading-tight">{offer.product?.title}</h3>
+                          <div className="text-right">
+                             <p className="text-[12px] text-neutral-400 line-through">£{offer.product?.price.toFixed(2)}</p>
+                             <p className="text-[14px] font-medium text-neutral-900">£{(offer.product?.price * (1 - offer.discountPercentage/100)).toFixed(2)}</p>
                           </div>
                         </div>
 
-                        {/* Smooth Description Accordion */}
-                        <div className={`grid transition-all duration-500 ease-in-out ${expandedOfferDesc === offer._id ? 'grid-rows-[1fr] opacity-100 mt-4' : 'grid-rows-[0fr] opacity-0 mt-0 h-0 overflow-hidden'}`}>
-                          <div className="overflow-hidden">
-                              <p className="text-[12px] leading-relaxed text-neutral-600/80 border-t border-neutral-200/50 pt-4 font-normal">
-                                  {offer.description || offer.product?.description || 'Discover the exceptional quality of this protocol, designed to elevate your daily ritual.'}
-                              </p>
-                          </div>
+                        <p className="text-[12px] tracking-widest font-medium text-neutral-500 uppercase mb-4">{offer.heading}</p>
+                        
+                        <div className="mb-8">
+                            <p className="text-[13px] leading-relaxed text-neutral-600 font-light italic">
+                                {offer.description || offer.product?.description}
+                            </p>
                         </div>
 
-                        <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                            <div className="flex flex-col gap-1.5">
-                                <span className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold ml-1">Quantity</span>
-                                <div className="flex items-center border border-neutral-300/70 rounded-xl bg-white h-12 px-2">
-                                    <button onClick={() => updateUpsellQty(offer._id, -1)} className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-black transition-colors text-xl font-light">—</button>
-                                    <span className="w-10 text-center text-[13px] font-black">{upsellQuantities[offer._id] || 1}</span>
-                                    <button onClick={() => updateUpsellQty(offer._id, 1)} className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-black transition-colors text-xl font-light">+</button>
-                                </div>
+                        <div className="mt-auto flex items-center gap-6">
+                            <div className="relative inline-block">
+                                <select 
+                                  value={upsellQuantities[offer._id] || 1}
+                                  onChange={(e) => updateUpsellQty(offer._id, parseInt(e.target.value) - (upsellQuantities[offer._id] || 1))}
+                                  className="appearance-none bg-transparent border border-neutral-400 py-3 pl-4 pr-12 text-[13px] font-medium outline-none cursor-pointer min-w-[90px]"
+                                >
+                                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                                    <option key={n} value={n}>{n}</option>
+                                  ))}
+                                </select>
+                                <IoChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-neutral-800" />
                             </div>
                             <button 
                               onClick={() => handleAddManagedOffer(offer)}
-                              className="flex-1 bg-neutral-100/50 border border-neutral-300/70 h-12 sm:mt-5 rounded-xl text-[12px] tracking-widest uppercase font-black text-neutral-800 hover:bg-neutral-100 transition-all active:scale-[0.98] shadow-sm"
+                              className="bg-[#1C1C1C] text-white px-12 py-3 text-[11px] tracking-[0.2em] font-medium uppercase hover:bg-black transition-all"
                             >
                               Add to Bag
                             </button>
@@ -187,55 +172,40 @@ const Cart = () => {
                     </div>
                   </div>
                </div>
-            ))}
+            ))} */}
 
             {cart.map((item, index) => (
-              <div key={`${item._id || item.id}-${index}`} className="flex flex-col md:flex-row gap-8 pb-12 border-b border-neutral-300/50 relative last:border-0 last:pb-0">
+              <div key={`${item._id || item.id}-${index}`} className="flex flex-col md:flex-row gap-8 pb-16 relative">
                 {/* Product Image */}
-                <Link to={`/product/${item.slug || item._id || item.id}`} className="w-full md:w-[260px] aspect-[3/4] h-[330px] bg-neutral-200 relative group overflow-hidden">
+                <Link to={`/product/${item.slug || item._id || item.id}`} className="w-full md:w-[180px] h-[240px] aspect-[2/3] bg-neutral-200 relative group overflow-hidden shrink-0">
+                {/* <Link to={`/product/${item.slug || item._id || item.id}`} className="w-full md:w-[260px] aspect-[2/3] bg-neutral-200 relative group overflow-hidden shrink-0"> */}
                   <img 
                     src={item.coverImage || item.image || item.images?.[0]} 
                     alt={item.title} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="w-full h-full object-cover"
                   />
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toggleWishlist(item);
-                    }}
-                    className="absolute top-4 right-4 p-2 bg-white/80 rounded-full hover:bg-white transition-colors z-10"
-                  >
-                    {isInWishlist(item._id || item.id) ? (
-                      <IoTrashOutline size={16} className="text-rose-500" />
-                    ) : (
-                      <IoHeartOutline size={16} />
-                    )}
-                  </button>
+                  <div className="absolute top-4 right-4">
+                    <IoHeartOutline size={20} className="text-black cursor-pointer" />
+                  </div>
                 </Link>
 
                 {/* Product Details */}
-                <div className="flex-1">
-                  <div className="flex justify-between items-start mb-5">
-                    <h2 className="text-[13px] tracking-[0.15em] font-bold uppercase text-neutral-800">{item.title}</h2>
-                    <p className="text-[13px] tracking-widest font-bold">£{(item.price * item.quantity).toFixed(2)}</p>
+                <div className="flex-1 flex flex-col pt-2 md:pt-0">
+                  <div className="flex justify-between items-start mb-4">
+                    <h5 className="text-[14px] tracking-[0.15em] font-medium uppercase text-[#1C1C1C]">{item.title}</h5>
+                    <p className="text-[12px] tracking-[0.1em] font-light">£{item.price.toFixed(2)}</p>
                   </div>
 
-                  <div className="space-y-1.5 mb-5">
+                  <div className="space-y-1">
                     {item.selectedSize && (
-                      <p className="text-[11px] tracking-widest text-neutral-500 uppercase font-light">Size: {item.selectedSize}</p>
+                      <p className="text-[13px] tracking-widest text-[#1C1C1C] uppercase font-medium">SIZE: {item.selectedSize}</p>
                     )}
                     {item.selectedLength && (
-                      <p className="text-[11px] tracking-widest text-neutral-500 uppercase font-light">Length (Inches): {item.selectedLength}</p>
-                    )}
-                    {item.selectedColor && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] tracking-widest text-neutral-500 uppercase font-light">Color:</span>
-                        <div className="w-3 h-3 rounded-full border border-black/10" style={{ backgroundColor: item.selectedColor }} />
-                      </div>
+                      <p className="text-[13px] tracking-widest text-[#1C1C1C] uppercase font-medium">LENGTH (INCHES): {item.selectedLength}</p>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-8">
+                  <div className="flex items-center gap-6 mb-8">
                     <div className="relative inline-block">
                       <select 
                         value={item.quantity}
@@ -243,48 +213,48 @@ const Cart = () => {
                           const newQty = parseInt(e.target.value);
                           updateQuantity(item._id || item.id, item.selectedSize, item.selectedLength, item.selectedColor, newQty);
                         }}
-                        className="appearance-none bg-transparent border border-neutral-300 py-2 pl-3 pr-8 text-[11px] tracking-widest outline-none cursor-pointer min-w-[70px]"
+                        className="appearance-none bg-transparent border border-neutral-400 py-3 pl-4 pr-12 text-[13px] font-medium outline-none cursor-pointer min-w-[90px]"
                       >
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
                           <option key={n} value={n}>{n}</option>
                         ))}
                       </select>
-                      <IoChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none text-neutral-400" />
+                      <IoChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-neutral-800" />
                     </div>
                     
                     <button 
                       onClick={() => removeFromCart(item._id || item.id, item.selectedSize, item.selectedLength, item.selectedColor)}
-                      className="text-neutral-400 hover:text-black transition-colors"
+                      className="text-neutral-800 hover:text-red-600 transition-colors"
                     >
-                      <IoTrashOutline size={18} />
+                      <IoTrashOutline size={22} className="stroke-1" />
                     </button>
                   </div>
 
                   {/* Recommendations Section */}
                   {recommendations[item.category]?.length > 0 && (
-                    <div className="mt-5">
-                      <h5 className="!text-[14px] tracking-[0.2em] font-medium uppercase text-neutral-400 mb-2">Add Matching Product</h5>
-                      <div className="space-y-5">
+                    <div className="mt-auto">
+                      <h5 className="text-[11px] tracking-[0.25em] font-medium uppercase text-neutral-500">ADD MATCHING PRODUCT</h5>
+                      <div className="space-y-0">
                         {recommendations[item.category].map((product) => (
-                          <div key={product._id || product.id} className="flex items-center justify-between py-1.5 border-t border-neutral-800/70 first:border-t-0 mb-0">
-                            <div className="flex items-center gap-5">
-                              <div className="w-14 h-18 bg-neutral-200 overflow-hidden">
+                          <div key={product._id || product.id} className="flex items-center justify-between py-3 border-b border-neutral-800/80">
+                            <div className="flex items-center gap-6">
+                              <div className="w-[55px] aspect-square bg-neutral-200 overflow-hidden shrink-0">
                                 <img 
                                   src={product.coverImage || product.image || product.images?.[0]} 
                                   alt={product.title} 
                                   className="w-full h-full object-cover" 
                                 />
                               </div>
-                              <div>
-                                <h4 className="text-[10px] tracking-[0.1em] font-bold uppercase mb-0.5 text-neutral-700">{product.title}</h4>
-                                <p className="text-[10px] tracking-widest font-light text-neutral-500">£{product.price.toFixed(2)}</p>
+                              <div className="flex flex-col gap-1">
+                                <h5 className="text-[12px] tracking-[0.15em] font-medium uppercase text-neutral-800">{product.title}</h5>
+                                <p className="text-[11px] tracking-widest font-light text-neutral-600">£{product.price.toFixed(2)}</p>
                               </div>
                             </div>
                             <button 
                               onClick={() => handleAddMatching(product)}
-                              className="bg-[#1C1C1C] text-white px-6 py-2 text-[9px] tracking-[0.2em] font-medium uppercase hover:bg-black transition-colors"
+                              className="bg-[#1C1C1C] text-white px-6 py-2 text-[11px] tracking-[0.2em] font-medium uppercase hover:bg-black transition-colors"
                             >
-                              Add
+                              ADD
                             </button>
                           </div>
                         ))}
@@ -298,42 +268,35 @@ const Cart = () => {
 
           {/* Summary Sidebar (Right) */}
           <div className="lg:col-span-4">
-            <div className="sticky top-24 space-y-8">
-              <h2 className="text-[13px] tracking-[0.15em] font-bold uppercase mb-3 border-b border-neutral-300/50 pb-2">Order Summary</h2>
+            <div className="sticky top-24 space-y-5">
+              <h5 className="text-[14px] tracking-[0.2em] font-semibold uppercase text-neutral-800">ORDER SUMMARY</h5>
               
-              <div className="space-y-4 pb-8 border-b border-neutral-300/50">
+              <div className="space-y-1">
                 {cart.map((item, i) => (
-                  <div key={i} className="flex justify-between items-center text-[11px] tracking-widest">
-                    <span className="text-neutral-500 uppercase font-light italic truncate max-w-[200px]">{item.title}</span>
-                    <span className="font-bold">£{(item.price * item.quantity).toFixed(2)}</span>
+                  <div key={i} className="flex justify-between items-start text-[13px] tracking-wider uppercase font-medium">
+                    <span className="text-neutral-700 max-w-[250px] leading-relaxed">{item.title}</span>
+                    <span className="shrink-0">£{(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
-                <div className="flex justify-between items-center text-[12px] tracking-widest pt-3 border-t border-neutral-200/50">
-                  <span className="font-bold uppercase text-[11px]">Subtotal</span>
-                  <span className="font-bold">£{cartTotal.toFixed(2)}</span>
+                
+                <div className="pt-8 flex justify-between items-center text-[15px] tracking-wider font-bold">
+                  <span className="uppercase">SUBTOTAL</span>
+                  <span>£{cartTotal.toFixed(2)}</span>
                 </div>
               </div>
 
               {/* Free Shipping Progress */}
-              {cartTotal < 120 ? (
-                <div className="bg-[#EAE1D4]/40 border border-neutral-300/30 p-5 text-center">
-                  <p className="text-[10px] tracking-[0.1em] font-light uppercase leading-relaxed text-neutral-600">
-                    Spend <span className="font-bold text-neutral-800">£{(120 - cartTotal).toFixed(2)} more</span> for free shipping
-                  </p>
-                </div>
-              ) : (
-                <div className="bg-green-50/50 border border-green-200/50 p-5 text-center">
-                   <p className="text-[10px] tracking-[0.1em] font-bold uppercase leading-relaxed text-green-700">
-                    You qualify for free shipping!
-                  </p>
-                </div>
-              )}
+              <div className="bg-[#EAE1D4] border border-neutral-800/10 py-3 text-center">
+                <p className="text-[12px] tracking-[0.15em] font-bold uppercase text-neutral-800/70">
+                  FREE SHIPPING <span className="font-light">ON THIS ORDER</span>
+                </p>
+              </div>
 
               <Link 
                 to="/checkout"
-                className="block w-full text-center bg-[#1C1C1C] text-white py-5 text-[11px] tracking-[0.25em] font-medium uppercase hover:bg-black transition-all shadow-xl active:scale-[0.98]"
+                className="block w-full text-center bg-[#1C1C1C] text-white py-3 text-[13px] tracking-[0.25em] font-medium uppercase hover:bg-black transition-all"
               >
-                Proceed to Checkout
+                PROCEED TO CHECKOUT
               </Link>
             </div>
           </div>

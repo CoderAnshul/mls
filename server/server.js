@@ -61,6 +61,8 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const recommendationRoutes = require('./routes/recommendationRoutes');
 const lookbookRoutes = require('./routes/lookbookRoutes');
+const deliveryPartnerRoutes = require('./routes/deliveryPartnerRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
@@ -75,6 +77,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/lookbooks', lookbookRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/delivery-partners', deliveryPartnerRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

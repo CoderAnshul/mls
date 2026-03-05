@@ -30,9 +30,40 @@ export const api = {
                 body: JSON.stringify({ name, email, password })
             });
             return { data: await handleResponse(res) };
+        },
+        forgotPassword: async (email) => {
+            const res = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            return handleResponse(res);
         }
     },
     user: {
+        getAll: async (keyword = '') => {
+            const res = await fetch(`${API_BASE_URL}/user?keyword=${keyword}`, {
+                headers: { ...getAuthHeader() }
+            });
+            return handleResponse(res);
+        },
+        getMyOrders: async () => {
+            const res = await fetch(`${API_BASE_URL}/user/orders`, {
+                headers: { ...getAuthHeader() }
+            });
+            return handleResponse(res);
+        },
+        updateProfile: async (profileData) => {
+            const res = await fetch(`${API_BASE_URL}/user/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeader()
+                },
+                body: JSON.stringify(profileData)
+            });
+            return handleResponse(res);
+        },
         getWishlist: async () => {
             const res = await fetch(`${API_BASE_URL}/user/wishlist`, {
                 headers: { ...getAuthHeader() }
@@ -130,6 +161,25 @@ export const api = {
         getAll: async () => {
             const res = await fetch(`${API_BASE_URL}/lookbooks`);
             return res.json();
+        }
+    },
+    orders: {
+        create: async (orderData) => {
+            const res = await fetch(`${API_BASE_URL}/orders`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeader()
+                },
+                body: JSON.stringify(orderData)
+            });
+            return handleResponse(res);
+        },
+        getAll: async () => {
+            const res = await fetch(`${API_BASE_URL}/orders`, {
+                headers: { ...getAuthHeader() }
+            });
+            return handleResponse(res);
         }
     }
 };

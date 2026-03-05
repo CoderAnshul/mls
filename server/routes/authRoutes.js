@@ -63,4 +63,25 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// @desc    Forgot password
+// @route   POST /api/auth/forgot-password
+// @access  Public
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (user) {
+      // Here you would normally send an email with a reset token
+      // For now, we simulate success
+      res.json({ message: 'Password reset link sent to your email' });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;

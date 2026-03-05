@@ -5,6 +5,14 @@ const lookbookSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    heading: {
+        type: String,
+        default: '',
+    },
+    description: {
+        type: String,
+        default: '',
+    },
     images: [{
         type: String, // URLs of images
         required: true,

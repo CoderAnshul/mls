@@ -24,7 +24,7 @@ const ProductCard = ({ product, isEditorial = false }) => {
         />
         <div className="absolute inset-0 bg-black/10 transition-colors duration-500" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6">
-          <h2 className="text-4xl md:text-5xl font-serif italic mb-6 tracking-wide text-center drop-shadow-sm">
+          <h2 className="text-4xl md:text-5xl  italic mb-6 tracking-wide text-center drop-shadow-sm">
             {product.title}
           </h2>
           <span className="text-[12px] font-medium uppercase tracking-[0.25em] border-b border-white pb-1 group-hover:pb-2 transition-all">
@@ -37,7 +37,7 @@ const ProductCard = ({ product, isEditorial = false }) => {
 
   return (
     <>
-      <Link to={productLink} className="flex flex-col gap-6 group cursor-pointer outline-none">
+      <Link to={productLink} className="flex flex-col gap-4 group cursor-pointer outline-none">
         <div className="relative aspect-[3/4] overflow-hidden bg-[#E5E5E5]">
           {/* Cover Image */}
           <img 
@@ -104,9 +104,9 @@ const ProductCard = ({ product, isEditorial = false }) => {
         </div>
 
         <div className="text-center flex flex-col gap-2">
-          <h3 className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[#252423]">
+          <h5 className="text-[14px] font-semibold uppercase tracking-[0.2em] text-[#252423]">
             {product.title}
-          </h3>
+          </h5>
           <p className="text-[12px] text-neutral-500 font-medium tracking-wide">
             £{(+product.price || 0).toFixed(2)}
           </p>

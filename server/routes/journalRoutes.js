@@ -2,20 +2,24 @@ const express = require('express');
 const router = express.Router();
 const Journal = require('../models/Journal');
 
-// Get all journals
+// Get all journals — admin=true bypasses the isPublished filter
 router.get('/', async (req, res) => {
   try {
-    const journals = await Journal.find().sort({ date: -1 });
+    const filter = req.query.admin === 'true' ? {} : { isPublished: { $ne: false } };
+    const journals = await Journal.find(filter).sort({ date: -1 });
     res.json(journals);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Get single journal by slug
+// Get single journal by slug — admin=true bypasses isPublished filter
 router.get('/:slug', async (req, res) => {
   try {
-    const journal = await Journal.findOne({ slug: req.params.slug });
+    const filter = req.query.admin === 'true'
+      ? { slug: req.params.slug }
+      : { slug: req.params.slug, isPublished: { $ne: false } };
+    const journal = await Journal.findOne(filter);
     if (!journal) return res.status(404).json({ message: 'Journal not found' });
 
     // Find adjacent posts for navigation

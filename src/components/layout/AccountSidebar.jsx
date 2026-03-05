@@ -1,49 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IoCloseSharp } from 'react-icons/io5';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useWishlist } from '../../context/WishlistContext';
 
 const AccountSidebar = ({ isOpen, onClose }) => {
-  const { user, login, register, logout, isAuthenticated } = useAuth();
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
+  const { wishlist } = useWishlist();
   const navigate = useNavigate();
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError('');
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    let result;
-    if (isRegistering) {
-      result = await register(formData.name, formData.email, formData.password);
-    } else {
-      result = await login(formData.email, formData.password);
-    }
-
-    setLoading(false);
-    if (result.success) {
-      onClose();
-    } else {
-      setError(result.message);
-    }
+  // Dynamic greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
   };
 
   const handleLogout = () => {
     logout();
     onClose();
+    navigate('/');
+  };
+
+  const handleNavigate = (path) => {
+    navigate(path);
+    onClose();
   };
 
   return (
     <div 
-      className={`fixed inset-0 z-[200] transition-opacity duration-300 ${
+      className={`fixed inset-0 z-[99] transition-opacity duration-300 ${
         isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
@@ -55,116 +42,90 @@ const AccountSidebar = ({ isOpen, onClose }) => {
       
       {/* Sidebar */}
       <div 
-        className={`absolute top-0 right-0 w-full max-w-[400px] h-full bg-[#F4F2EA] shadow-2xl transition-transform duration-500 ease-in-out ${
+        className={`absolute top-0 right-0 w-full max-w-[400px] h-full bg-[#F3F2EA] shadow-2xl transition-transform duration-500 ease-in-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="flex flex-col h-full p-8 md:p-12">
-          <div className="flex items-center justify-between mb-16">
-            <h2 className="text-[13px] tracking-[0.25em] font-medium uppercase text-[#252423]">
-              {isAuthenticated ? 'My Account' : isRegistering ? 'Register' : 'Sign In'}
-            </h2>
+        <div className="flex flex-col h-full p-8 md:p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-12">
+            <h5 className="text-lg tracking-[0.2em] font-medium uppercase text-[#252423]">
+              My Account
+            </h5>
             <button 
               onClick={onClose}
-              className="p-1 -mr-1 hover:opacity-70 transition-opacity"
+              className="p-1 -mr-1 hover:opacity-70 transition-opacity text-black"
             >
-              <IoCloseSharp className="w-6 h-6 stroke-[1.2px]" />
+              <IoCloseSharp className="w-6 h-6 font-light opacity-50" />
             </button>
           </div>
           
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col pt-4 border-t border-black/5">
             {isAuthenticated ? (
+              /* Authenticated View (5th Screenshot) */
               <div className="flex flex-col h-full">
-                <div className="mb-10">
-                  <p className="text-[11px] tracking-widest text-neutral-500 uppercase mb-2">Logged in as</p>
-                  <p className="text-[16px] tracking-widest text-[#252423] font-medium uppercase">{user.name}</p>
-                  <p className="text-[12px] tracking-widest text-neutral-500 lowercase mt-1">{user.email}</p>
+                <div className="mb-10 text-center pt-4">
+                  <p className="text-[13px] tracking-[0.05em] text-[#252423] mb-1">
+                    <span className="italic font-light">{getGreeting()}, </span>
+                    <span className="underline cursor-pointer hover:text-black/70 transition-colors">{user?.name?.split(' ')[0] || 'Guest'}!</span>
+                  </p>
                 </div>
                 
-                <div className="mt-auto space-y-4">
+                <div className="space-y-3">
                   <button 
-                    onClick={() => { navigate('/wishlist'); onClose(); }}
-                    className="w-full border border-black text-black py-4 text-[11px] tracking-[0.3em] font-bold uppercase hover:bg-black hover:text-white transition-all"
+                    onClick={() => handleNavigate('/account/orders')}
+                    className="w-full bg-[#252423] text-white py-4 text-[11px] tracking-[0.3em] font-bold uppercase transition-all hover:bg-black"
                   >
-                    My Wishlist
+                    My Orders
                   </button>
                   <button 
-                    onClick={handleLogout}
-                    className="w-full bg-[#252423] text-white py-4 text-[11px] tracking-[0.3em] font-bold uppercase hover:bg-black transition-all"
+                    onClick={() => handleNavigate('/account/details')}
+                    className="w-full bg-[#252423] text-white py-4 text-[11px] tracking-[0.3em] font-bold uppercase transition-all hover:bg-black"
                   >
-                    Log Out
+                    My Details
+                  </button>
+
+                  <button 
+                    onClick={() => handleNavigate('/wishlist')}
+                    className="w-full bg-[#252423] text-white py-4 text-[11px] tracking-[0.3em] font-bold uppercase transition-all hover:bg-black"
+                  >
+                    My Wishlist ({wishlist.length})
+                  </button>
+                </div>
+
+                <div className="mt-10 text-center">
+                  <button 
+                    onClick={handleLogout}
+                    className="text-[10px] tracking-[0.3em] font-bold uppercase text-[#252423]/60 hover:text-black transition-all border-b border-transparent hover:border-black/20 pb-0.5"
+                  >
+                    Sign Out
                   </button>
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col h-full">
-                {error && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-[11px] tracking-widest uppercase text-center">
-                    {error}
-                  </div>
-                )}
-
-                <div className="space-y-8">
-                  {isRegistering && (
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] tracking-[0.2em] font-bold uppercase text-[#252423]">Full Name</label>
-                      <input 
-                        type="text" 
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full bg-transparent border-b border-black/10 py-2.5 text-[13px] tracking-widest focus:border-black transition-colors outline-none"
-                        placeholder="Enter your name"
-                      />
-                    </div>
-                  )}
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] tracking-[0.2em] font-bold uppercase text-[#252423]">Email</label>
-                    <input 
-                      type="email" 
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full bg-transparent border-b border-black/10 py-2.5 text-[13px] tracking-widest focus:border-black transition-colors outline-none"
-                      placeholder="Enter your email"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] tracking-[0.2em] font-bold uppercase text-[#252423]">Password</label>
-                    <input 
-                      type="password" 
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full bg-transparent border-b border-black/10 py-2.5 text-[13px] tracking-widest focus:border-black transition-colors outline-none"
-                      placeholder="Enter your password"
-                    />
-                  </div>
+              /* Landing Options View (Redirect to full pages) */
+              <div className="flex flex-col h-full">
+                <div className="mb-10 text-center pt-8">
+                  <p className="text-[12px] tracking-[0.1em] text-neutral-500 text-center font-light">
+                    You are not logged in
+                  </p>
                 </div>
-
-                <div className="mt-auto pt-10">
+                
+                <div className="space-y-4">
                   <button 
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-[#252423] text-white py-4 text-[11px] tracking-[0.3em] font-bold uppercase hover:bg-black transition-all mb-6 flex items-center justify-center gap-2"
+                    onClick={() => handleNavigate('/account/login')}
+                    className="w-full bg-[#252423] text-white py-4 text-[11px] tracking-[0.3em] font-bold uppercase transition-all hover:bg-black"
                   >
-                    {loading ? 'Processing...' : isRegistering ? 'Create Account' : 'Sign In'}
+                    Sign In
                   </button>
-
                   <button 
-                    type="button"
-                    onClick={() => { setIsRegistering(!isRegistering); setError(''); }}
-                    className="w-full text-center text-[10px] tracking-[0.2em] font-bold uppercase text-neutral-500 hover:text-black transition-colors"
+                    onClick={() => handleNavigate('/wishlist')}
+                    className="w-full bg-[#252423] text-white py-4 text-[11px] tracking-[0.3em] font-bold uppercase transition-all hover:bg-black"
                   >
-                    {isRegistering ? 'Already have an account? Sign In' : "Don't have an account? Register"}
+                    My Wishlist ({wishlist.length})
                   </button>
                 </div>
-              </form>
+              </div>
             )}
           </div>
         </div>

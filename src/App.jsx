@@ -22,32 +22,48 @@ const ScrollToTop = () => {
   return null;
 };
 
+import Login from './pages/Account/Login';
+import Register from './pages/Account/Register';
+import ForgotPassword from './pages/Account/ForgotPassword';
+import Orders from './pages/Account/Orders';
+import Details from './pages/Account/Details';
+import Loyalty from './pages/Account/Loyalty';
+import SmoothScroll from './components/common/SmoothScroll';
+
 function App() {
   const location = useLocation();
   const isCheckoutPage = location.pathname === '/checkout';
 
   return (
     <ToastProvider>
-      <ScrollToTop />
-      <div className="min-h-screen flex flex-col">
-        {!isCheckoutPage && <AnnouncementBar />}
-        {!isCheckoutPage && <Header />}
-        
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/collections/:category" element={<Collections />} />
-          <Route path="/collections" element={<Collections />} />
-          <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/journal" element={<Journal />} />
-          <Route path="/journal/:slug" element={<JournalDetail />} />
-          <Route path="/lookbook" element={<Lookbook />} />
-        </Routes>
-        
-        {!isCheckoutPage && <Footer />}
-      </div>
+      <SmoothScroll>
+        <ScrollToTop />
+        <div className="min-h-screen flex flex-col">
+          {!isCheckoutPage && <AnnouncementBar />}
+          {!isCheckoutPage && <Header />}
+          
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/collections/:category" element={<Collections />} />
+            <Route path="/collections" element={<Collections />} />
+            <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/journal" element={<Journal />} />
+            <Route path="/journal/:slug" element={<JournalDetail />} />
+            <Route path="/lookbook" element={<Lookbook />} />
+            <Route path="/account/login" element={<Login />} />
+            <Route path="/account/register" element={<Register />} />
+            <Route path="/account/forgot-password" element={<ForgotPassword />} />
+            <Route path="/account/orders" element={<Orders />} />
+            <Route path="/account/details" element={<Details />} />
+            <Route path="/account/loyalty" element={<Loyalty />} />
+          </Routes>
+          
+          {!isCheckoutPage && <Footer />}
+        </div>
+      </SmoothScroll>
     </ToastProvider>
   );
 }

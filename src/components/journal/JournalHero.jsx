@@ -10,14 +10,14 @@ const JournalHero = ({ data }) => {
     }).toUpperCase();
 
     return (
-        <section className="w-full max-w-[1200px] mx-auto px-4 pt-16 pb-12 mb-20 text-center">
+        <section className="w-full max-w-[1200px] mx-auto px-4 pt-12 pb-6 mb-6 text-center">
             {/* Title Group */}
-            <div className="mb-12 space-y-4 px-4">
+            <div className="mb-8 space-y-4 px-4">
                 <h1
                     className="text-3xl md:text-4xl lg:text-[42px] leading-tight tracking-wide font-medium text-[#252423] uppercase max-w-3xl mx-auto [&_b]:font-black [&_strong]:font-black"
                     dangerouslySetInnerHTML={{ __html: data.title }}
                 />
-                <p className="text-sm tracking-widest text-gray-500 uppercase mt-4">
+                <p className="text-sm tracking-widest text-gray-500 uppercase mt-2">
                     {formattedDate}
                 </p>
             </div>
@@ -32,19 +32,14 @@ const JournalHero = ({ data }) => {
             </div>
 
             {/* Caption/Intro Text */}
-            <div className="max-w-3xl mx-auto mt-12 text-center space-y-6 px-4">
-                {data.excerpt && (
+            {(data.introText || data.excerpt) && (
+                <div className="max-w-3xl mx-auto mt-6 text-center px-4">
                     <p
                         className="text-[#A47F58] font-medium text-lg italic [&_b]:font-black [&_strong]:font-black"
-                        dangerouslySetInnerHTML={{ __html: data.excerpt }}
+                        dangerouslySetInnerHTML={{ __html: data.introText || data.excerpt }}
                     />
-                )}
-                {data.introText && (
-                    <p className="text-gray-600 leading-relaxed">
-                        {data.introText}
-                    </p>
-                )}
-            </div>
+                </div>
+            )}
 
         </section>
     );

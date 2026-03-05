@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../utils/api';
 import { useToast } from '../common/Toast';
+import ImageUpload from './ImageUpload';
 
 const CategoriesView = () => {
   const toast = useToast();
@@ -154,22 +155,7 @@ const CategoryForm = ({ category, onCancel, onSuccess }) => {
     isActive: category?.isActive ?? true
   });
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const { url } = await api.navigation.uploadImage(file);
-      setFormData(prev => ({ ...prev, image: url }));
-      toast.success('Visual artifact ingested');
-    } catch (err) {
-      toast.error('Transmission failure: Image not loaded');
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -205,7 +191,7 @@ const CategoryForm = ({ category, onCancel, onSuccess }) => {
            </div>
         </div>
         <div className="flex gap-3">
-          <button onClick={handleSubmit} disabled={loading || uploading} className="px-8 py-3 rounded-xl bg-admin-accent text-white text-[11px] font-black uppercase tracking-widest shadow-xl shadow-admin-accent/20 transition-all disabled:opacity-50 hover:scale-105 active:scale-95">
+          <button onClick={handleSubmit} disabled={loading} className="px-8 py-3 rounded-xl bg-admin-accent text-white text-[11px] font-black uppercase tracking-widest shadow-xl shadow-admin-accent/20 transition-all disabled:opacity-50 hover:scale-105 active:scale-95">
             {loading ? 'Processing Node...' : category ? 'Sync Changes' : 'Execute Deployment'}
           </button>
         </div>
@@ -214,29 +200,12 @@ const CategoryForm = ({ category, onCancel, onSuccess }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Visual Config */}
         <div className="space-y-4">
-           <div className="relative aspect-square md:aspect-video rounded-3xl overflow-hidden bg-admin-card border-2 border-admin-border group shadow-sm">
-              {formData.image ? (
-                <img src={formData.image} alt="Preview" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-admin-muted gap-4">
-                   <ImageIcon size={48} strokeWidth={1} className="opacity-20 translate-y-2 group-hover:translate-y-0 transition-transform" />
-                   <p className="text-[10px] font-black uppercase tracking-widest opacity-40">No Visual Assets Detected</p>
-                </div>
-              )}
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-sm">
-                <label className="cursor-pointer bg-white text-black px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-neutral-200 transition-all shadow-2xl">
-                  {uploading ? <RefreshCw className="animate-spin" size={12} /> : <Upload size={14} />}
-                  {formData.image ? 'Swap Artifact' : 'Inject Asset'}
-                  <input 
-                    type="file" 
-                    className="hidden" 
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                  />
-                </label>
-              </div>
-           </div>
-           <p className="text-[8px] text-admin-muted uppercase tracking-[0.3em] text-center font-bold">Category Display Image (Used for Shop By Category Section)</p>
+           <ImageUpload 
+            value={formData.image}
+            onChange={url => setFormData(prev => ({ ...prev, image: url }))}
+            label="Category Display Image"
+           />
+           <p className="text-[8px] text-admin-muted uppercase tracking-[0.3em] text-center font-bold">Standard 4:3 or 16:9 aspect ratio recommended</p>
         </div>
 
         {/* Identity Config */}

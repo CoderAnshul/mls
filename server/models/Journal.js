@@ -39,6 +39,9 @@ const journalSchema = new mongoose.Schema({
   },
   ctaText: String,
   ctaLink: String,
+  ctaImage: String,
+  footerImage: String,
+  introText: String,
   isPublished: {
       type: Boolean,
       default: true

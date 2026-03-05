@@ -52,7 +52,12 @@ const productSchema = new mongoose.Schema({
       default: 0
   },
   sizes: [{ type: String }], // 'S', 'M', 'L' etc.
-  colors: [{ type: String }]
+  colors: [{ type: String }],
+  variants: [{
+    colorName: String,
+    colorImage: String, // Swatch image URL
+    images: [{ type: String }] // Color specific images
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);
