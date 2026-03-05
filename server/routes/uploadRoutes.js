@@ -2,11 +2,17 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const os = require('os');
 
-// Configure storage
+// Configure storage for Vercel support
+// We use os.tmpdir() because Vercel has a read-only filesystem except for /tmp
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    if (process.env.VERCEL) {
+      cb(null, os.tmpdir());
+    } else {
+      cb(null, 'uploads/');
+    }
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -21,9 +27,6 @@ router.post('/', upload.single('image'), (req, res) => {
     return res.status(400).json({ message: 'No file uploaded' });
   }
   
-  // Return the path. If BASE_URL is set (production), we use it. 
-  // Otherwise, we return a relative path which the frontend can prefix.
-  // This prevents 'localhost' from being hardcoded in DB entries during production.
   const baseUrl = process.env.BASE_URL || '';
   const fileUrl = baseUrl 
     ? `${baseUrl}/uploads/${req.file.filename}`

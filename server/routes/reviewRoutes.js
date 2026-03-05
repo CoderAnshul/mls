@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const os = require('os');
 const multer = require('multer');
 const xlsx = require('xlsx');
 const Review = require('../models/Review');
 const fs = require('fs');
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: os.tmpdir() });
 
 // Get all reviews
 router.get('/', async (req, res) => {
