@@ -8,7 +8,7 @@ const LoginView = ({ setAuth }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const { addToast } = useToast();
+    const toast = useToast();
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
@@ -19,13 +19,13 @@ const LoginView = ({ setAuth }) => {
             if (data.token) {
                 localStorage.setItem('user', JSON.stringify(data));
                 setAuth(data);
-                addToast('Welcome back, Admin!', 'success');
+                toast.success('Welcome back, Admin!');
                 navigate('/');
             } else {
-                addToast(data.message || 'Login failed', 'error');
+                toast.error(data.message || 'Login failed');
             }
         } catch (error) {
-            addToast('Something went wrong. Please try again.', 'error');
+            toast.error('Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }

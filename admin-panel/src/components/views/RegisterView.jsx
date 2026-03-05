@@ -9,7 +9,7 @@ const RegisterView = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const { addToast } = useToast();
+    const toast = useToast();
     const navigate = useNavigate();
 
     const handleRegister = async (e) => {
@@ -18,13 +18,13 @@ const RegisterView = () => {
         try {
             const data = await api.auth.register(name, email, password);
             if (data.token) {
-                addToast('Root Account Created Successfully!', 'success');
-                navigate('/login');
+                toast.success('Root Account Created! Redirecting...');
+                setTimeout(() => navigate('/login'), 1500);
             } else {
-                addToast(data.message || 'Registration failed', 'error');
+                toast.error(data.message || 'Identity verification failed');
             }
         } catch (error) {
-            addToast('Something went wrong. Please try again.', 'error');
+            toast.error('Connection interrupted. Please try again.');
         } finally {
             setLoading(false);
         }
