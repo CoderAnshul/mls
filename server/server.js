@@ -16,6 +16,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB with Reliability Options
 const connectDB = async () => {
+  if (!process.env.MONGO_URI) {
+    console.error('--- SYSTEM ERROR: MONGO_URI is not defined in environment variables ---');
+    return;
+  }
   try {
     await mongoose.connect(process.env.MONGO_URI, {
       serverSelectionTimeoutMS: 5000,
@@ -83,3 +87,5 @@ app.use('/api/delivery-partners', deliveryPartnerRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;
