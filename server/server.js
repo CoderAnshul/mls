@@ -28,7 +28,9 @@ try {
   console.log('--- SYSTEM INFO: Uploads directory creation skipped/failed (Read-only FS) ---');
 }
 
-app.use('/uploads', express.static(uploadsDir));
+// On Vercel, uploads go to /tmp — serve from there. Locally, serve from /uploads.
+const staticDir = process.env.VERCEL ? require('os').tmpdir() : uploadsDir;
+app.use('/uploads', express.static(staticDir));
 
 // Global Error Handler for Vercel Debugging
 process.on('unhandledRejection', (reason, promise) => {

@@ -27,10 +27,11 @@ router.post('/', upload.single('image'), (req, res) => {
     return res.status(400).json({ message: 'No file uploaded' });
   }
   
-  // Always return a full absolute URL so the frontend knows where to load the image from.
-  // Use the configured BASE_URL if available, otherwise derive it from the request host.
-  const baseUrl = process.env.BASE_URL 
-    || `${req.protocol}://${req.get('host')}`;
+  // BASE_URL must be set in Vercel env vars (e.g. https://mls-api.vercel.app)
+  // Fallback: derive from request, using x-forwarded-proto for correct https on Vercel
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+  const host = req.headers['x-forwarded-host'] || req.get('host');
+  const baseUrl = process.env.BASE_URL || `${protocol}://${host}`;
 
   const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
     

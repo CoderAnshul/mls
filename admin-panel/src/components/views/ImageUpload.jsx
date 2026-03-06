@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Upload, X, Loader2, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
 import { api } from "../../utils/api";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 const ImageUpload = ({ value, onChange, label, className = "h-32 w-32" }) => {
   const fileInputRef = useRef();
@@ -32,11 +33,7 @@ const ImageUpload = ({ value, onChange, label, className = "h-32 w-32" }) => {
     }
   };
 
-  // Image path resolver for previews
-  const imageBase = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api").replace("/api", "");
-  const imageUrl = value 
-    ? (value.startsWith("http") ? value : `${imageBase.endsWith("/") ? imageBase.slice(0, -1) : imageBase}${value.startsWith("/") ? "" : "/"}${value}`)
-    : "";
+  const imageUrl = resolveImageUrl(value);
 
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
