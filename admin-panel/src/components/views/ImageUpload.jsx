@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { Upload, X, Loader2, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
 import { api } from "../../utils/api";
 
-const ImageUpload = ({ value, onChange, label, className = "h-32" }) => {
+const ImageUpload = ({ value, onChange, label, className = "h-32 w-32" }) => {
   const fileInputRef = useRef();
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
