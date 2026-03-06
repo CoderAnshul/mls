@@ -53,9 +53,6 @@ const connectDB = async () => {
     console.error('--- SYSTEM ERROR: MONGO_URI is not defined in environment variables ---');
     return;
   }
-  // Disable buffering so queries fail fast on cold starts
-  mongoose.set('bufferCommands', false);
-
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
       serverSelectionTimeoutMS: 30000,
