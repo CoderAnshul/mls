@@ -27,10 +27,12 @@ router.post('/', upload.single('image'), (req, res) => {
     return res.status(400).json({ message: 'No file uploaded' });
   }
   
-  const baseUrl = process.env.BASE_URL || '';
-  const fileUrl = baseUrl 
-    ? `${baseUrl}/uploads/${req.file.filename}`
-    : `/uploads/${req.file.filename}`;
+  // Always return a full absolute URL so the frontend knows where to load the image from.
+  // Use the configured BASE_URL if available, otherwise derive it from the request host.
+  const baseUrl = process.env.BASE_URL 
+    || `${req.protocol}://${req.get('host')}`;
+
+  const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
     
   res.json({ url: fileUrl });
 });
