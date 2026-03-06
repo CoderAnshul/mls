@@ -10,9 +10,8 @@ const connectOnce = () => {
     connectionPromise = mongoose.connect(process.env.MONGO_URI, {
         serverSelectionTimeoutMS: 30000,
         socketTimeoutMS: 45000,
-        bufferCommands: true,
     }).catch(err => {
-        // Reset so next request can try again
+        // Reset on failure so next request can retry
         connectionPromise = null;
         throw err;
     });
@@ -22,7 +21,7 @@ const connectOnce = () => {
 
 module.exports = async (req, res) => {
     try {
-        // Wait for DB to be ready before handling any request
+        // Always wait for DB to be ready before handling any request
         if (mongoose.connection.readyState !== 1) {
             await connectOnce();
         }
