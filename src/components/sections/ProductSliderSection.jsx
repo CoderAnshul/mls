@@ -4,6 +4,7 @@ import { IoHeartOutline, IoHeart, IoBagOutline } from 'react-icons/io5';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
 import QuickAddModal from '../common/QuickAddModal';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 // ─── Mini Product Card ────────────────────────────────────────────────────────
 export const SliderCard = ({ product }) => {
@@ -26,7 +27,7 @@ export const SliderCard = ({ product }) => {
         <Link to={productLink} className="absolute inset-0 bg-[#E8E6DE] overflow-hidden">
           {primaryImage ? (
             <img
-              src={primaryImage}
+              src={resolveImageUrl(primaryImage)}
               alt={product.title || 'Product'}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               draggable={false}

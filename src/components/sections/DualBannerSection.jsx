@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../utils/api';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 const DualBannerSection = () => {
   const [banners, setBanners] = useState([]);
@@ -32,7 +33,7 @@ const DualBannerSection = () => {
         >
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 group-hover:scale-105"
-            style={{ backgroundImage: `url(${banner.image})` }}
+            style={{ backgroundImage: `url(${resolveImageUrl(banner.image)})` }}
           />
           {/* Subtle overlay on hover */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
