@@ -249,7 +249,6 @@ const AppContent = () => {
         </header>
 
         <div className="p-8 h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar">
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-700">
             <React.Suspense fallback={<div className="p-10 text-center text-admin-muted font-black uppercase overflow-hidden">Initializing Matrix...</div>}>
               <Routes>
                 <Route path="/" element={<DashboardView />} />
@@ -286,7 +285,6 @@ const AppContent = () => {
               </Routes>
             </React.Suspense>
           </div>
-        </div>
       </main>
     </div>
   );

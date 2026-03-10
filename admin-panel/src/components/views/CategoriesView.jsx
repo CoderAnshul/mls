@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Layers, 
   Plus, 
@@ -178,91 +179,109 @@ const CategoryForm = ({ category, onCancel, onSuccess }) => {
     }
   };
 
-  return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex items-center justify-between border-b border-admin-border pb-6 px-1">
-        <div className="flex items-center gap-4">
-           <button onClick={onCancel} className="p-2 hover:bg-admin-card rounded-lg border border-admin-border text-admin-muted">
-              <X size={18} />
-           </button>
-           <div>
-              <h2 className="text-2xl font-black tracking-tight uppercase leading-none">{category ? 'Update Category' : 'Add New Category'}</h2>
-              <p className="text-[10px] text-admin-muted uppercase tracking-[0.3em] font-bold mt-2">Modify category details and display image</p>
-           </div>
-        </div>
-        <div className="flex gap-3">
-          <button onClick={handleSubmit} disabled={loading} className="px-8 py-3 rounded-xl bg-admin-accent text-white text-[11px] font-black uppercase tracking-widest shadow-xl shadow-admin-accent/20 transition-all disabled:opacity-50 hover:scale-105 active:scale-95">
-            {loading ? 'Saving Category...' : category ? 'Save Changes' : 'Create Category'}
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Visual Config */}
-        <div className="space-y-4">
-           <ImageUpload 
-            value={formData.image}
-            onChange={url => setFormData(prev => ({ ...prev, image: url }))}
-            label="Category Display Image"
-           />
-           <p className="text-[8px] text-admin-muted uppercase tracking-[0.3em] text-center font-bold">Standard 4:3 or 16:9 aspect ratio recommended</p>
-        </div>
-
-        {/* Identity Config */}
-        <div className="bg-admin-card border border-admin-border rounded-[2.5rem] p-8 space-y-8 shadow-sm justify-center flex flex-col">
-          <div className="space-y-2">
-            <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.3em] flex items-center gap-2 mb-1">
-               <Layers size={12} className="text-admin-accent" /> Category Name
-            </label>
-            <input 
-              type="text" 
-              value={formData.name}
-              onChange={e => {
-                const name = e.target.value;
-                setFormData(prev => ({
-                  ...prev, 
-                  name: name, 
-                  slug: category ? prev.slug : name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
-                }));
-              }}
-              placeholder="e.g. PREMIUM KAFTANS" 
-              className="w-full bg-admin-bg border border-admin-border px-4 py-3.5 rounded-2xl focus:border-admin-accent outline-none text-[15px] font-black uppercase tracking-tight shadow-inner" 
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.3em] flex items-center gap-2 mb-1">
-               <Search size={12} className="text-admin-accent" /> Category URL Path
-            </label>
-            <div className="flex items-center group">
-              <div className="bg-admin-bg border-y border-l border-admin-border px-4 py-3.5 rounded-l-2xl text-[12px] font-mono text-admin-muted group-focus-within:border-admin-accent">/collections/</div>
-              <input 
-                type="text" 
-                value={formData.slug}
-                onChange={e => setFormData({...formData, slug: e.target.value})}
-                placeholder="kaftans" 
-                className="w-full bg-admin-bg border border-admin-border px-4 py-3.5 rounded-r-2xl focus:border-admin-accent outline-none text-[12px] font-bold border-l-0 shadow-inner" 
-              />
+  return createPortal(
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300">
+       <div className="absolute inset-0 bg-[#09090B]/90 backdrop-blur-md" onClick={onCancel} />
+       <div className="relative bg-admin-card border border-admin-border w-full max-w-4xl max-h-[95vh] overflow-y-auto rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] p-10 scrollbar-hide animate-in zoom-in-95 duration-300">
+          <div className="flex items-center justify-between border-b border-admin-border pb-6 px-1 mb-10">
+            <div className="flex items-center gap-4">
+               <div className="w-12 h-12 rounded-2xl bg-admin-accent/10 flex items-center justify-center text-admin-accent">
+                  <Layers size={24} />
+               </div>
+               <div>
+                  <h2 className="text-2xl font-black tracking-tight uppercase leading-none">{category ? 'Update Category' : 'Add New Category'}</h2>
+                  <p className="text-[10px] text-admin-muted uppercase tracking-[0.3em] font-bold mt-2">Modify category details and display image</p>
+               </div>
             </div>
+            <button onClick={onCancel} className="p-3 hover:bg-admin-bg rounded-xl transition-colors border border-admin-border">
+               <X size={20} className="text-admin-muted" />
+            </button>
           </div>
 
-          <div className="flex items-center justify-between p-5 bg-admin-bg border border-admin-border rounded-2xl shadow-inner group">
-            <div className="flex items-center gap-3">
-              <div className={`w-3 h-3 rounded-full transition-all duration-500 ${formData.isActive ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]' : 'bg-admin-muted opacity-30 animate-pulse'}`} />
-              <div>
-                 <span className="text-[11px] font-black uppercase tracking-widest text-white">Status</span>
-                 <p className="text-[8px] text-admin-muted uppercase font-black tracking-widest mt-0.5">{formData.isActive ? 'Visible' : 'Hidden'}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            {/* Visual Config */}
+            <div className="space-y-4">
+               <ImageUpload 
+                value={formData.image}
+                onChange={url => setFormData(prev => ({ ...prev, image: url }))}
+                label="Category Display Image"
+               />
+               <p className="text-[8px] text-admin-muted uppercase tracking-[0.3em] text-center font-bold">Standard 4:3 or 16:9 aspect ratio recommended</p>
+            </div>
+
+            {/* Identity Config */}
+            <div className="bg-admin-bg/30 border border-admin-border rounded-[2.5rem] p-8 space-y-8 shadow-inner justify-center flex flex-col">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-admin-muted uppercase tracking-[0.3em] flex items-center gap-2 mb-1">
+                   <Layers size={14} className="text-admin-accent" /> Category Name
+                </label>
+                <input 
+                  type="text" 
+                  value={formData.name}
+                  onChange={e => {
+                    const name = e.target.value;
+                    setFormData(prev => ({
+                      ...prev, 
+                      name: name, 
+                      slug: category ? prev.slug : name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+                    }));
+                  }}
+                  placeholder="e.g. PREMIUM KAFTANS" 
+                  className="w-full bg-admin-bg border border-admin-border px-5 py-4 rounded-2xl focus:border-admin-accent outline-none text-[15px] font-black uppercase tracking-tight shadow-inner" 
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-admin-muted uppercase tracking-[0.3em] flex items-center gap-2 mb-1">
+                   <Search size={14} className="text-admin-accent" /> Category URL Path
+                </label>
+                <div className="flex items-center group">
+                  <div className="bg-admin-bg border-y border-l border-admin-border px-5 py-4 rounded-l-2xl text-[12px] font-mono text-admin-muted group-focus-within:border-admin-accent">/collections/</div>
+                  <input 
+                    type="text" 
+                    value={formData.slug}
+                    onChange={e => setFormData({...formData, slug: e.target.value})}
+                    placeholder="kaftans" 
+                    className="w-full bg-admin-bg border border-admin-border px-5 py-4 rounded-r-2xl focus:border-admin-accent outline-none text-[12px] font-bold border-l-0 shadow-inner" 
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-6 bg-admin-bg border border-admin-border rounded-2xl shadow-inner group transition-all hover:border-admin-accent/30">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3.5 h-3.5 rounded-full transition-all duration-500 ${formData.isActive ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]' : 'bg-admin-muted opacity-30 animate-pulse'}`} />
+                  <div>
+                     <span className="text-[11px] font-black uppercase tracking-widest text-white">Public Status</span>
+                     <p className="text-[8px] text-admin-muted uppercase font-black tracking-widest mt-0.5">{formData.isActive ? 'Indexed & Visible' : 'Hidden from Registry'}</p>
+                  </div>
+                </div>
+                <div 
+                  onClick={() => setFormData({...formData, isActive: !formData.isActive})}
+                  className={`w-14 h-7 rounded-full relative p-1 cursor-pointer transition-all duration-500 ${formData.isActive ? 'bg-admin-accent' : 'bg-admin-border'}`}>
+                  <div className={`w-5 h-5 bg-white rounded-full shadow-xl transition-all duration-500 ${formData.isActive ? 'ml-7 rotate-180' : 'ml-0'}`} />
+                </div>
               </div>
             </div>
-            <div 
-              onClick={() => setFormData({...formData, isActive: !formData.isActive})}
-              className={`w-12 h-6 rounded-full relative p-1 cursor-pointer transition-all duration-500 ${formData.isActive ? 'bg-admin-accent' : 'bg-admin-border'}`}>
-              <div className={`w-4 h-4 bg-white rounded-full shadow-xl transition-all duration-500 ${formData.isActive ? 'ml-6 rotate-180' : 'ml-0'}`} />
-            </div>
           </div>
-        </div>
-      </div>
-    </div>
+
+          <div className="mt-12 flex gap-4 pt-8 border-t border-admin-border">
+             <button 
+                onClick={handleSubmit} 
+                disabled={loading} 
+                className="flex-1 px-8 py-4 rounded-[1.25rem] bg-admin-accent text-white text-[13px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-admin-accent/30 transition-all disabled:opacity-50 hover:scale-[1.02] active:scale-95"
+             >
+                {loading ? 'Processing Protocol...' : category ? 'Sync Changes' : 'Initialize Category'}
+             </button>
+             <button 
+                onClick={onCancel}
+                className="px-10 py-4 bg-admin-card text-admin-muted border border-admin-border rounded-[1.25rem] font-black uppercase text-[12px] tracking-widest hover:text-white transition-all"
+             >
+                Cancel
+             </button>
+          </div>
+       </div>
+    </div>,
+    document.body
   );
 };
 

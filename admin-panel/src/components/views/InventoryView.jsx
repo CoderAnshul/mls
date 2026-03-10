@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import * as XLSX from 'xlsx';
 import { 
   Package, 
@@ -103,9 +104,12 @@ const ExcelImportModal = ({ onClose, onSuccess }) => {
     if (ok > 0) onSuccess();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-admin-card border border-admin-border rounded-2xl w-full max-w-2xl mx-4 shadow-2xl overflow-hidden">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#09090B]/90 backdrop-blur-md animate-in fade-in duration-300 p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="w-full max-w-lg bg-admin-card border border-admin-border rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] animate-in zoom-in-95 duration-300 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-admin-border">
           <div className="flex items-center gap-3">
@@ -226,7 +230,8 @@ const ExcelImportModal = ({ onClose, onSuccess }) => {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

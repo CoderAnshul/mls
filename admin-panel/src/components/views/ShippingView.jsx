@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Truck,
   Plus,
@@ -64,126 +65,92 @@ const PartnerModal = ({ partner, onClose, onSaved }) => {
     }
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#09090B]/90 backdrop-blur-md animate-in fade-in duration-300 p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-lg bg-admin-card border border-admin-border rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
+      <div className="w-full max-w-lg bg-admin-card border border-admin-border rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] animate-in zoom-in-95 duration-300 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-admin-border bg-gradient-to-r from-admin-accent/10 to-admin-card">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-admin-accent/10 border border-admin-accent/20">
-              <Truck size={16} className="text-admin-accent" />
-            </div>
-            <div>
-              <h3 className="text-[15px] font-black uppercase tracking-tight">
-                {isEditing ? 'Edit Partner' : 'Add Delivery Partner'}
-              </h3>
-              <p className="text-[11px] font-black text-admin-muted uppercase tracking-widest mt-0.5">
-                {isEditing ? `Editing: ${partner.name}` : 'Register a new carrier'}
-              </p>
-            </div>
+             <div className="p-2 bg-admin-accent/20 rounded-lg text-admin-accent">
+                <Truck size={18} />
+             </div>
+             <div>
+                <h3 className="text-[14px] font-black uppercase tracking-tight">{partner ? 'Edit Delivery Partner' : 'Initialize Partner'}</h3>
+                <p className="text-[10px] text-admin-muted font-black uppercase tracking-widest">Protocol Sync Settings</p>
+             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-admin-border transition-colors text-admin-muted hover:text-white">
-            <X size={16} />
+          <button onClick={onClose} className="p-2 hover:bg-admin-bg rounded-lg transition-colors border border-admin-border">
+            <X size={16} className="text-admin-muted" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            {/* Name */}
-            <div className="col-span-2 space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-widest text-admin-muted flex items-center gap-1.5">
-                <Package size={11} /> Carrier Name <span className="text-rose-400">*</span>
-              </label>
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-admin-muted uppercase tracking-widest ml-1">Partner Identity</label>
               <input
+                required
                 type="text"
                 value={form.name}
-                onChange={e => set('name', e.target.value)}
-                placeholder="e.g. Royal Mail, DHL Express"
-                required
-                className="w-full bg-admin-bg border border-admin-border rounded-lg px-3 py-2 text-[13px] font-bold outline-none focus:ring-1 focus:ring-admin-accent placeholder:text-admin-muted/40 transition-all"
+                onChange={(e) => set('name', e.target.value)}
+                placeholder="e.g. DHL Express Global"
+                className="w-full bg-admin-bg border border-admin-border px-4 py-2.5 rounded-xl focus:border-admin-accent outline-none text-[13px] font-bold shadow-inner"
               />
             </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-2">
+                <label className="text-[10px] font-black text-admin-muted uppercase tracking-widest ml-1">Base Protocol Fee</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-admin-muted font-bold text-[13px]">£</span>
+                  <input
+                    required
+                    type="number"
+                    step="0.01"
+                    value={form.shippingFee}
+                    onChange={(e) => set('shippingFee', e.target.value)}
+                    className="w-full bg-admin-bg border border-admin-border pl-8 pr-4 py-2.5 rounded-xl focus:border-admin-accent outline-none text-[13px] font-mono shadow-inner"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-admin-muted uppercase tracking-widest ml-1">Min Threshold</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-admin-muted font-bold text-[13px]">£</span>
+                  <input
+                    required
+                    type="number"
+                    step="0.01"
+                    value={form.freeShippingThreshold}
+                    onChange={(e) => set('freeShippingThreshold', e.target.value)}
+                    className="w-full bg-admin-bg border border-admin-border pl-8 pr-4 py-2.5 rounded-xl focus:border-admin-accent outline-none text-[13px] font-mono shadow-inner"
+                  />
+                </div>
+              </div>
+            </div>
 
-            {/* Code */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-widest text-admin-muted flex items-center gap-1.5">
-                <Hash size={11} /> Carrier Code <span className="text-rose-400">*</span>
-              </label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-admin-muted uppercase tracking-widest ml-1">Service SLA (Est. Delivery)</label>
               <input
-                type="text"
-                value={form.code}
-                onChange={e => set('code', e.target.value.toUpperCase())}
-                placeholder="e.g. RM, DHL"
                 required
-                maxLength={10}
-                className="w-full bg-admin-bg border border-admin-border rounded-lg px-3 py-2 text-[13px] font-mono font-bold outline-none focus:ring-1 focus:ring-admin-accent placeholder:text-admin-muted/40 transition-all uppercase"
+                type="text"
+                value={form.estimatedDelivery}
+                onChange={(e) => set('estimatedDelivery', e.target.value)}
+                placeholder="e.g. 3-5 Working Days"
+                className="w-full bg-admin-bg border border-admin-border px-4 py-2.5 rounded-xl focus:border-admin-accent outline-none text-[13px] font-bold shadow-inner"
               />
             </div>
 
-            {/* Active toggle */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-widest text-admin-muted block">Status</label>
-              <button
-                type="button"
+            <div className="flex items-center justify-between p-4 bg-admin-bg border border-admin-border rounded-xl shadow-inner group transition-all hover:border-admin-accent/30">
+              <div className="flex items-center gap-3">
+                <div className={`w-2.5 h-2.5 rounded-full ${form.isActive ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-admin-muted opacity-30'}`} />
+                <span className="text-[11px] font-black uppercase text-white tracking-widest">Active Status</span>
+              </div>
+              <div 
                 onClick={() => set('isActive', !form.isActive)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all font-bold text-[13px] w-full ${
-                  form.isActive
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                    : 'bg-admin-bg border-admin-border text-admin-muted'
-                }`}
-              >
-                {form.isActive ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
-                {form.isActive ? 'Active' : 'Inactive'}
-              </button>
-            </div>
-          </div>
-
-          {/* Tracking URL */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-widest text-admin-muted flex items-center gap-1.5">
-              <Link size={11} /> Tracking URL
-            </label>
-            <input
-              type="text"
-              value={form.trackingUrl}
-              onChange={e => set('trackingUrl', e.target.value)}
-              placeholder="https://track.example.com/{tracking}"
-              className="w-full bg-admin-bg border border-admin-border rounded-lg px-3 py-2 text-[13px] font-bold outline-none focus:ring-1 focus:ring-admin-accent placeholder:text-admin-muted/40 transition-all"
-            />
-            <p className="text-[11px] text-admin-muted font-bold">
-              Use <code className="bg-admin-bg px-1 rounded text-[10px]">{'{tracking}'}</code> as placeholder — it gets replaced with the real tracking number on dispatch
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {/* Contact Email */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-widest text-admin-muted flex items-center gap-1.5">
-                <Mail size={11} /> Contact Email
-              </label>
-              <input
-                type="email"
-                value={form.contactEmail}
-                onChange={e => set('contactEmail', e.target.value)}
-                placeholder="support@carrier.com"
-                className="w-full bg-admin-bg border border-admin-border rounded-lg px-3 py-2 text-[13px] font-bold outline-none focus:ring-1 focus:ring-admin-accent placeholder:text-admin-muted/40 transition-all"
-              />
-            </div>
-
-            {/* Contact Phone */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-widest text-admin-muted flex items-center gap-1.5">
-                <Phone size={11} /> Contact Phone
-              </label>
-              <input
-                type="text"
-                value={form.contactPhone}
-                onChange={e => set('contactPhone', e.target.value)}
-                placeholder="+44 800 000 0000"
-                className="w-full bg-admin-bg border border-admin-border rounded-lg px-3 py-2 text-[13px] font-bold outline-none focus:ring-1 focus:ring-admin-accent placeholder:text-admin-muted/40 transition-all"
               />
             </div>
           </div>
@@ -231,7 +198,8 @@ const PartnerModal = ({ partner, onClose, onSaved }) => {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

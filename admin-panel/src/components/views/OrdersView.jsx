@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Search, 
   Filter, 
@@ -105,158 +106,114 @@ const DispatchModal = ({ order, onClose, onDispatched }) => {
     } catch (err) {
       toast.error('Failed to dispatch order');
     } finally {
-      setIsSubmitting(false);
+      setLoading(false); // Updated to setLoading
     }
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#09090B]/90 backdrop-blur-md animate-in fade-in duration-300 p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-lg bg-admin-card border border-admin-border rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
+      <div className="w-full max-w-lg bg-admin-card border border-admin-border rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] animate-in zoom-in-95 duration-300 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-border bg-gradient-to-r from-blue-500/10 to-admin-card">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-border bg-gradient-to-r from-admin-accent/10 to-admin-card">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20">
-              <Send size={16} className="text-blue-400" />
-            </div>
-            <div>
-              <h3 className="text-[15px] font-black uppercase tracking-tight">Dispatch Order</h3>
-              <p className="text-[11px] font-black text-admin-muted uppercase tracking-widest mt-0.5">
-                {order.orderNumber} · {order.items.length} item{order.items.length !== 1 ? 's' : ''}
-              </p>
-            </div>
+             <div className="p-2 bg-admin-accent/20 rounded-lg text-admin-accent">
+                <Truck size={18} />
+             </div>
+             <div>
+                <h3 className="text-[14px] font-black uppercase tracking-tight">Dispatch Protocol</h3>
+                <p className="text-[10px] text-admin-muted font-black uppercase tracking-widest">Order {order?.orderNumber?.slice(-8)}</p>
+             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg hover:bg-admin-border transition-colors text-admin-muted hover:text-white"
-          >
-            <X size={16} />
+          <button onClick={onClose} className="p-2 hover:bg-admin-bg rounded-lg transition-colors border border-admin-border">
+            <X size={16} className="text-admin-muted" />
           </button>
         </div>
 
         {/* Customer Summary */}
         <div className="px-6 py-3 bg-admin-bg/40 border-b border-admin-border flex items-center gap-3">
           <MapPin size={13} className="text-admin-muted shrink-0" />
-          <p className="text-[13px] font-bold text-admin-muted">
-            {order.shippingAddress.firstName} {order.shippingAddress.lastName} &mdash;{' '}
-            {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.postcode}
+          <p className="text-[12px] font-bold text-admin-muted">
+            {order?.shippingAddress?.firstName} {order?.shippingAddress?.lastName} &mdash;{' '}
+            {order?.shippingAddress?.city}, {order?.shippingAddress?.country}
           </p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Delivery Partner */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-widest text-admin-muted flex items-center gap-1.5">
-              <Truck size={11} /> Delivery Partner
-            </label>
-            {loadingPartners ? (
-              <div className="h-9 bg-admin-bg rounded-lg border border-admin-border animate-pulse" />
-            ) : partners.length === 0 ? (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[13px] font-bold">
-                <AlertCircle size={14} />
-                No active delivery partners. Add one first.
-              </div>
-            ) : (
-              <select
-                value={form.partnerId}
-                onChange={handlePartnerChange}
-                className="w-full bg-admin-bg border border-admin-border rounded-lg px-3 py-2 text-[13px] font-bold outline-none focus:ring-1 focus:ring-blue-400 transition-all"
-              >
-                {partners.map(p => (
-                  <option key={p._id} value={p._id}>{p.name} ({p.code})</option>
-                ))}
-              </select>
-            )}
-          </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-admin-muted uppercase tracking-widest ml-1">Logistic Carrier</label>
+              {loadingPartners ? (
+                <div className="h-10 bg-admin-bg rounded-xl border border-admin-border animate-pulse" />
+              ) : (
+                <select
+                  required
+                  value={form.partnerId}
+                  onChange={handlePartnerChange}
+                  className="w-full bg-admin-bg border border-admin-border px-4 py-2.5 rounded-xl focus:border-admin-accent outline-none text-[13px] font-bold shadow-inner"
+                >
+                  <option value="">Select Carrier...</option>
+                  {partners.map(p => (
+                    <option key={p._id} value={p._id}>{p.name} ({p.code})</option>
+                  ))}
+                </select>
+              )}
+            </div>
 
-          {/* Tracking Number */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-widest text-admin-muted flex items-center gap-1.5">
-              <Hash size={11} /> Tracking Number <span className="text-rose-400">*</span>
-            </label>
-            <input
-              type="text"
-              value={form.trackingNumber}
-              onChange={(e) => setForm(prev => ({ ...prev, trackingNumber: e.target.value }))}
-              placeholder="e.g. JD123456789GB"
-              className="w-full bg-admin-bg border border-admin-border rounded-lg px-3 py-2 text-[13px] font-mono font-bold outline-none focus:ring-1 focus:ring-blue-400 placeholder:text-admin-muted/50 placeholder:font-sans transition-all"
-              required
-            />
-          </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-admin-muted uppercase tracking-widest ml-1">Tracking ID / Waybill</label>
+              <input
+                required
+                type="text"
+                value={form.trackingNumber}
+                onChange={(e) => setForm(prev => ({ ...prev, trackingNumber: e.target.value }))}
+                placeholder="e.g. GB123456789"
+                className="w-full bg-admin-bg border border-admin-border px-4 py-2.5 rounded-xl focus:border-admin-accent outline-none text-[13px] font-mono font-bold shadow-inner"
+              />
+            </div>
 
-          {/* Tracking URL */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-widest text-admin-muted flex items-center gap-1.5">
-              <Link size={11} /> Tracking URL
-              <span className="text-[10px] normal-case text-admin-muted/60 font-bold">(optional — auto-filled from partner)</span>
-            </label>
-            <input
-              type="text"
-              value={form.trackingUrl}
-              onChange={(e) => setForm(prev => ({ ...prev, trackingUrl: e.target.value }))}
-              placeholder="https://track.example.com/{tracking}"
-              className="w-full bg-admin-bg border border-admin-border rounded-lg px-3 py-2 text-[13px] font-bold outline-none focus:ring-1 focus:ring-blue-400 placeholder:text-admin-muted/50 transition-all"
-            />
             {form.trackingUrl && form.trackingNumber && (
-              <p className="text-[11px] font-bold text-blue-400 truncate">
-                → {form.trackingUrl.replace('{tracking}', form.trackingNumber)}
-              </p>
+              <div className="p-3 bg-blue-500/5 border border-blue-500/10 rounded-xl">
+                 <p className="text-[10px] font-bold text-blue-400 truncate flex items-center gap-2">
+                    <Link size={12} /> {form.trackingUrl.replace('{tracking}', form.trackingNumber)}
+                 </p>
+              </div>
             )}
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-admin-muted uppercase tracking-widest ml-1">Internal Notes</label>
+              <textarea
+                value={form.notes}
+                onChange={(e) => setForm(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder="Any special instructions..."
+                rows={2}
+                className="w-full bg-admin-bg border border-admin-border px-4 py-2.5 rounded-xl outline-none text-[13px] font-bold shadow-inner resize-none focus:border-admin-accent"
+              />
+            </div>
           </div>
 
-          {/* Notes */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-widest text-admin-muted flex items-center gap-1.5">
-              <FileText size={11} /> Internal Notes
-            </label>
-            <textarea
-              value={form.notes}
-              onChange={(e) => setForm(prev => ({ ...prev, notes: e.target.value }))}
-              placeholder="Any special instructions for this dispatch..."
-              rows={2}
-              className="w-full bg-admin-bg border border-admin-border rounded-lg px-3 py-2 text-[13px] font-bold outline-none focus:ring-1 focus:ring-blue-400 placeholder:text-admin-muted/50 resize-none transition-all"
-            />
-          </div>
-
-          {/* Info pill */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/5 border border-blue-500/15 text-[12px] font-bold text-blue-400">
-            <Package size={12} />
-            Dispatching will automatically set order status to <strong className="font-black">Shipped</strong>.
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-3 pt-1">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl border border-admin-border text-[13px] font-black uppercase tracking-widest hover:bg-admin-border transition-all"
-            >
-              Cancel
-            </button>
+          <div className="flex gap-4 pt-2">
             <button
               type="submit"
               disabled={isSubmitting || loadingPartners || partners.length === 0}
-              className="flex-1 py-2.5 rounded-xl bg-blue-500 text-white text-[13px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 bg-admin-accent text-white py-3 rounded-xl font-bold uppercase tracking-widest shadow-xl shadow-admin-accent/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 text-[11px]"
             >
-              {isSubmitting ? (
-                <>
-                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Dispatching...
-                </>
-              ) : (
-                <>
-                  <Send size={14} />
-                  Confirm Dispatch
-                </>
-              )}
+              {isSubmitting ? 'Processing...' : 'Confirm Dispatch'}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 border border-admin-border rounded-xl font-bold uppercase tracking-widest text-[11px] text-admin-muted hover:text-white transition-all"
+            >
+              Abort
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

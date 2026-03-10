@@ -1,7 +1,8 @@
 import { Compass, Plus, Trash2, Edit, ChevronDown, Layers, Image as ImageIcon, X, Save, Upload } from 'lucide-react';
 import { api } from '../../utils/api';
 import ImageUpload from './ImageUpload';
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { resolveImageUrl } from '../../utils/imageUrl';
 
 const NavigationView = () => {
@@ -192,10 +193,10 @@ const NavigationView = () => {
             </div>
 
             {/* Editor Modal */}
-            {isEditing && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsEditing(false)} />
-                    <div className="relative bg-admin-bg border border-admin-border w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl p-8 scrollbar-hide">
+            {isEditing && createPortal(
+                <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-[#09090B]/90 backdrop-blur-md" onClick={() => setIsEditing(false)} />
+                    <div className="relative bg-admin-card border border-admin-border w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] p-10 scrollbar-hide animate-in zoom-in-95 duration-300">
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-xl bg-admin-accent/10 flex items-center justify-center text-admin-accent">
@@ -395,7 +396,9 @@ const NavigationView = () => {
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
+            )}
             )}
         </div>
     );
