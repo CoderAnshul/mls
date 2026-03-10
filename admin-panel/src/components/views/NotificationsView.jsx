@@ -25,7 +25,7 @@ const NotificationsView = () => {
       <div className="flex items-center justify-between border-b border-admin-border pb-4">
         <div>
           <h2 className="text-2xl font-black tracking-tight">System Notifications</h2>
-          <p className="text-[13px] text-admin-muted uppercase tracking-widest font-bold mt-1">Real-time alerts and mission-critical event logs</p>
+          <p className="text-[13px] text-admin-muted uppercase tracking-widest font-bold mt-1">Real-time system alerts and activity logs</p>
         </div>
         <div className="flex gap-2">
            <button className="flex items-center gap-2 bg-admin-card border border-admin-border px-3 py-1.5 rounded-lg text-[13px] font-black uppercase tracking-widest hover:bg-admin-border transition-all text-rose-400">
@@ -38,10 +38,10 @@ const NotificationsView = () => {
         <table className="w-full text-left density-table">
           <thead>
             <tr>
-              <th>Event Category</th>
-              <th>Message Cluster</th>
-              <th>Time / Relative</th>
-              <th>Priority Level</th>
+              <th>Type</th>
+              <th>Details</th>
+              <th>Time</th>
+              <th>Priority</th>
               <th className="text-right">Action</th>
             </tr>
           </thead>

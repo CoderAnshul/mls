@@ -51,7 +51,7 @@ const ShopHijabView = () => {
         key: assetKey, 
         value: localValue, 
         type: 'object', 
-        description: 'Shop Hijabs Category Cluster' 
+        description: 'Shop Hijab Sections' 
       };
       
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/home-assets`, {
@@ -61,7 +61,7 @@ const ShopHijabView = () => {
       });
       
       if (!res.ok) throw new Error();
-      toast.success('Hijab Cluster updated successfully');
+      toast.success('Shop Hijabs updated successfully');
       loadAssets();
     } catch (err) {
       toast.error('Failed to save changes');
@@ -86,7 +86,7 @@ const ShopHijabView = () => {
       <div className="w-32 h-1 bg-admin-border rounded-full overflow-hidden relative">
         <div className="absolute inset-0 bg-admin-accent animate-progress origin-left" />
       </div>
-      <p className="text-[10px] font-black uppercase tracking-[0.5em] text-admin-muted animate-pulse">Syncing hijab matrix...</p>
+      <p className="text-[10px] font-black uppercase tracking-[0.5em] text-admin-muted animate-pulse">Loading Hijab Settings...</p>
     </div>
   );
 
@@ -98,8 +98,8 @@ const ShopHijabView = () => {
             <span className="px-3 py-1 bg-admin-accent text-white text-[10px] font-black uppercase tracking-widest rounded-lg">Category Module</span>
             <div className="h-0.5 w-12 bg-admin-border rounded-full" />
           </div>
-          <h2 className="text-4xl font-black tracking-tighter uppercase leading-none text-white">Hijab Commander</h2>
-          <p className="text-[13px] text-admin-muted uppercase tracking-[0.3em] font-bold">Homepage Hijab Classification Engine</p>
+          <h2 className="text-4xl font-black tracking-tighter uppercase leading-none text-white">Shop Hijab Management</h2>
+          <p className="text-[13px] text-admin-muted uppercase tracking-[0.3em] font-bold">Manage Hijab Category Links</p>
         </div>
         <div className="flex items-center gap-4">
           {hasChanges && (
@@ -109,7 +109,7 @@ const ShopHijabView = () => {
               className="flex items-center gap-2 bg-admin-accent text-white px-6 py-3 rounded-xl text-[12px] font-black uppercase tracking-widest shadow-xl shadow-admin-accent/20 hover:scale-105 transition-all disabled:opacity-50"
             >
               {saving ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
-              Execute Sync
+              Save Changes
             </button>
           )}
           <button 
@@ -127,24 +127,24 @@ const ShopHijabView = () => {
             <div className="p-2 bg-admin-accent/10 rounded-xl">
               <ShoppingBag size={18} className="text-admin-accent" />
             </div>
-            <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">Active Hijab Nodes</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-[0.2em]">Active Items</h3>
           </div>
           <button 
             onClick={addItem}
             className="flex items-center gap-1.5 px-4 py-2 bg-admin-card text-admin-muted rounded-full border border-admin-border hover:bg-admin-accent hover:text-white transition-all text-[10px] font-black uppercase tracking-widest"
           >
-            <Plus size={12} /> Add Cluster
+            <Plus size={12} /> Add Item
           </button>
         </div>
 
         {localValue.length === 0 ? (
           <div className="p-20 border-2 border-dashed border-admin-border rounded-[3rem] text-center bg-admin-card/20">
-            <p className="text-[11px] font-black text-admin-muted uppercase tracking-[0.3em]">No hijacking detected in this sector</p>
+            <p className="text-[11px] font-black text-admin-muted uppercase tracking-[0.3em]">No items found in this section</p>
             <button 
               onClick={addItem}
               className="mt-6 px-8 py-3 bg-admin-card border border-admin-border rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-admin-accent transition-all"
             >
-              Initialize Hijab Cluster
+              Add First Item
             </button>
           </div>
         ) : (
@@ -182,7 +182,7 @@ const ShopHijabView = () => {
                 <div className="p-6 space-y-5 flex-1 bg-gradient-to-b from-admin-card to-[#121214]">
                   <div className="space-y-2">
                     <label className="text-[7px] font-black text-admin-muted uppercase tracking-[0.3em] flex items-center gap-1.5 ml-1">
-                      <Type size={10} className="text-admin-accent" /> Identity Header
+                      <Type size={10} className="text-admin-accent" /> Title
                     </label>
                     <input 
                       type="text" 
@@ -198,7 +198,7 @@ const ShopHijabView = () => {
                   </div>
                   <div className="space-y-2">
                     <label className="text-[7px] font-black text-admin-muted uppercase tracking-[0.3em] flex items-center gap-1.5 ml-1">
-                      <LinkIcon size={10} className="text-admin-accent" /> Redirection Protcol
+                      <LinkIcon size={10} className="text-admin-accent" /> Link
                     </label>
                     <input 
                       type="text" 

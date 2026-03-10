@@ -160,6 +160,23 @@ const seedData = async () => {
           }
         ],
         description: 'Homepage Shop Hijab Cluster'
+      },
+      {
+        key: 'signature_embroideries',
+        type: 'object',
+        value: [
+          {
+            image: 'https://images.unsplash.com/photo-1549439602-43ebca2327af?q=80&w=2000',
+            title: 'Refined Artistry',
+            link: '/collections/embroidered'
+          },
+          {
+            image: 'https://images.unsplash.com/photo-1512418490979-92798ccc1340?q=80&w=2000',
+            title: 'Timeless Elegance',
+            link: '/collections/classic'
+          }
+        ],
+        description: 'Signature Embroideries Slider'
       }
     ];
     await HomeAsset.insertMany(homeAssets);

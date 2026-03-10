@@ -148,7 +148,7 @@ const BannersView = () => {
               onClick={() => addItem(assetKey)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-admin-card text-admin-muted rounded-full border border-admin-border hover:bg-admin-accent hover:text-white hover:border-admin-accent transition-all text-[9px] font-black uppercase tracking-widest"
             >
-              <Plus size={10} /> Add Node
+              <Plus size={10} /> Add Item
             </button>
             {isEditing && (
               <button 
@@ -165,12 +165,12 @@ const BannersView = () => {
 
         {items.length === 0 ? (
           <div className="p-16 border-2 border-dashed border-admin-border rounded-[2.5rem] text-center bg-admin-card/20 group hover:border-admin-accent/50 transition-colors">
-            <p className="text-[10px] font-black text-admin-muted uppercase tracking-[0.3em] group-hover:text-admin-accent transition-colors">No data segments found in this block</p>
+            <p className="text-[10px] font-black text-admin-muted uppercase tracking-[0.3em] group-hover:text-admin-accent transition-colors">No items found in this section</p>
             <button 
               onClick={() => addItem(assetKey)}
               className="mt-6 px-8 py-2.5 bg-admin-card border border-admin-border rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-admin-accent hover:text-admin-accent transition-all shadow-xl"
             >
-              Initialize Cluster
+              Add First Item
             </button>
           </div>
         ) : (
@@ -217,7 +217,7 @@ const BannersView = () => {
                   {showTitle && (
                     <div className="space-y-2">
                       <label className="text-[7px] font-black text-admin-muted uppercase tracking-[0.3em] flex items-center gap-1.5 ml-1">
-                        <Type size={10} className="text-admin-accent opacity-50" /> Identity Header
+                        <Type size={10} className="text-admin-accent opacity-50" /> Title
                       </label>
                       <input 
                         type="text" 
@@ -235,7 +235,7 @@ const BannersView = () => {
                   )}
                   <div className="space-y-2">
                     <label className="text-[7px] font-black text-admin-muted uppercase tracking-[0.3em] flex items-center gap-1.5 ml-1">
-                      <LinkIcon size={10} className="text-admin-accent opacity-50" /> Redirection Protocol
+                      <LinkIcon size={10} className="text-admin-accent opacity-50" /> Link
                     </label>
                     <input 
                       type="text" 
@@ -295,7 +295,7 @@ const BannersView = () => {
                 className="flex items-center gap-1.5 px-6 py-2 bg-admin-accent text-white rounded-full shadow-lg shadow-admin-accent/20 hover:scale-105 transition-all text-[10px] font-black uppercase tracking-widest disabled:opacity-50"
               >
                 {isSaveDisabled ? <RefreshCw size={12} className="animate-spin" /> : <Save size={12} />}
-                Update Hero Commander
+                Save Hero Section
               </button>
             )}
         </div>
@@ -325,7 +325,7 @@ const BannersView = () => {
             <div className="space-y-8 justify-center flex flex-col">
                <div className="space-y-3">
                   <label className="text-[8px] font-black text-admin-muted uppercase tracking-[0.3em] flex items-center gap-2 ml-1">
-                    <Type size={12} className="text-admin-accent opacity-50" /> Command Text
+                    <Type size={12} className="text-admin-accent opacity-50" /> Title Text
                   </label>
                   <input 
                     type="text" 
@@ -337,7 +337,7 @@ const BannersView = () => {
                </div>
                <div className="space-y-3">
                   <label className="text-[8px] font-black text-admin-muted uppercase tracking-[0.3em] flex items-center gap-2 ml-1">
-                    <LinkIcon size={12} className="text-admin-accent opacity-50" /> Navigation Target
+                    <LinkIcon size={12} className="text-admin-accent opacity-50" /> Link URL
                   </label>
                   <input 
                     type="text" 
@@ -359,7 +359,7 @@ const BannersView = () => {
       <div className="w-16 h-1 w-32 bg-admin-border rounded-full overflow-hidden relative">
         <div className="absolute inset-0 bg-admin-accent animate-progress origin-left" />
       </div>
-      <p className="p-20 text-center uppercase tracking-[0.5em] text-admin-muted font-black animate-pulse text-[10px]">Syncing Banner Matrix...</p>
+      <p className="p-20 text-center uppercase tracking-[0.5em] text-admin-muted font-black animate-pulse text-[10px]">Loading Banners...</p>
     </div>
   );
 
@@ -371,8 +371,8 @@ const BannersView = () => {
             <span className="px-3 py-1 bg-admin-accent text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-admin-accent/30">System v4.0</span>
             <div className="h-0.5 w-12 bg-admin-border rounded-full" />
           </div>
-          <h2 className="text-5xl font-black tracking-tighter uppercase leading-none text-white selection:bg-admin-accent">Banner Commander</h2>
-          <p className="text-[14px] text-admin-muted uppercase tracking-[0.4em] font-bold">Homepage Visual Narrative Orchestrator</p>
+          <h2 className="text-5xl font-black tracking-tighter uppercase leading-none text-white selection:bg-admin-accent">Banner Management</h2>
+          <p className="text-[14px] text-admin-muted uppercase tracking-[0.4em] font-bold">Manage Homepage Banners & Visual Content</p>
         </div>
         <button 
           onClick={loadAssets}
@@ -384,7 +384,7 @@ const BannersView = () => {
 
       {/* Hero Section */}
       <SingleAssetSection 
-        title="Main Hero Landing Commander"
+        title="Main Hero Section"
         bannerKey="hero_banner"
         textKey="hero_text"
         linkKey="hero_link"
@@ -393,7 +393,7 @@ const BannersView = () => {
       {/* Discover More */}
       <div className="pt-12">
         <BannerSection 
-          title="Discover More Horizontal Cluster" 
+          title="Discover More Section" 
           assetKey="discover_more" 
           icon={ImageIcon} 
         />
@@ -402,7 +402,7 @@ const BannersView = () => {
       {/* Ramadan Essentials */}
       <div className="border-t border-admin-border pt-20">
         <BannerSection 
-          title="Ramadan Essentials Grid Nodes" 
+          title="Ramadan Essentials Section" 
           assetKey="ramadan_essentials" 
           icon={Layers} 
           showTitle={true}
@@ -412,9 +412,18 @@ const BannersView = () => {
       {/* Featured Large Banners */}
       <div className="border-t border-admin-border pt-20">
         <BannerSection 
-          title="Featured Dual-Promo Segments" 
+          title="Featured Dual Banners" 
           assetKey="dual_banners" 
           icon={Layout} 
+        />
+      </div>
+
+      {/* Signature Embroideries */}
+      <div className="border-t border-admin-border pt-20">
+        <BannerSection 
+          title="Signature Embroideries" 
+          assetKey="signature_embroideries" 
+          icon={Layers} 
         />
       </div>
     </div>

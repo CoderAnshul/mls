@@ -255,7 +255,7 @@ export const InventoryView = ({ onEdit }) => {
   }, []);
 
   const handleDelete = async (id) => {
-    if (window.confirm('Erase this asset from master registry?')) {
+    if (window.confirm('Delete this product from the catalog?')) {
       try {
         await api.products.delete(id);
         loadProducts();
@@ -307,7 +307,7 @@ export const InventoryView = ({ onEdit }) => {
       <div className="flex items-center justify-between border-b border-admin-border pb-4">
         <div>
           <h2 className="text-2xl font-black tracking-tight">Product Catalog</h2>
-          <p className="text-[13px] text-admin-muted uppercase tracking-widest font-bold mt-1">Manage global inventory and product master data</p>
+          <p className="text-[13px] text-admin-muted uppercase tracking-widest font-bold mt-1">Manage inventory and product details</p>
         </div>
         <div className="flex gap-2">
            <div className="flex items-center gap-2 bg-admin-card border border-admin-border px-3 py-1.5 rounded-lg">
@@ -341,7 +341,7 @@ export const InventoryView = ({ onEdit }) => {
             onClick={handleBulkDelete}
             className="flex items-center gap-2 bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all shadow-lg shadow-rose-500/20"
           >
-            <Trash2 size={14} /> Bulk Delete Assets
+            <Trash2 size={14} /> Bulk Delete Products
           </button>
         </div>
       )}
@@ -377,7 +377,7 @@ export const InventoryView = ({ onEdit }) => {
           <tbody className="divide-y divide-admin-border">
             {loading ? (
               <tr>
-                <td colSpan="8" className="py-20 text-center uppercase tracking-widest text-admin-muted font-black">Loading Assets...</td>
+                <td colSpan="8" className="py-20 text-center uppercase tracking-widest text-admin-muted font-black">Loading Products...</td>
               </tr>
             ) : products.length > 0 ? (
               products.map((p) => (
@@ -435,7 +435,7 @@ export const InventoryView = ({ onEdit }) => {
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="py-20 text-center uppercase tracking-widest text-admin-muted font-black">No Products in Registry</td>
+                <td colSpan="8" className="py-20 text-center uppercase tracking-widest text-admin-muted font-black">No Products Found</td>
               </tr>
             )}
           </tbody>
@@ -597,13 +597,13 @@ export const ProductForm = ({ product, onCancel }) => {
     <form onSubmit={handleSubmit} className="max-w-6xl mx-auto space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
       <div className="flex items-center justify-between border-b border-admin-border pb-4 bg-admin-bg sticky top-0 z-10 py-4">
         <div>
-          <h2 className="text-xl font-black tracking-tight uppercase">{product ? 'Edit Master Record' : 'Master Catalog Entry'}</h2>
-          <p className="text-[10px] text-admin-muted uppercase tracking-widest font-bold mt-1">Configure global product attributes and operations</p>
+          <h2 className="text-xl font-black tracking-tight uppercase">{product ? 'Edit Product' : 'Add New Product'}</h2>
+          <p className="text-[10px] text-admin-muted uppercase tracking-widest font-bold mt-1">Configure product details and attributes</p>
         </div>
         <div className="flex gap-2">
           <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg border border-admin-border text-[10px] font-black uppercase tracking-widest hover:bg-admin-card transition-all">Discard</button>
           <button type="submit" disabled={loading} className="px-6 py-2 rounded-lg bg-admin-accent text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-admin-accent/20 transition-all disabled:opacity-50">
-            {loading ? 'Processing...' : product ? 'Update Registry' : 'Publish Master'}
+            {loading ? 'Processing...' : product ? 'Save Changes' : 'Publish Product'}
           </button>
         </div>
       </div>
@@ -612,7 +612,7 @@ export const ProductForm = ({ product, onCancel }) => {
         <div className="lg:col-span-2 space-y-6">
           {/* Main Info */}
           <div className="bg-admin-card border border-admin-border rounded-2xl p-6 space-y-6 shadow-sm">
-            <h3 className="text-[14px] font-black uppercase tracking-widest text-admin-muted border-b border-admin-border pb-3">Identity & Content</h3>
+            <h3 className="text-[14px] font-black uppercase tracking-widest text-admin-muted border-b border-admin-border pb-3">Product Information</h3>
             <div className="space-y-4">
                <div className="grid grid-cols-2 gap-4">
                  <div className="space-y-1">
@@ -638,12 +638,12 @@ export const ProductForm = ({ product, onCancel }) => {
                  </div>
                </div>
                <div className="space-y-1">
-                 <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.2em]">Master Description</label>
+                 <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.2em]">Product Description</label>
                  <textarea 
                   rows={4} 
                   value={formData.description}
                   onChange={e => setFormData({...formData, description: e.target.value})}
-                  placeholder="Detailed product narrative..." 
+                  placeholder="Enter description..." 
                   className="w-full bg-admin-bg border border-admin-border px-3 py-2 rounded-lg focus:border-admin-accent outline-none text-xs font-medium transition-all resize-none" 
                 />
                </div>
@@ -676,7 +676,7 @@ export const ProductForm = ({ product, onCancel }) => {
 
           {/* Visual Assets */}
           <div className="bg-admin-card border border-admin-border rounded-2xl p-6 space-y-6 shadow-sm">
-            <h3 className="text-[14px] font-black uppercase tracking-widest text-admin-muted border-b border-admin-border pb-3">Visual Media Registry</h3>
+            <h3 className="text-[14px] font-black uppercase tracking-widest text-admin-muted border-b border-admin-border pb-3">Media Gallery</h3>
             <div className="grid grid-cols-2 gap-6">
                 <ImageUpload 
                   label="Cover Image (Default)"
@@ -720,13 +720,13 @@ export const ProductForm = ({ product, onCancel }) => {
             <div className="flex items-center justify-between border-b border-admin-border pb-3">
                <h3 className="text-[14px] font-black uppercase tracking-widest text-admin-muted">Product Variants (Colors)</h3>
                <button type="button" onClick={addVariant} className="flex items-center gap-1.5 px-3 py-1.5 bg-admin-accent/10 text-admin-accent rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-admin-accent hover:text-white transition-all">
-                  <Plus size={12} /> Add Variant Cluster
+                  <Plus size={12} /> Add Variant
                </button>
             </div>
             
             {formData.variants.length === 0 ? (
                 <div className="py-10 text-center border-2 border-dashed border-admin-border rounded-xl bg-admin-bg/30">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-admin-muted">No variant clusters detected</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-admin-muted">No variants added</p>
                 </div>
             ) : (
                 <div className="space-y-8">

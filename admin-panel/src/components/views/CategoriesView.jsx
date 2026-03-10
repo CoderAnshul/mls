@@ -43,10 +43,10 @@ const CategoriesView = () => {
     if (!window.confirm('Are you sure you want to delete this category?')) return;
     try {
       await api.categories.delete(id);
-      toast.success('Category erased from taxonomy');
+      toast.success('Category deleted successfully');
       loadCategories();
     } catch (err) {
-      toast.error('Failed to purge category');
+      toast.error('Failed to delete category');
       console.error(err);
     }
   };
@@ -65,19 +65,19 @@ const CategoriesView = () => {
     <div className="space-y-4 animate-in fade-in duration-500 max-w-7xl mx-auto">
       <div className="flex items-center justify-between border-b border-admin-border pb-6 mb-6">
         <div>
-          <h2 className="text-3xl font-black tracking-tighter uppercase">Category Commander</h2>
+          <h2 className="text-3xl font-black tracking-tighter uppercase">Category Management</h2>
           <p className="text-[13px] text-admin-muted uppercase tracking-[0.3em] font-bold mt-2">Manage shop categories and homepage visuals</p>
         </div>
         <div className="flex gap-4">
            <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-admin-accent text-white px-5 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-widest shadow-xl shadow-admin-accent/20 hover:scale-105 transition-all">
-             <Plus size={16} /> New Category Node
+             <Plus size={16} /> New Category
            </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {loading ? (
-             <div className="col-span-full py-20 text-center uppercase tracking-widest text-admin-muted font-black animate-pulse">Scanning Taxonomy...</div>
+             <div className="col-span-full py-20 text-center uppercase tracking-widest text-admin-muted font-black animate-pulse">Loading Categories...</div>
         ) : categories.length > 0 ? (
           categories.map((cat) => (
             <div key={cat._id} className="bg-admin-card border border-admin-border rounded-2xl overflow-hidden group hover:border-admin-accent/50 transition-all flex flex-col shadow-sm">
@@ -129,8 +129,8 @@ const CategoriesView = () => {
           ))
         ) : (
              <div className="col-span-full py-20 text-center border-2 border-dashed border-admin-border rounded-3xl bg-admin-card/20">
-                <p className="text-admin-muted uppercase tracking-[0.3em] font-black text-[11px]">No categorical signatures detected</p>
-                <button onClick={() => setIsAdding(true)} className="mt-4 px-6 py-2 bg-admin-accent text-white rounded-lg text-[10px] font-black uppercase tracking-widest">Initialize Node</button>
+                <p className="text-admin-muted uppercase tracking-[0.3em] font-black text-[11px]">No categories found</p>
+                <button onClick={() => setIsAdding(true)} className="mt-4 px-6 py-2 bg-admin-accent text-white rounded-lg text-[10px] font-black uppercase tracking-widest">Add First Category</button>
              </div>
         )}
         
@@ -138,7 +138,7 @@ const CategoriesView = () => {
         {categories.length > 0 && (
           <div onClick={() => setIsAdding(true)} className="border-2 border-dashed border-admin-border rounded-2xl flex flex-col items-center justify-center text-admin-muted hover:border-admin-accent hover:text-admin-accent transition-all cursor-pointer aspect-[4/3] bg-admin-card/5 animate-pulse hover:animate-none">
              <Plus size={32} className="mb-2 opacity-30 group-hover:opacity-100" />
-             <p className="text-[11px] font-black uppercase tracking-[0.2em] transform -translate-y-1">Add Cluster</p>
+             <p className="text-[11px] font-black uppercase tracking-[0.2em] transform -translate-y-1">Add Category</p>
           </div>
         )}
       </div>
@@ -159,15 +159,15 @@ const CategoryForm = ({ category, onCancel, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
-    if (!formData.name) return toast.error('Identity Label is required');
+    if (!formData.name) return toast.error('Category Name is required');
     setLoading(true);
     try {
       if (category) {
         await api.categories.update(category._id, formData);
-        toast.success('Category re-configured');
+        toast.success('Category updated successfully');
       } else {
         await api.categories.create(formData);
-        toast.success('Category node deployed');
+        toast.success('Category created successfully');
       }
       onSuccess();
     } catch (err) {
@@ -186,13 +186,13 @@ const CategoryForm = ({ category, onCancel, onSuccess }) => {
               <X size={18} />
            </button>
            <div>
-              <h2 className="text-2xl font-black tracking-tight uppercase leading-none">{category ? 'Re-Configure Node' : 'Deploy New Node'}</h2>
-              <p className="text-[10px] text-admin-muted uppercase tracking-[0.3em] font-bold mt-2">Modify categorical parameters and visual data</p>
+              <h2 className="text-2xl font-black tracking-tight uppercase leading-none">{category ? 'Update Category' : 'Add New Category'}</h2>
+              <p className="text-[10px] text-admin-muted uppercase tracking-[0.3em] font-bold mt-2">Modify category details and display image</p>
            </div>
         </div>
         <div className="flex gap-3">
           <button onClick={handleSubmit} disabled={loading} className="px-8 py-3 rounded-xl bg-admin-accent text-white text-[11px] font-black uppercase tracking-widest shadow-xl shadow-admin-accent/20 transition-all disabled:opacity-50 hover:scale-105 active:scale-95">
-            {loading ? 'Processing Node...' : category ? 'Sync Changes' : 'Execute Deployment'}
+            {loading ? 'Saving Category...' : category ? 'Save Changes' : 'Create Category'}
           </button>
         </div>
       </div>
@@ -212,7 +212,7 @@ const CategoryForm = ({ category, onCancel, onSuccess }) => {
         <div className="bg-admin-card border border-admin-border rounded-[2.5rem] p-8 space-y-8 shadow-sm justify-center flex flex-col">
           <div className="space-y-2">
             <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.3em] flex items-center gap-2 mb-1">
-               <Layers size={12} className="text-admin-accent" /> Identity Label
+               <Layers size={12} className="text-admin-accent" /> Category Name
             </label>
             <input 
               type="text" 
@@ -232,7 +232,7 @@ const CategoryForm = ({ category, onCancel, onSuccess }) => {
 
           <div className="space-y-2">
             <label className="text-[9px] font-black text-admin-muted uppercase tracking-[0.3em] flex items-center gap-2 mb-1">
-               <Search size={12} className="text-admin-accent" /> Routing URI
+               <Search size={12} className="text-admin-accent" /> Category URL Path
             </label>
             <div className="flex items-center group">
               <div className="bg-admin-bg border-y border-l border-admin-border px-4 py-3.5 rounded-l-2xl text-[12px] font-mono text-admin-muted group-focus-within:border-admin-accent">/collections/</div>
@@ -250,8 +250,8 @@ const CategoryForm = ({ category, onCancel, onSuccess }) => {
             <div className="flex items-center gap-3">
               <div className={`w-3 h-3 rounded-full transition-all duration-500 ${formData.isActive ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]' : 'bg-admin-muted opacity-30 animate-pulse'}`} />
               <div>
-                 <span className="text-[11px] font-black uppercase tracking-widest text-white">Visibility Protocol</span>
-                 <p className="text-[8px] text-admin-muted uppercase font-black tracking-widest mt-0.5">{formData.isActive ? 'Actively Indexed' : 'Stealth Mode Enabled'}</p>
+                 <span className="text-[11px] font-black uppercase tracking-widest text-white">Status</span>
+                 <p className="text-[8px] text-admin-muted uppercase font-black tracking-widest mt-0.5">{formData.isActive ? 'Visible' : 'Hidden'}</p>
               </div>
             </div>
             <div 

@@ -9,6 +9,11 @@ const ImageUpload = ({ value, onChange, label, className = "h-32 w-32" }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [mode, setMode] = useState("upload"); // "upload" or "link"
 
+  const isVideo = (url) => {
+    if (!url) return false;
+    return url.match(/\.(mp4|webm|ogg|mov|quicktime)$|video/i);
+  };
+
   const handleUpload = async (file) => {
     if (!file) return;
     setIsUploading(true);
@@ -28,7 +33,7 @@ const ImageUpload = ({ value, onChange, label, className = "h-32 w-32" }) => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith("image/")) {
+    if (file) {
       handleUpload(file);
     }
   };
@@ -71,7 +76,18 @@ const ImageUpload = ({ value, onChange, label, className = "h-32 w-32" }) => {
       >
         {value ? (
           <>
-            <img src={imageUrl} alt="Preview" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+            {isVideo(imageUrl) ? (
+              <video 
+                src={imageUrl} 
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : (
+              <img src={imageUrl} alt="Preview" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+            )}
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <button 
                 type="button" 
@@ -106,7 +122,7 @@ const ImageUpload = ({ value, onChange, label, className = "h-32 w-32" }) => {
                 </p>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   ref={fileInputRef}
                   onChange={(e) => handleUpload(e.target.files[0])}
                   className="absolute inset-0 opacity-0 cursor-pointer"
