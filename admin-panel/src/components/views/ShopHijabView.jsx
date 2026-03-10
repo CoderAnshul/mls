@@ -170,8 +170,9 @@ const ShopHijabView = () => {
                     <ImageUpload 
                       value={item.image}
                       onChange={(url) => {
-                        const updatedValue = [...localValue];
-                        updatedValue[idx].image = url;
+                        const updatedValue = localValue.map((item, i) => 
+                          i === idx ? { ...item, image: url } : item
+                        );
                         setLocalValue(updatedValue);
                       }}
                     />
@@ -187,8 +188,9 @@ const ShopHijabView = () => {
                       type="text" 
                       value={item.title}
                       onChange={(e) => {
-                        const val = [...localValue];
-                        val[idx].title = e.target.value;
+                        const val = localValue.map((item, i) => 
+                          i === idx ? { ...item, title: e.target.value } : item
+                        );
                         setLocalValue(val);
                       }}
                       className="w-full bg-admin-bg border border-admin-border px-4 py-2.5 rounded-xl focus:border-admin-accent outline-none text-[11px] font-black uppercase tracking-tight shadow-inner"
@@ -202,8 +204,9 @@ const ShopHijabView = () => {
                       type="text" 
                       value={item.link}
                       onChange={(e) => {
-                        const val = [...localValue];
-                        val[idx].link = e.target.value;
+                        const val = localValue.map((item, i) => 
+                          i === idx ? { ...item, link: e.target.value } : item
+                        );
                         setLocalValue(val);
                       }}
                       className="w-full bg-admin-bg border border-admin-border px-4 py-2.5 rounded-xl focus:border-admin-accent outline-none text-[9px] font-mono text-admin-accent shadow-inner lowercase"

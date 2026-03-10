@@ -13,7 +13,8 @@ export const resolveImageUrl = (url) => {
     }
 
     // Old DB data: localhost:5000/uploads/... → replace host with live API
-    if (url.includes('localhost')) {
+    // Only replace if we are NOT on localhost ourselves, or if the URL is not localhost
+    if (url.includes('localhost') && !window.location.hostname.includes('localhost')) {
         return url.replace(/https?:\/\/localhost:\d+/, API_BASE);
     }
 

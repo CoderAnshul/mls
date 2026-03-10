@@ -97,12 +97,9 @@ const BannersView = () => {
     try {
       const { url } = await api.navigation.uploadImage(file);
       if (index !== null) {
-        const updatedValue = [...(localAssets[key] || [])];
-        if (updatedValue[index]) {
-          updatedValue[index].image = url;
-        } else {
-          updatedValue.push({ image: url, link: '', title: '' });
-        }
+        const updatedValue = (localAssets[key] || []).map((item, i) => 
+          i === index ? { ...item, image: url } : item
+        );
         handleLocalUpdate(key, updatedValue);
       } else {
         handleLocalUpdate(key, url);
@@ -203,12 +200,9 @@ const BannersView = () => {
                     <ImageUpload 
                       value={item.image}
                       onChange={(url) => {
-                        const updatedValue = [...(localAssets[assetKey] || [])];
-                        if (updatedValue[idx]) {
-                          updatedValue[idx].image = url;
-                        } else {
-                          updatedValue.push({ image: url, link: '', title: '' });
-                        }
+                        const updatedValue = (localAssets[assetKey] || []).map((item, i) => 
+                          i === idx ? { ...item, image: url } : item
+                        );
                         handleLocalUpdate(assetKey, updatedValue);
                       }}
                     />
@@ -229,8 +223,9 @@ const BannersView = () => {
                         type="text" 
                         value={item.title}
                         onChange={(e) => {
-                          const val = [...localAssets[assetKey]];
-                          val[idx].title = e.target.value;
+                          const val = localAssets[assetKey].map((item, i) => 
+                            i === idx ? { ...item, title: e.target.value } : item
+                          );
                           handleLocalUpdate(assetKey, val);
                         }}
                         placeholder="Untitled Sequence..."
@@ -246,8 +241,9 @@ const BannersView = () => {
                       type="text" 
                       value={item.link}
                       onChange={(e) => {
-                        const val = [...localAssets[assetKey]];
-                        val[idx].link = e.target.value;
+                        const val = localAssets[assetKey].map((item, i) => 
+                          i === idx ? { ...item, link: e.target.value } : item
+                        );
                         handleLocalUpdate(assetKey, val);
                       }}
                       placeholder="/navigation/target..."
