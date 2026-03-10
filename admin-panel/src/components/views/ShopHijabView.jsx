@@ -13,6 +13,7 @@ import {
 import { api } from '../../utils/api';
 import { useToast } from '../common/Toast';
 import ImageUpload from './ImageUpload';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 const ShopHijabView = () => {
   const [assets, setAssets] = useState([]);
@@ -159,7 +160,7 @@ const ShopHijabView = () => {
 
                 <div className="relative aspect-[3/4] bg-admin-bg/50 overflow-hidden">
                   {item.image ? (
-                    <img src={item.image} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <img src={resolveImageUrl(item.image)} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-admin-muted">
                       <ImageIcon size={32} strokeWidth={1} className="opacity-20" />

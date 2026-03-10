@@ -17,6 +17,7 @@ import {
 import { api } from '../../utils/api';
 import { useToast } from '../common/Toast';
 import { useNavigate } from 'react-router-dom';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 /* ─── Helpers ──────────────────────────────────────────────────────────────── */
 const getPeriodRange = (period) => {
@@ -397,9 +398,7 @@ const DashboardView = () => {
                   </div>
                 )
                 : topProducts.map((p, i) => {
-                    const imgSrc = p.images?.[0]
-                      ? (p.images[0].startsWith('http') ? p.images[0] : `http://localhost:5000${p.images[0]}`)
-                      : null;
+                    const imgSrc = resolveImageUrl(p.images?.[0]);
                     const stock = p.stock ?? p.totalStock ?? 0;
                     return (
                       <div key={p._id || i} className="flex items-center justify-between group cursor-pointer border-b border-admin-border/50 pb-3 last:border-0 last:pb-0">

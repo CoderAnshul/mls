@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../utils/api';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 const RamadanEssentials = () => {
   const [categories, setCategories] = useState([]);
@@ -41,7 +42,7 @@ const RamadanEssentials = () => {
               {/* Image Wrapper */}
               <div className="relative w-full aspect-[3/4] overflow-hidden bg-neutral-100 shadow-sm transition-all group-hover:shadow-2xl">
                 <img 
-                  src={category.image} 
+                  src={resolveImageUrl(category.image)} 
                   alt={category.title}
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                 />

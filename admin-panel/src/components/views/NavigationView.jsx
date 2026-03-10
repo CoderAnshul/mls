@@ -1,6 +1,8 @@
 import { Compass, Plus, Trash2, Edit, ChevronDown, Layers, Image as ImageIcon, X, Save, Upload } from 'lucide-react';
 import { api } from '../../utils/api';
 import ImageUpload from './ImageUpload';
+import { useEffect, useState } from 'react';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 const NavigationView = () => {
     const [navItems, setNavItems] = useState([]);
@@ -168,7 +170,7 @@ const NavigationView = () => {
                                                 <div key={fIdx} className="min-w-[150px] w-[200px] space-y-2">
                                                     <div className="aspect-[4/3] rounded-xl overflow-hidden border border-admin-border relative group/img bg-admin-bg">
                                                         {feature.image ? (
-                                                            <img src={feature.image} className="w-full h-full object-cover" alt="" />
+                                                            <img src={resolveImageUrl(feature.image)} className="w-full h-full object-cover" alt="" />
                                                         ) : (
                                                             <div className="w-full h-full flex items-center justify-center text-admin-muted">
                                                                 <ImageIcon size={24} />
@@ -325,7 +327,7 @@ const NavigationView = () => {
                                         <div key={fIdx} className="bg-admin-card/50 border border-admin-border rounded-2xl p-4 space-y-4">
                                             <div className="aspect-[16/9] bg-admin-bg border border-admin-border rounded-xl overflow-hidden relative group">
                                                 {feature.image ? (
-                                                    <img src={feature.image} className="w-full h-full object-cover" alt="" />
+                                                    <img src={resolveImageUrl(feature.image)} className="w-full h-full object-cover" alt="" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-admin-muted">
                                                         <ImageIcon size={32} />

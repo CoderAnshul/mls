@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../utils/api';
 import { useToast } from '../common/Toast';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 /* ─── Dispatch Modal ─────────────────────────────────────────────────────────── */
 const DispatchModal = ({ order, onClose, onDispatched }) => {
@@ -586,7 +587,7 @@ const OrdersView = () => {
                            <div key={i} className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                  {item.image ? (
-                                   <img src={item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`} alt={item.title} className="w-10 h-10 rounded-lg object-cover border border-admin-border" />
+                                   <img src={resolveImageUrl(item.image)} alt={item.title} className="w-10 h-10 rounded-lg object-cover border border-admin-border" />
                                  ) : (
                                    <div className="w-10 h-10 rounded-lg bg-admin-card border border-admin-border flex items-center justify-center font-bold text-[13px] text-admin-muted">IMG</div>
                                  )}

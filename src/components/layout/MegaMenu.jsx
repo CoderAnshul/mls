@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 const MegaMenu = ({ data, isVisible, onClose }) => {
   if (!data) return null;
@@ -46,7 +47,7 @@ const MegaMenu = ({ data, isVisible, onClose }) => {
                 onClick={onClose}
               >
                 <img 
-                  src={feature.image} 
+                  src={resolveImageUrl(feature.image)} 
                   alt={feature.title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />

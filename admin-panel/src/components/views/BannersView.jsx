@@ -15,7 +15,7 @@ import {
 import { api } from '../../utils/api';
 import { useToast } from '../common/Toast';
 import ImageUpload from './ImageUpload';
-
+import { resolveImageUrl } from '../../utils/imageUrl';
 const BannersView = () => {
   const [assets, setAssets] = useState([]);
   const [localAssets, setLocalAssets] = useState({});
@@ -190,7 +190,7 @@ const BannersView = () => {
                 <div className="relative aspect-[3/4] md:aspect-video group/img bg-admin-bg/50 overflow-hidden">
                   {item.image ? (
                     <img 
-                      src={item.image} 
+                      src={resolveImageUrl(item.image)} 
                       alt="" 
                       className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110"
                     />
@@ -311,7 +311,7 @@ const BannersView = () => {
             <div className="space-y-4">
                <div className="relative aspect-video rounded-[2rem] overflow-hidden group/hero bg-admin-bg/50 border border-admin-border shadow-inner">
                   {banner ? (
-                    <img src={banner} alt="" className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover/hero:scale-110" />
+                    <img src={resolveImageUrl(banner)} alt="" className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover/hero:scale-110" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-admin-muted bg-admin-bg/40">
                       <ImageIcon size={48} strokeWidth={1} className="opacity-10" />

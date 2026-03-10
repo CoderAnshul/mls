@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../utils/api';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 const EditorialSection = () => {
   const [journals, setJournals] = useState([]);
@@ -39,7 +40,7 @@ const EditorialSection = () => {
               {/* Image Container */}
               <div className="relative w-full aspect-[4/5] overflow-hidden mb-6 bg-neutral-100 shadow-sm transition-shadow group-hover:shadow-2xl">
                 <img
-                  src={item.heroImage}
+                  src={resolveImageUrl(item.heroImage)}
                   alt={item.title}
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[10%] group-hover:grayscale-0"
                 />

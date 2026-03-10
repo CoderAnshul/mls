@@ -4,14 +4,15 @@ import { IoHeartOutline, IoHeart, IoBagOutline } from 'react-icons/io5';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
 import QuickAddModal from './QuickAddModal';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 const ProductCard = ({ product, isEditorial = false }) => {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
 
-  const primaryImage = product.coverImage || product.image || product.images?.[0] || '/img/placeholder-product.jpg';
-  const secondaryImage = product.hoverImage || product.images?.[1] || null;
+  const primaryImage = resolveImageUrl(product.coverImage || product.image || product.images?.[0] || '/img/placeholder-product.jpg');
+  const secondaryImage = resolveImageUrl(product.hoverImage || product.images?.[1] || null);
   const productLink = `/product/${product.slug || product._id || product.id}`;
 
   if (isEditorial) {

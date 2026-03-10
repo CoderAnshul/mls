@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 const CategoryCard = ({ title, image, href, className = '' }) => {
   return (
@@ -9,7 +10,7 @@ const CategoryCard = ({ title, image, href, className = '' }) => {
     >
       <div className="aspect-[3/4] overflow-hidden bg-neutral-100">
         <img
-          src={image}
+          src={resolveImageUrl(image)}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />

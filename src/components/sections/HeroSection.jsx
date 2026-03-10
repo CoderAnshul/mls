@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../utils/api';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 const HeroSection = () => {
   const [assets, setAssets] = useState({});
@@ -28,7 +29,7 @@ const HeroSection = () => {
       {/* Background Image */}
       <div className="absolute inset-0">
         <img 
-          src={assets.hero_banner || "/images/hero/hero-banner.jpg"}
+          src={resolveImageUrl(assets.hero_banner) || "/images/hero/hero-banner.jpg"}
           alt="Premium Collection"
           className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105"
         />
