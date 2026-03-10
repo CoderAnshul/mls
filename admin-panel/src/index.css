@@ -16,19 +16,14 @@ body {
   color: #FAFAFA;
 }
 
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+/* Global Scrollbar Hiding */
+*::-webkit-scrollbar {
+  display: none;
 }
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #27272A;
-  border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #3F3F46;
+
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Glow Shadow */

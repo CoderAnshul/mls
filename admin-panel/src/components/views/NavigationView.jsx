@@ -399,7 +399,6 @@ const NavigationView = () => {
                 </div>,
                 document.body
             )}
-            )}
         </div>
     );
 };
