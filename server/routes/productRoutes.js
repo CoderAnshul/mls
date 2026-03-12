@@ -5,7 +5,7 @@ const Product = require('../models/Product');
 // Get all products (with optional filtering and pagination)
 router.get('/', async (req, res) => {
     try {
-        const { category, isNew, limit, page } = req.query;
+        const { category, isNew, limit, page, sizes, colors, types, minPrice, maxPrice, sort } = req.query;
         let query = {};
 
         if (category && category.toUpperCase() !== 'ALL') {
@@ -13,6 +13,26 @@ router.get('/', async (req, res) => {
             query.category = { $regex: new RegExp(`^${searchPattern}$`, 'i') };
         }
         if (isNew) query.isNew = true;
+
+        if (sizes) query.sizes = { $in: sizes.split(',') };
+        if (colors) query.colors = { $in: colors.split(',') };
+        // If types are passed, we filter subCategory or category based on them
+        if (types) {
+            query.subCategory = { $in: types.split(',').map(t => new RegExp(t, 'i')) };
+        }
+
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) query.price.$gte = Number(minPrice);
+            if (maxPrice) query.price.$lte = Number(maxPrice);
+        }
+
+        // Sorting
+        let sortOption = { createdAt: -1 };
+        if (sort === 'PRICE - LOW TO HIGH') sortOption = { price: 1 };
+        else if (sort === 'PRICE - HIGH TO LOW') sortOption = { price: -1 };
+        else if (sort === 'BESTSELLERS') sortOption = { isBestSeller: -1, createdAt: -1 };
+        else if (sort === 'NEW ARRIVALS') sortOption = { createdAt: -1 };
 
         let productsQuery = Product.find(query);
 
@@ -23,7 +43,7 @@ router.get('/', async (req, res) => {
             
             const total = await Product.countDocuments(query);
             const products = await Product.find(query)
-                .sort({ createdAt: -1 })
+                .sort(sortOption)
                 .skip(skip)
                 .limit(l)
                 .exec();
@@ -38,7 +58,7 @@ router.get('/', async (req, res) => {
 
         if (limit) productsQuery = productsQuery.limit(Number(limit));
 
-        const result = await productsQuery.sort({ createdAt: -1 }).exec();
+        const result = await productsQuery.sort(sortOption).exec();
         res.json(result);
     } catch (err) {
         res.status(500).json({ message: err.message });

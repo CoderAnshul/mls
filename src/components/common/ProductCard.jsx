@@ -14,6 +14,7 @@ const ProductCard = ({ product, isEditorial = false }) => {
   const primaryImage = resolveImageUrl(product.coverImage || product.image || product.images?.[0] || '/img/placeholder-product.jpg');
   const secondaryImage = resolveImageUrl(product.hoverImage || product.images?.[1] || null);
   const productLink = `/product/${product.slug || product._id || product.id}`;
+  const isOutOfStock = product.stock <= 0;
 
   if (isEditorial) {
     return (
@@ -38,7 +39,7 @@ const ProductCard = ({ product, isEditorial = false }) => {
 
   return (
     <>
-      <Link to={productLink} className="flex flex-col gap-4 group cursor-pointer outline-none">
+      <Link to={productLink} className={`flex flex-col gap-4 group cursor-pointer outline-none transition-opacity duration-300 ${isOutOfStock ? 'opacity-60' : ''}`}>
         <div className="relative aspect-[3/4] overflow-hidden bg-[#E5E5E5]">
           {/* Cover Image */}
           <img 
@@ -48,7 +49,7 @@ const ProductCard = ({ product, isEditorial = false }) => {
           />
 
           {/* Hover Image */}
-          {secondaryImage && (
+          {secondaryImage && !isOutOfStock && (
             <img 
               src={secondaryImage} 
               alt={`${product.title} hover`}
@@ -56,14 +57,23 @@ const ProductCard = ({ product, isEditorial = false }) => {
             />
           )}
           
-          {/* New In Tag - Top Left */}
-          {(product.isNew || product.status === 'New') && (
-            <div className="absolute top-5 left-5 bg-white rounded-full w-[46px] h-[46px] flex items-center justify-center shadow-sm z-10">
-              <span className="text-[9px] font-bold text-center leading-none uppercase tracking-tighter text-[#252423]">
-                NEW IN
-              </span>
-            </div>
-          )}
+          {/* Tags - Top Left */}
+          <div className="absolute top-5 left-5 flex flex-col gap-2 z-10">
+            {(product.isNew || product.status === 'New') && (
+              <div className="bg-white rounded-full w-[46px] h-[46px] flex items-center justify-center shadow-sm">
+                <span className="text-[9px] font-bold text-center leading-none uppercase tracking-tighter text-[#252423]">
+                  NEW IN
+                </span>
+              </div>
+            )}
+            {isOutOfStock && (
+              <div className="bg-[#252423] rounded-full w-[46px] h-[46px] flex items-center justify-center shadow-sm">
+                <span className="text-[8px] font-bold text-center leading-none uppercase tracking-tighter text-white">
+                  OUT OF<br/>STOCK
+                </span>
+              </div>
+            )}
+          </div>
 
           {/* Wishlist Icon - Top Right */}
           <button 
@@ -82,16 +92,18 @@ const ProductCard = ({ product, isEditorial = false }) => {
           </button>
 
           {/* Add to Cart Icon - Bottom Left */}
-          <button 
-            className="absolute bottom-6 left-6 p-1 text-black/80 hover:text-black transition-colors z-10" 
-            onClick={(e) => { 
-              e.preventDefault(); 
-              e.stopPropagation(); 
-              setIsQuickAddOpen(true);
-            }}
-          >
-            <IoBagOutline className="w-[22px] h-[22px] stroke-[1px]" />
-          </button>
+          {!isOutOfStock && (
+            <button 
+              className="absolute bottom-6 left-6 p-1 text-black/80 hover:text-black transition-colors z-10" 
+              onClick={(e) => { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+                setIsQuickAddOpen(true);
+              }}
+            >
+              <IoBagOutline className="w-[22px] h-[22px] stroke-[1px]" />
+            </button>
+          )}
 
           {/* Carousel Indicators - Bottom Right */}
           <div className="absolute bottom-6 right-6 flex gap-1.5 z-10">

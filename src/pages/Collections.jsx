@@ -5,9 +5,6 @@ import ProductCard from '../components/common/ProductCard';
 import { fetchProducts } from '../utils/api';
 import { navigationData } from '../data/navigation';
 
-// ─── Static filter option data ───────────────────────────────────────────────
-const AVAILABILITY_OPTIONS = ['IN STOCK', 'OUT OF STOCK'];
-
 const PRODUCT_TYPE_OPTIONS = [
   'ABAYA', 'ACTIVEWEAR', 'CAPE', 'CO-ORD', 'COATS & COVER-UPS',
   'FACE MASK', 'GIRLS ABAYA', 'HIJAB', 'HIJAB ACCESSORY', 'HIJAB CAP',
@@ -16,20 +13,15 @@ const PRODUCT_TYPE_OPTIONS = [
   'SHIRT DRESS', 'SKIRT', 'SLIP DRESS', 'SWIMWEAR', 'THOBE', 'TROUSERS',
 ];
 
-const SIZE_OPTIONS = ['XXS', 'XS', 'S', 'M', 'L', 'LARGE', 'XL', 'XXL', 'ONE SIZE', 'REGULAR', 'SINGLE PACK'];
-
-const LENGTH_OPTIONS_A = ['52', '54', '56', '58', '62'];
-const LENGTH_OPTIONS_B = ['28', '30', '32', '34', '36', '38', '40', '42', '44', '46', '48', '50', '52', '54', '56', '58', '60', '62', '68', 'L', 'M', 'S', 'XL', 'XS', 'XXL'];
-
-const COLOUR_OPTIONS = ['BLACK', 'BLUE', 'BROWN', 'GREEN', 'GREY', 'MULTICOLOUR', 'NEUTRAL', 'NUDE', 'OFF WHITE', 'ORANGE', 'PINK', 'PURPLE', 'RED', 'WHITE', 'YELLOW'];
-
 const SORT_OPTIONS = ['BESTSELLERS', 'NEW ARRIVALS', 'PRICE - LOW TO HIGH', 'PRICE - HIGH TO LOW'];
 
 // ─── Checkbox component ───────────────────────────────────────────────────────
 const FilterCheckbox = ({ label, checked, onChange }) => (
-  <label className="flex items-center gap-2 cursor-pointer group select-none">
+  <label 
+    onClick={onChange}
+    className="flex items-center gap-2 cursor-pointer group select-none"
+  >
     <div
-      onClick={onChange}
       className={`w-3.5 h-3.5 border flex-shrink-0 flex items-center justify-center transition-colors ${
         checked ? 'bg-[#252423] border-[#252423]' : 'border-black/30 bg-transparent'
       }`}
@@ -84,29 +76,33 @@ const Collections = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState(null);
-  const [selectedAvailability, setSelectedAvailability] = useState([]);
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
-  const [selectedLengthsA, setSelectedLengthsA] = useState([]);
-  const [selectedLengthsB, setSelectedLengthsB] = useState([]);
   const [selectedColours, setSelectedColours] = useState([]);
   const [priceFrom, setPriceFrom] = useState('');
   const [priceTo, setPriceTo] = useState('');
 
+  // Dynamic filter options discovered from products
+  const [availableSizes, setAvailableSizes] = useState([]);
+  const [availableColours, setAvailableColours] = useState([]);
+
   // Determine dynamic subCategories from navigation data
-  const currentCategoryData = navigationData.mainMenu.find(item => 
-    item.href === `/collections/${category}` || (item.href === '/collections/clothing' && !category)
-  );
+  const subCategories = React.useMemo(() => {
+    const currentCategoryData = navigationData.mainMenu.find(item => 
+      item.href === `/collections/${category}` || (item.href === '/collections/clothing' && !category)
+    );
 
-  let subCategories = currentCategoryData?.megaMenu?.columns?.reduce((acc, col) => {
-    return [...acc, ...col.links.map(link => link.title)];
-  }, []) || [];
+    let subs = currentCategoryData?.megaMenu?.columns?.reduce((acc, col) => {
+      return [...acc, ...col.links.map(link => link.title)];
+    }, []) || [];
 
-  if (subCategories.length > 0 && !subCategories.some(s => s.toUpperCase() === 'VIEW ALL')) {
-    subCategories = ['VIEW ALL', ...subCategories];
-  }
+    if (subs.length > 0 && !subs.some(s => s.toUpperCase() === 'VIEW ALL')) {
+      subs = ['VIEW ALL', ...subs];
+    }
+    return subs;
+  }, [category]);
 
-  // Update active subcategory when subCategories change
+  // Update active subcategory only when category changes or subCategories list changes
   useEffect(() => {
     if (subCategories.length > 0) {
       const viewAll = subCategories.find(s => s.toUpperCase() === 'VIEW ALL');
@@ -115,6 +111,8 @@ const Collections = () => {
       } else {
         setActiveSubCategory(subCategories[0]);
       }
+    } else {
+      setActiveSubCategory('ALL');
     }
     setCurrentPage(1);
   }, [category, subCategories]);
@@ -132,12 +130,47 @@ const Collections = () => {
     return () => window.removeEventListener('resize', checkOverflow);
   }, [subCategories]);
 
+  // Discover dynamic filters for the current category
+  useEffect(() => {
+    const discoverFilters = async () => {
+      const filters = { limit: 1000 }; // Fetch a large batch to get available options
+      if (category && category !== 'clothing') filters.category = category;
+      
+      const data = await fetchProducts(filters);
+      const allProducts = data.products || data;
+      
+      if (Array.isArray(allProducts)) {
+        const sizes = new Set();
+        const colors = new Set();
+        
+        allProducts.forEach(p => {
+          if (p.sizes) p.sizes.forEach(s => sizes.add(s));
+          if (p.colors) p.colors.forEach(c => colors.add(c));
+          // Also check variants for colors if they exist
+          if (p.variants) p.variants.forEach(v => {
+            if (v.colorName) colors.add(v.colorName);
+          });
+        });
+        
+        setAvailableSizes(Array.from(sizes).sort());
+        setAvailableColours(Array.from(colors).sort());
+      }
+    };
+    discoverFilters();
+  }, [category]);
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       const filters = {
         page: currentPage,
-        limit: limit
+        limit: limit,
+        sort: selectedSort,
+        types: selectedTypes.join(','),
+        sizes: selectedSizes.join(','),
+        colors: selectedColours.join(','),
+        minPrice: priceFrom,
+        maxPrice: priceTo
       };
       if (category && category !== 'clothing') filters.category = category;
       
@@ -156,7 +189,7 @@ const Collections = () => {
       setLoading(false);
     };
     load();
-  }, [category, activeSubCategory, currentPage]);
+  }, [category, activeSubCategory, currentPage, selectedSort, selectedTypes, selectedSizes, selectedColours, priceFrom, priceTo]);
 
 
   const formattedCategory = category
@@ -175,19 +208,15 @@ const Collections = () => {
 
   const resetFilters = () => {
     setSelectedSort(null);
-    setSelectedAvailability([]);
     setSelectedTypes([]);
     setSelectedSizes([]);
-    setSelectedLengthsA([]);
-    setSelectedLengthsB([]);
     setSelectedColours([]);
     setPriceFrom('');
     setPriceTo('');
   };
 
-  const hasActiveFilters = selectedSort || selectedAvailability.length || selectedTypes.length ||
-    selectedSizes.length || selectedLengthsA.length || selectedLengthsB.length ||
-    selectedColours.length || priceFrom || priceTo;
+  const hasActiveFilters = selectedSort || selectedTypes.length ||
+    selectedSizes.length || selectedColours.length || priceFrom || priceTo;
 
   return (
     <main className="flex-1 bg-[#F4F2EA]">
@@ -333,21 +362,7 @@ const Collections = () => {
         filtersOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
       }`}>
         <div className="max-w-screen-2xl mx-auto px-4 lg:px-8 lg:px-12 py-10">
-          <div className="grid grid-cols-7 gap-8">
-            {/* AVAILABILITY */}
-            <div>
-              <p className="text-[9px] tracking-[0.25em] uppercase font-bold text-[#252423] mb-5">Availability</p>
-              <div className="space-y-3">
-                {AVAILABILITY_OPTIONS.map(opt => (
-                  <FilterCheckbox
-                    key={opt} label={opt}
-                    checked={selectedAvailability.includes(opt)}
-                    onChange={() => toggle(selectedAvailability, setSelectedAvailability, opt)}
-                  />
-                ))}
-              </div>
-            </div>
-
+          <div className="grid grid-cols-5 gap-8">
             {/* PRODUCT TYPE */}
             <div>
               <p className="text-[9px] tracking-[0.25em] uppercase font-bold text-[#252423] mb-5">Product Type</p>
@@ -366,41 +381,17 @@ const Collections = () => {
             <div>
               <p className="text-[9px] tracking-[0.25em] uppercase font-bold text-[#252423] mb-5">Size</p>
               <div className="space-y-3">
-                {SIZE_OPTIONS.map(opt => (
-                  <FilterCheckbox
-                    key={opt} label={opt}
-                    checked={selectedSizes.includes(opt)}
-                    onChange={() => toggle(selectedSizes, setSelectedSizes, opt)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* LENGTH A */}
-            <div>
-              <p className="text-[9px] tracking-[0.25em] uppercase font-bold text-[#252423] mb-5">Length</p>
-              <div className="space-y-3">
-                {LENGTH_OPTIONS_A.map(opt => (
-                  <FilterCheckbox
-                    key={opt} label={opt}
-                    checked={selectedLengthsA.includes(opt)}
-                    onChange={() => toggle(selectedLengthsA, setSelectedLengthsA, opt)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* LENGTH B */}
-            <div>
-              <p className="text-[9px] tracking-[0.25em] uppercase font-bold text-[#252423] mb-5">Length</p>
-              <div className="space-y-3">
-                {LENGTH_OPTIONS_B.map(opt => (
-                  <FilterCheckbox
-                    key={opt} label={opt}
-                    checked={selectedLengthsB.includes(opt)}
-                    onChange={() => toggle(selectedLengthsB, setSelectedLengthsB, opt)}
-                  />
-                ))}
+                {availableSizes.length > 0 ? (
+                  availableSizes.map(opt => (
+                    <FilterCheckbox
+                      key={opt} label={opt}
+                      checked={selectedSizes.includes(opt)}
+                      onChange={() => toggle(selectedSizes, setSelectedSizes, opt)}
+                    />
+                  ))
+                ) : (
+                  <p className="text-[10px] text-neutral-400 italic">No sizes available</p>
+                )}
               </div>
             </div>
 
@@ -408,13 +399,17 @@ const Collections = () => {
             <div>
               <p className="text-[9px] tracking-[0.25em] uppercase font-bold text-[#252423] mb-5">Colour</p>
               <div className="space-y-3">
-                {COLOUR_OPTIONS.map(opt => (
-                  <FilterCheckbox
-                    key={opt} label={opt}
-                    checked={selectedColours.includes(opt)}
-                    onChange={() => toggle(selectedColours, setSelectedColours, opt)}
-                  />
-                ))}
+                {availableColours.length > 0 ? (
+                  availableColours.map(opt => (
+                    <FilterCheckbox
+                      key={opt} label={opt}
+                      checked={selectedColours.includes(opt)}
+                      onChange={() => toggle(selectedColours, setSelectedColours, opt)}
+                    />
+                  ))
+                ) : (
+                  <p className="text-[10px] text-neutral-400 italic">No colours available</p>
+                )}
               </div>
             </div>
 
@@ -454,35 +449,28 @@ const Collections = () => {
         filtersOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
       }`}>
         <div className="bg-[#F4F2EA] px-8 pt-2 pb-6 border-b border-black/10">
-          <MobileSection title="Availability">
-            {AVAILABILITY_OPTIONS.map(opt => (
-              <FilterCheckbox key={opt} label={opt} checked={selectedAvailability.includes(opt)} onChange={() => toggle(selectedAvailability, setSelectedAvailability, opt)} />
-            ))}
-          </MobileSection>
           <MobileSection title="Product Type">
             {PRODUCT_TYPE_OPTIONS.map(opt => (
               <FilterCheckbox key={opt} label={opt} checked={selectedTypes.includes(opt)} onChange={() => toggle(selectedTypes, setSelectedTypes, opt)} />
             ))}
           </MobileSection>
           <MobileSection title="Size">
-            {SIZE_OPTIONS.map(opt => (
-              <FilterCheckbox key={opt} label={opt} checked={selectedSizes.includes(opt)} onChange={() => toggle(selectedSizes, setSelectedSizes, opt)} />
-            ))}
-          </MobileSection>
-          <MobileSection title="Length">
-            {LENGTH_OPTIONS_A.map(opt => (
-              <FilterCheckbox key={opt} label={opt} checked={selectedLengthsA.includes(opt)} onChange={() => toggle(selectedLengthsA, setSelectedLengthsA, opt)} />
-            ))}
-          </MobileSection>
-          <MobileSection title="Length">
-            {LENGTH_OPTIONS_B.map(opt => (
-              <FilterCheckbox key={opt} label={opt} checked={selectedLengthsB.includes(opt)} onChange={() => toggle(selectedLengthsB, setSelectedLengthsB, opt)} />
-            ))}
+            {availableSizes.length > 0 ? (
+              availableSizes.map(opt => (
+                <FilterCheckbox key={opt} label={opt} checked={selectedSizes.includes(opt)} onChange={() => toggle(selectedSizes, setSelectedSizes, opt)} />
+              ))
+            ) : (
+              <p className="text-[10px] text-neutral-400 italic py-2">No sizes available</p>
+            )}
           </MobileSection>
           <MobileSection title="Colour">
-            {COLOUR_OPTIONS.map(opt => (
-              <FilterCheckbox key={opt} label={opt} checked={selectedColours.includes(opt)} onChange={() => toggle(selectedColours, setSelectedColours, opt)} />
-            ))}
+            {availableColours.length > 0 ? (
+              availableColours.map(opt => (
+                <FilterCheckbox key={opt} label={opt} checked={selectedColours.includes(opt)} onChange={() => toggle(selectedColours, setSelectedColours, opt)} />
+              ))
+            ) : (
+              <p className="text-[10px] text-neutral-400 italic py-2">No colours available</p>
+            )}
           </MobileSection>
           <MobileSection title="Price">
             <div className="flex items-center gap-2">
