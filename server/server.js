@@ -76,6 +76,7 @@ app.get('/api/health', (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected/Buffering';
   res.json({
     status: 'Operational',
+    version: '1.0.2-json-error-fix',
     database: dbStatus,
     timestamp: new Date().toISOString(),
     uptime: process.uptime()

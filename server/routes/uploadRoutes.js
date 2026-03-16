@@ -33,20 +33,35 @@ const upload = multer({
   }
 });
 
-router.post('/', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: 'No file uploaded' });
-  }
-  
-  // BASE_URL must be set in Vercel env vars (e.g. https://mls-api.vercel.app)
-  // Fallback: derive from request, using x-forwarded-proto for correct https on Vercel
-  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-  const host = req.headers['x-forwarded-host'] || req.get('host');
-  const baseUrl = process.env.BASE_URL || `${protocol}://${host}`;
+router.post('/', (req, res) => {
+  upload.any()(req, res, (err) => {
+    if (err) {
+      console.error('Upload middleware error:', err);
+      return res.status(400).json({ 
+        message: err.message || 'Error processing file upload',
+        error: err.code || 'UPLOAD_ERROR'
+      });
+    }
 
-  const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
+    // Since we use upload.any(), files are in req.files array
+    const file = req.files && req.files[0];
+
+    if (!file) {
+      console.error('No files found in request. Received fields:', Object.keys(req.body));
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
     
-  res.json({ url: fileUrl });
+    console.log(`File received: ${file.originalname} via field: ${file.fieldname}`);
+
+    // BASE_URL must be set in Vercel/Render env vars (e.g. https://mls-api.vercel.app)
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.headers['x-forwarded-host'] || req.get('host');
+    const baseUrl = process.env.BASE_URL || `${protocol}://${host}`;
+
+    const fileUrl = `${baseUrl}/uploads/${file.filename}`;
+      
+    res.json({ url: fileUrl });
+  });
 });
 
 module.exports = router;
