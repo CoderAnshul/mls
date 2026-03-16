@@ -11,7 +11,8 @@ const storage = multer.diskStorage({
     if (process.env.VERCEL) {
       cb(null, os.tmpdir());
     } else {
-      cb(null, 'uploads/');
+      // Use absolute path for local/Render storage
+      cb(null, path.join(__dirname, '..', 'uploads'));
     }
   },
   filename: function (req, file, cb) {
