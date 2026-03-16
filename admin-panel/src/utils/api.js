@@ -70,7 +70,11 @@ export const api = {
                 method: 'POST',
                 body: formData
             });
-            return res.json();
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Upload request failed');
+            }
+            return data;
         }
     },
     // Journals
