@@ -22,7 +22,8 @@ import {
   ShoppingBag,
   Camera,
   LogOut,
-  Settings
+  Settings,
+  FileText
 } from 'lucide-react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ToastProvider, useToast } from './components/common/Toast';
@@ -53,6 +54,7 @@ import AdminsView from './components/views/AdminsView';
 import AttributesView from './components/views/AttributesView';
 import LoginView from './components/views/LoginView';
 import RegisterView from './components/views/RegisterView';
+import SupportPagesView from './components/views/SupportPagesView';
 
 const AppContent = () => {
   const location = useLocation();
@@ -105,6 +107,7 @@ const AppContent = () => {
     },
     { id: 'notifications', icon: Bell, label: 'Notifications', path: '/notifications' },
     { id: 'lookbook', icon: Camera, label: 'Lookbook', path: '/lookbook' },
+    { id: 'support-pages', icon: FileText, label: 'Support Pages', path: '/support-pages' },
     { id: 'admins', icon: ShieldCheck, label: 'Admins', path: '/admins' },
   ];
 
@@ -267,6 +270,7 @@ const AppContent = () => {
                 <Route path="/shop-hijab" element={<ShopHijabView />} />
                 <Route path="/notifications" element={<NotificationsView />} />
                 <Route path="/lookbook" element={<LookbookView />} />
+                <Route path="/support-pages" element={<SupportPagesView />} />
                 <Route path="/admins" element={<AdminsView />} />
                 
                 {/* Catalog Routes */}

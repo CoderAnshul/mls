@@ -103,6 +103,7 @@ const recommendationRoutes = require('./routes/recommendationRoutes');
 const lookbookRoutes = require('./routes/lookbookRoutes');
 const deliveryPartnerRoutes = require('./routes/deliveryPartnerRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const pageRoutes = require('./routes/pageRoutes');
 
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
@@ -119,6 +120,7 @@ app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/lookbooks', lookbookRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/delivery-partners', deliveryPartnerRoutes);
+app.use('/api/pages', pageRoutes);
 
 // Only start the server if not running on Vercel (serverless)
 if (!process.env.VERCEL) {

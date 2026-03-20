@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { BsTelephone, BsWhatsapp, BsEnvelope } from 'react-icons/bs';
-import { FaFacebookF, FaInstagram, FaYoutube, FaPinterestP } from 'react-icons/fa';
+import { useState } from 'react';
+import { footerData } from '../../data/footer';
 import { IoChevronDownOutline } from 'react-icons/io5';
+import { FaFacebookF, FaInstagram, FaPinterestP, FaYoutube } from 'react-icons/fa';
+import { BsEnvelope, BsTelephone, BsWhatsapp } from 'react-icons/bs';
 
 const Footer = () => {
   const [openSections, setOpenSections] = useState({});
@@ -16,41 +17,20 @@ const Footer = () => {
   const sections = [
     {
       id: 'delivery',
-      title: 'Delivery & Returns',
+      title: footerData.deliveryReturns.title,
       links: [
-        { label: 'Free shipping for orders over £120', textOnly: true },
-        { label: 'Shipping information', href: '#shipping' },
-        { label: 'Delivery', href: '#delivery' },
-        { label: 'Returns & Exchanges', href: '#returns' },
+        { label: footerData.deliveryReturns.description, textOnly: true },
+        ...footerData.deliveryReturns.links.map(l => ({ label: l.title, href: l.href }))
       ]
     },
     {
       id: 'customer',
-      title: 'Customer Care',
-      links: [
-        { label: 'Gift Card', href: '#gift' },
-        { label: 'Size guide', href: '#size' },
-        { label: 'Care & Repair', href: '#care' },
-        { label: 'Frequently asked questions', href: '#faq' },
-        { label: 'Contact us', href: '#contact' },
-        { label: 'Privacy policy', href: '#privacy' },
-        { label: 'Terms & conditions', href: '#terms' },
-      ]
-    },
-    {
-      id: 'about',
-      title: 'About Us',
-      links: [
-        { label: 'Our story', href: '#story' },
-        { label: 'Visit us', href: '#visit' },
-        { label: 'Careers', href: '#careers' },
-        { label: 'Journal', href: '#journal' },
-        { label: 'Loyalty', href: '#loyalty' },
-      ]
+      title: footerData.customerCare.title,
+      links: footerData.customerCare.links.map(l => ({ label: l.title, href: l.href }))
     },
     {
       id: 'touch',
-      title: 'Get in Touch',
+      title: footerData.getInTouch.title,
       isContact: true
     }
   ];
@@ -165,78 +145,60 @@ const Footer = () => {
       {/* Desktop Footer Layout (lg screens) */}
       <div className="hidden lg:block bg-[#EAE1D4] py-20 px-4 md:px-8 lg:px-16">
         <div className="max-w-screen-2xl mx-auto">
-          <div className="grid grid-cols-2 xl:grid-cols-5 gap-y-16 gap-x-12 xl:gap-8">
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-y-16 gap-x-12 xl:gap-8">
             
             {/* Column 1: Delivery & Returns */}
             <div className="xl:col-span-1">
               <h5 className="text-[13px] font-normal uppercase tracking-[0.2em] mb-8 text-neutral-800">
-                Delivery & Returns
+                {footerData.deliveryReturns.title}
               </h5>
               <ul className="space-y-4">
-                <li><span className="text-sm text-neutral-600 font-light">Free shipping for orders over £120</span></li>
-                <li><a href="#shipping" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Shipping information</a></li>
-                <li><a href="#delivery" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Delivery</a></li>
-                <li><a href="#returns" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Returns & Exchanges</a></li>
+                <li><span className="text-sm text-neutral-600 font-light">{footerData.deliveryReturns.description}</span></li>
+                {footerData.deliveryReturns.links.map((link, idx) => (
+                  <li key={idx}><a href={link.href} className="text-sm text-neutral-600 font-light hover:text-black transition-colors">{link.title}</a></li>
+                ))}
               </ul>
             </div>
 
             {/* Column 2: Customer Care */}
             <div className="xl:col-span-1">
               <h5 className="text-[13px] font-normal uppercase tracking-[0.2em] mb-8 text-neutral-800">
-                Customer Care
+                {footerData.customerCare.title}
               </h5>
               <ul className="space-y-4">
-                <li><a href="#gift" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Gift Card</a></li>
-                <li><a href="#size" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Size guide</a></li>
-                <li><a href="#care" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Care & Repair</a></li>
-                <li><a href="#faq" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Frequently asked questions</a></li>
-                <li><a href="#contact" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Contact us</a></li>
-                <li><a href="#privacy" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Privacy policy</a></li>
-                <li><a href="#terms" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Terms & conditions</a></li>
+                {footerData.customerCare.links.map((link, idx) => (
+                  <li key={idx}><a href={link.href} className="text-sm text-neutral-600 font-light hover:text-black transition-colors">{link.title}</a></li>
+                ))}
               </ul>
             </div>
 
             {/* Column 3: Get in Touch */}
             <div className="xl:col-span-1">
               <h5 className="text-[13px] font-normal uppercase tracking-[0.2em] mb-8 text-neutral-800">
-                Get in Touch
+                {footerData.getInTouch.title}
               </h5>
               <ul className="space-y-6">
                 <li className="flex items-start gap-4">
                   <BsTelephone className="text-neutral-900 text-lg shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm text-neutral-600 font-light mb-1 italic">Call us Mon-Fri 10am-3pm</p>
-                    <a href="tel:+442038237768" className="text-sm text-neutral-700 font-normal hover:underline underline-offset-4">+44 (0) 203 823 7768</a>
+                    <p className="text-sm text-neutral-600 font-light mb-1 italic">{footerData.getInTouch.phoneHours}</p>
+                    <a href={`tel:${footerData.getInTouch.phone.replace(/[^0-9+]/g, '')}`} className="text-sm text-neutral-700 font-normal hover:underline underline-offset-4">{footerData.getInTouch.phone}</a>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
                   <BsWhatsapp className="text-neutral-900 text-lg shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm text-neutral-600 font-light mb-1 italic">Talk to us on Whatsapp</p>
-                    <a href="https://wa.me/442038237768" className="text-sm text-neutral-700 font-normal hover:underline underline-offset-4">+44 (0) 203 823 7768</a>
+                    <a href={`https://wa.me/${footerData.getInTouch.whatsapp.replace(/[^0-9+]/g, '')}`} className="text-sm text-neutral-700 font-normal hover:underline underline-offset-4">{footerData.getInTouch.whatsapp}</a>
                   </div>
                 </li>
                 <li className="flex items-start gap-4 overflow-hidden">
                   <BsEnvelope className="text-neutral-900 text-lg shrink-0 mt-0.5" />
                   <div className="min-w-0">
                     <p className="text-sm text-neutral-600 font-light mb-1 italic">Email us</p>
-                    <a href="mailto:admin@aabcollection.com" className="text-sm text-neutral-700 font-normal hover:underline underline-offset-4 break-words">admin@aabcollection.com</a>
+                    <a href={`mailto:${footerData.getInTouch.email}`} className="text-sm text-neutral-700 font-normal hover:underline underline-offset-4 break-words">{footerData.getInTouch.email}</a>
                   </div>
                 </li>
-              </ul>
-            </div>
-
-            {/* Column 4: About Us */}
-            <div className="xl:col-span-1">
-              <h5 className="text-[13px] font-normal uppercase tracking-[0.2em] mb-8 text-neutral-800">
-                About Us
-              </h5>
-              <ul className="space-y-4">
-                <li><a href="#story" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Our story</a></li>
-                <li><a href="#visit" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Visit us</a></li>
-                <li><a href="#careers" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Careers</a></li>
-                <li><a href="#journal" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Journal</a></li>
-                <li><a href="#loyalty" className="text-sm text-neutral-600 font-light hover:text-black transition-colors">Loyalty</a></li>
               </ul>
             </div>
 

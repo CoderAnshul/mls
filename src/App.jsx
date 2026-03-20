@@ -12,6 +12,9 @@ import Checkout from './pages/Checkout';
 import Journal from './pages/Journal';
 import Lookbook from './pages/Lookbook';
 import JournalDetail from './pages/JournalDetail';
+import FAQ from './pages/FAQ';
+import Contact from './pages/Contact';
+import StaticPage from './pages/StaticPage';
 import { ToastProvider } from './components/common/Toast';
 
 const ScrollToTop = () => {
@@ -59,6 +62,16 @@ function App() {
             <Route path="/account/orders" element={<Orders />} />
             <Route path="/account/details" element={<Details />} />
             <Route path="/account/loyalty" element={<Loyalty />} />
+            
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/contact-us" element={<Contact />} />
+            <Route path="/privacy-policy" element={<StaticPage slug="privacy-policy" title="Privacy Policy" />} />
+            <Route path="/terms-conditions" element={<StaticPage slug="terms-conditions" title="Terms & Conditions" />} />
+            <Route path="/shipping-info" element={<StaticPage slug="shipping-info" title="Shipping Information" />} />
+            <Route path="/delivery" element={<StaticPage slug="delivery" title="Delivery" />} />
+            <Route path="/returns-exchanges" element={<StaticPage slug="returns-exchanges" title="Returns & Exchanges" />} />
+            
+            {/* Auth routes */}
           </Routes>
           
           {!isCheckoutPage && <Footer />}

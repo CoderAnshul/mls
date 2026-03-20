@@ -352,5 +352,24 @@ export const api = {
             });
             return res.json();
         }
+    },
+    // Support Pages
+    pages: {
+        getAll: async () => {
+            const res = await fetch(`${API_BASE_URL}/pages`);
+            return res.json();
+        },
+        getOne: async (slug) => {
+            const res = await fetch(`${API_BASE_URL}/pages/${slug}`);
+            return res.json();
+        },
+        updateOrCreate: async (data) => {
+            const res = await fetch(`${API_BASE_URL}/pages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return res.json();
+        }
     }
 };

@@ -5,7 +5,7 @@ import ImageTool from "@editorjs/image";
 import List from "@editorjs/list";
 import Quote from "@editorjs/quote";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 // Custom tools (add your custom tool imports here)
 // import SimpleVideo from "./SimpleVideo";
@@ -76,11 +76,11 @@ const Editor = ({ data, onChange, holder = "editorjs" }) => {
             image: {
               class: ImageTool,
               config: {
-                field: "image",
+                field: "file",
                 uploader: {
                   async uploadByFile(file) {
                     const formData = new FormData();
-                    formData.append("image", file);
+                    formData.append("file", file);
                     try {
                       const res = await fetch(`${API_BASE_URL}/upload`, {
                         method: "POST",

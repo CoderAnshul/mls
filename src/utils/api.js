@@ -181,6 +181,16 @@ export const api = {
             });
             return handleResponse(res);
         }
+    },
+    pages: {
+        getAll: async () => {
+            const res = await fetch(`${API_BASE_URL}/pages`);
+            return res.json();
+        },
+        getOne: async (slug) => {
+            const res = await fetch(`${API_BASE_URL}/pages/${slug}`);
+            return res.json();
+        }
     }
 };
 

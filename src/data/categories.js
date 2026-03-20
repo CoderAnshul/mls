@@ -86,17 +86,17 @@ export const categoriesData = {
 export const featuresData = [
   {
     id: 1,
-    title: 'EASY RETURNS',
-    description: 'Easy paperless returns & free exchanges',
+    title: 'FAST DELIVERY',
+    description: 'Quick worldwide shipping on all orders',
   },
   {
     id: 2,
-    title: 'WORLDWIDE DELIVERY',
-    description: 'We deliver quickly, no matter where you are in the world',
+    title: 'WHATSAPP SUPPORT',
+    description: 'Direct assistance via our WhatsApp protocol',
   },
   {
     id: 3,
-    title: 'MADE WITH LOVE',
-    description: 'Modesty at the heart of every design',
+    title: 'EASY RETURNS',
+    description: 'Easy paperless returns & free exchanges',
   },
 ];
