@@ -2,7 +2,7 @@
  * Resolves any image URL to its correct absolute form.
  * Handles: localhost URLs (old DB data), relative /uploads paths, and valid absolute URLs.
  */
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api').replace('/api', '');
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
 
 export const resolveImageUrl = (url) => {
     if (!url) return '';

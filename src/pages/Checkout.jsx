@@ -86,7 +86,7 @@ const Checkout = () => {
   const handleWhatsAppRedirection = (order) => {
     const phoneNumber = "7999967578";
     const firstItem = order.items[0];
-    const apiBase = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+    const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
     const firstImageUrl = firstItem?.image 
       ? (firstItem.image.startsWith('http') 
           ? firstItem.image 

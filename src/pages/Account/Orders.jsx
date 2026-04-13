@@ -92,7 +92,7 @@ const Orders = () => {
                     >
                       {item.image && (
                         <img
-                          src={item.image.startsWith('/uploads') ? `${(import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api').replace('/api', '')}${item.image}` : item.image}
+                          src={item.image.startsWith('/uploads') ? `${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}${item.image}` : item.image}
                           alt={item.title}
                           className="w-16 h-20 object-cover flex-shrink-0 bg-[#F4F2EA]"
                         />
