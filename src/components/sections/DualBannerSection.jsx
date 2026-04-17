@@ -29,17 +29,18 @@ const DualBannerSection = () => {
         <a 
           key={idx} 
           href={banner.link} 
-          className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] group overflow-hidden border-b border-neutral-100"
+          className="relative w-full group overflow-hidden border-b border-neutral-100"
         >
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 group-hover:scale-105"
-            style={{ backgroundImage: `url(${resolveImageUrl(banner.image)})` }}
+          <img 
+            src={resolveImageUrl(banner.image)}
+            alt={banner.title || "Collection Banner"}
+            className="w-full h-auto object-cover transition-transform duration-1000 group-hover:scale-105"
           />
           {/* Subtle overlay on hover */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
           
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
-             <span className="px-8 py-3 bg-white text-black text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl">Discover Collection</span>
+             <span className="px-8 py-3 bg-white text-black text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl whitespace-nowrap">Discover Collection</span>
           </div>
         </a>
       ))}

@@ -41,48 +41,49 @@ const SignatureEmbroideries = () => {
   if (data.length === 0) return null;
 
   return (
-    <section className="relative w-full h-[500px] md:h-[700px] lg:h-[800px] overflow-hidden group">
-      {/* Slides */}
-      {data.map((item, index) => (
-        <div
-          key={index}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-            index === currentIndex ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <div className="absolute inset-0 z-0 overflow-hidden">
-            {isVideo(item.image) ? (
-              <video
-                src={resolveImageUrl(item.image)}
-                className="w-full h-full object-cover transition-transform duration-[2000ms] hover:scale-105"
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
-            ) : (
-              <div
-                className="w-full h-full bg-cover bg-center bg-no-repeat transition-transform duration-[2000ms] hover:scale-105"
-                style={{
-                  backgroundImage: `url('${resolveImageUrl(item.image)}')`,
-                }}
-              />
+    <section className="relative w-full overflow-hidden group">
+      {/* Slides Container - Using grid to allow height to be determined by the content */}
+      <div className="grid grid-cols-1 grid-rows-1">
+        {data.map((item, index) => (
+          <div
+            key={index}
+            className={`col-start-1 row-start-1 transition-opacity duration-1000 ease-in-out ${
+              index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            }`}
+          >
+            <div className="relative w-full overflow-hidden">
+              {isVideo(item.image) ? (
+                <video
+                  src={resolveImageUrl(item.image)}
+                  className="w-full h-auto object-cover transition-transform duration-[2000ms] hover:scale-105"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                />
+              ) : (
+                <img
+                  src={resolveImageUrl(item.image)}
+                  alt={item.title || "Signature Embroidery"}
+                  className="w-full h-auto object-cover transition-transform duration-[2000ms] hover:scale-105"
+                />
+              )}
+            </div>
+            
+            {item.title && (
+              <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                <h2 className="text-white text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-[0.2em] drop-shadow-2xl">
+                  {item.title}
+                </h2>
+              </div>
             )}
           </div>
-          
-          {item.title && (
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <h2 className="text-white text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-[0.2em] drop-shadow-2xl">
-                {item.title}
-              </h2>
-            </div>
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
 
       {/* Navigation Dots */}
       {data.length > 1 && (
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
           {data.map((_, index) => (
             <button
               key={index}
@@ -99,7 +100,7 @@ const SignatureEmbroideries = () => {
       )}
 
       {/* Visual Overlay */}
-      <div className="absolute inset-0 bg-black/10 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-black/10 pointer-events-none z-10"></div>
     </section>
   );
 };

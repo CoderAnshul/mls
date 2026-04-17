@@ -29,11 +29,12 @@ const DiscoverMore = () => {
         <a 
           key={idx} 
           href={banner.link} 
-          className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] group overflow-hidden border-b border-neutral-100 last:border-0"
+          className="relative w-full group overflow-hidden border-b border-neutral-100 last:border-0"
         >
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 group-hover:scale-105"
-            style={{ backgroundImage: `url(${resolveImageUrl(banner.image)})` }}
+          <img 
+            src={resolveImageUrl(banner.image)}
+            alt={banner.title || "Discover More"}
+            className="w-full h-auto object-cover transition-transform duration-1000 group-hover:scale-105"
           />
           {/* Subtle overlay on hover */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />

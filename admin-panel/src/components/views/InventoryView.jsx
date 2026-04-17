@@ -247,7 +247,11 @@ export const InventoryView = ({ onEdit }) => {
     setLoading(true);
     try {
       const data = await api.products.getAll();
-      setProducts(data);
+      // Sort newest first by ID on the client side to guarantee order regardless of API behavior
+      const sortedData = Array.isArray(data) 
+        ? [...data].sort((a, b) => (b._id || b.id).localeCompare(a._id || a.id))
+        : data;
+      setProducts(sortedData);
     } catch (err) {
       console.error('Failed to fetch products', err);
     } finally {

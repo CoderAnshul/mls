@@ -1,27 +1,44 @@
 /**
  * Resolves any image URL to its correct absolute form.
- * Handles: localhost URLs (old DB data), relative /uploads paths, and valid absolute URLs.
+ * Handles: localhost URLs (old DB data), relative uploads paths, and valid absolute URLs.
  */
-const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+
+// LIVE PRODUCTION CONFIG
+const API_BASE = 'https://api.mlsfashions.com';
+
+/* 
+LOCAL FALLBACK - COMMENTED OUT
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE = rawApiUrl.endsWith('/api') ? rawApiUrl.slice(0, -4) : rawApiUrl;
+*/
 
 export const resolveImageUrl = (url) => {
     if (!url) return '';
 
-    // Already a valid non-localhost absolute URL → use as-is
-    if (url.startsWith('http') && !url.includes('localhost')) {
-        return url;
+    let sanitizedUrl = url;
+
+    // 1. Force Production Domain if it's already an absolute localhost or .mlsfashions.com URL
+    // This helps if the DB has absolute URLs from different environments
+    if (sanitizedUrl.includes('localhost') || sanitizedUrl.includes('.mlsfashions.com')) {
+        // Replace protocol + host with the live API base
+        sanitizedUrl = sanitizedUrl.replace(/https?:\/\/[^\/]+/, API_BASE);
     }
 
-    // Old DB data: localhost:5000/uploads/... → replace host with live API
-    // Only replace if we are NOT on localhost ourselves
-    if (url.includes('localhost') && !window.location.hostname.includes('localhost')) {
-        return url.replace(/https?:\/\/localhost:\d+/, API_BASE);
+    // 2. Normalize path: If it starts with /api/, strip it
+    if (sanitizedUrl.startsWith('/api/')) {
+        sanitizedUrl = sanitizedUrl.substring(4);
     }
 
-    // Relative path like /uploads/... → prepend API base
-    if (url.startsWith('/')) {
-        return `${API_BASE}${url}`;
+    // 3. Handle Absolute URLs (now pointing to prod if they were matching the above)
+    if (sanitizedUrl.startsWith('http')) {
+        return sanitizedUrl;
     }
 
-    return url;
+    // 4. Force a leading slash for relative paths
+    if (!sanitizedUrl.startsWith('/')) {
+        sanitizedUrl = '/' + sanitizedUrl;
+    }
+
+    // 5. Build final URL from API_BASE
+    return `${API_BASE}${sanitizedUrl}`;
 };

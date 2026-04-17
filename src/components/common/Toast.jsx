@@ -34,10 +34,10 @@ export const ToastProvider = ({ children }) => {
             className={`
               pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border backdrop-blur-xl shadow-2xl animate-in slide-in-from-right-10 duration-500 min-w-[320px] max-w-[400px]
               ${toast.type === 'success' 
-                ? 'bg-emerald-50 border-emerald-600 text-white' 
+                ? 'bg-emerald-800 border-emerald-900 text-white' 
                 : toast.type === 'error'
-                  ? 'bg-rose-500 border-rose-600 text-white'
-                  : 'bg-neutral-800 border-neutral-900 text-white'
+                  ? 'bg-rose-700 border-rose-800 text-white'
+                  : 'bg-neutral-900 border-neutral-950 text-white'
               }
             `}
           >

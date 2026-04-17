@@ -75,7 +75,7 @@ const Collections = () => {
   // Filter state
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
-  const [selectedSort, setSelectedSort] = useState(null);
+  const [selectedSort, setSelectedSort] = useState('NEW ARRIVALS');
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedColours, setSelectedColours] = useState([]);
@@ -179,11 +179,17 @@ const Collections = () => {
       }
       
       const data = await fetchProducts(filters);
+      // Client-side sort to guarantee "Newest First" even if backend hasn't updated/deployed yet
+      const sortProducts = (list) => {
+        if (!Array.isArray(list)) return list;
+        return [...list].sort((a, b) => (b._id || b.id || "").localeCompare(a._id || a.id || ""));
+      };
+
       if (data.products) {
-        setProducts(data.products);
+        setProducts(sortProducts(data.products));
         setTotalPages(data.pages);
       } else {
-        setProducts(data);
+        setProducts(sortProducts(data));
         setTotalPages(1);
       }
       setLoading(false);
@@ -207,7 +213,7 @@ const Collections = () => {
     setArr(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val]);
 
   const resetFilters = () => {
-    setSelectedSort(null);
+    setSelectedSort('NEW ARRIVALS');
     setSelectedTypes([]);
     setSelectedSizes([]);
     setSelectedColours([]);

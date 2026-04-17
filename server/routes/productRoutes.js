@@ -27,12 +27,14 @@ router.get('/', async (req, res) => {
             if (maxPrice) query.price.$lte = Number(maxPrice);
         }
 
-        // Sorting
-        let sortOption = { createdAt: -1 };
+        // Sorting - Default to newest first (_id: -1 is more reliable than createdAt in some DB setups)
+        let sortOption = { _id: -1 };
+        
         if (sort === 'PRICE - LOW TO HIGH') sortOption = { price: 1 };
         else if (sort === 'PRICE - HIGH TO LOW') sortOption = { price: -1 };
-        else if (sort === 'BESTSELLERS') sortOption = { isBestSeller: -1, createdAt: -1 };
-        else if (sort === 'NEW ARRIVALS') sortOption = { createdAt: -1 };
+        else if (sort === 'BESTSELLERS') sortOption = { isBestSeller: -1, _id: -1 };
+        else if (sort === 'NEW ARRIVALS') sortOption = { _id: -1 };
+        else if (sort === 'DEFAULT') sortOption = { _id: -1 }; // Explicit default handled here too
 
         let productsQuery = Product.find(query);
 

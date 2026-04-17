@@ -22,8 +22,8 @@ export const api = {
     },
     // Products
     products: {
-        getAll: async () => {
-            const res = await fetch(`${API_BASE_URL}/products`);
+        getAll: async (sort = 'NEW ARRIVALS') => {
+            const res = await fetch(`${API_BASE_URL}/products?sort=${sort}`);
             return res.json();
         },
         getOne: async (idOrSlug) => {
